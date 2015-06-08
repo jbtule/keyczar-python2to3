@@ -124,9 +124,9 @@ class ParseX509Test(unittest.TestCase):
             '50905775'
             )
     }
-    self.assertEquals(len(expected),len(params))
+    self.assertEqual(len(expected),len(params))
     for key in expected:
-      self.assertEquals(expected[key],params[key])
+      self.assertEqual(expected[key],params[key])
 
 
 class Base64WSStreamingWriteTest(unittest.TestCase):
