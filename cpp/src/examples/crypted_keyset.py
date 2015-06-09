@@ -30,8 +30,6 @@ def Encrypt(crypted_path, crypter_path):
 if __name__ == '__main__':
     if (len(sys.argv) != 3):
         print >> sys.stderr, "Provide two valids key sets paths as arguments:"
-        print >> sys.stderr, sys.argv[
-            0
-        ], "encrypted_json_keyset_path crypter_keyset_path"
+        print >> sys.stderr, sys.argv[0], "encrypted_json_keyset_path crypter_keyset_path"
         sys.exit(1)
     Encrypt(sys.argv[1], sys.argv[2])
