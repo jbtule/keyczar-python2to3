@@ -25,6 +25,8 @@ def EncryptFile(keyset_path, in_file, out_file):
 
 if __name__ == '__main__':
     if (len(sys.argv) != 4):
-        print >> sys.stderr, "Usage:", sys.argv[0], "/key/path input_file output_file"
+        print >> sys.stderr, "Usage:", sys.argv[
+            0
+        ], "/key/path input_file output_file"
         sys.exit(1)
     EncryptDile(sys.argv[1], sys.argv[2], sys.argv[3])
