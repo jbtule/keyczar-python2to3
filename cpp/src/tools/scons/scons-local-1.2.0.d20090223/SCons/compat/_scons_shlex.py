@@ -9,27 +9,37 @@
 
 import os.path
 import sys
+
 #from collections import deque
 
+
 class deque:
+
     def __init__(self):
         self.data = []
+
     def __len__(self):
         return len(self.data)
+
     def appendleft(self, item):
         self.data.insert(0, item)
+
     def popleft(self):
         return self.data.pop(0)
+
 
 try:
     basestring
 except NameError:
     import types
+
     def is_basestring(s):
         return type(s) is types.StringType
 else:
+
     def is_basestring(s):
         return isinstance(s, basestring)
+
 
 try:
     from cStringIO import StringIO
@@ -38,8 +48,11 @@ except ImportError:
 
 __all__ = ["shlex", "split"]
 
+
 class shlex:
+
     "A lexical analyzer class for simple shell-like syntaxes."
+
     def __init__(self, instream=None, infile=None, posix=False):
         if is_basestring(instream):
             instream = StringIO(instream)
@@ -58,8 +71,9 @@ class shlex:
         self.wordchars = ('abcdfeghijklmnopqrstuvwxyz'
                           'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_')
         if self.posix:
-            self.wordchars = self.wordchars + ('ßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
-                               'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ')
+            self.wordchars = self.wordchars + (
+                'ßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ'
+                'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ')
         self.whitespace = ' \t\r\n'
         self.whitespace_split = False
         self.quotes = '\'"'
@@ -92,9 +106,9 @@ class shlex:
         self.lineno = 1
         if self.debug:
             if newfile is not None:
-                print 'shlex: pushing to file %s' % (self.infile,)
+                print 'shlex: pushing to file %s' % (self.infile, )
             else:
-                print 'shlex: pushing to stream %s' % (self.instream,)
+                print 'shlex: pushing to stream %s' % (self.instream, )
 
     def pop_source(self):
         "Pop the input source stack."
@@ -148,7 +162,7 @@ class shlex:
                 print "shlex: in state", repr(self.state), \
                       "I see character:", repr(nextchar)
             if self.state is None:
-                self.token = ''        # past end of file
+                self.token = ''  # past end of file
                 break
             elif self.state == ' ':
                 if not nextchar:
@@ -158,7 +172,7 @@ class shlex:
                     if self.debug >= 2:
                         print "shlex: I see whitespace in whitespace state"
                     if self.token or (self.posix and quoted):
-                        break   # emit current token
+                        break  # emit current token
                     else:
                         continue
                 elif nextchar in self.commenters:
@@ -180,12 +194,12 @@ class shlex:
                 else:
                     self.token = nextchar
                     if self.token or (self.posix and quoted):
-                        break   # emit current token
+                        break  # emit current token
                     else:
                         continue
             elif self.state in self.quotes:
                 quoted = True
-                if not nextchar:      # end of file
+                if not nextchar:  # end of file
                     if self.debug >= 2:
                         print "shlex: I see EOF in quotes state"
                     # XXX what error should be raised here?
@@ -198,13 +212,13 @@ class shlex:
                     else:
                         self.state = 'a'
                 elif self.posix and nextchar in self.escape and \
-                     self.state in self.escapedquotes:
+                        self.state in self.escapedquotes:
                     escapedstate = self.state
                     self.state = nextchar
                 else:
                     self.token = self.token + nextchar
             elif self.state in self.escape:
-                if not nextchar:      # end of file
+                if not nextchar:  # end of file
                     if self.debug >= 2:
                         print "shlex: I see EOF in escape state"
                     # XXX what error should be raised here?
@@ -218,14 +232,14 @@ class shlex:
                 self.state = escapedstate
             elif self.state == 'a':
                 if not nextchar:
-                    self.state = None   # end of file
+                    self.state = None  # end of file
                     break
                 elif nextchar in self.whitespace:
                     if self.debug >= 2:
                         print "shlex: I see whitespace in word state"
                     self.state = ' '
                     if self.token or (self.posix and quoted):
-                        break   # emit current token
+                        break  # emit current token
                     else:
                         continue
                 elif nextchar in self.commenters:
@@ -234,7 +248,7 @@ class shlex:
                     if self.posix:
                         self.state = ' '
                         if self.token or (self.posix and quoted):
-                            break   # emit current token
+                            break  # emit current token
                         else:
                             continue
                 elif self.posix and nextchar in self.quotes:
@@ -243,7 +257,7 @@ class shlex:
                     escapedstate = 'a'
                     self.state = nextchar
                 elif nextchar in self.wordchars or nextchar in self.quotes \
-                    or self.whitespace_split:
+                        or self.whitespace_split:
                     self.token = self.token + nextchar
                 else:
                     self.pushback.appendleft(nextchar)
@@ -251,7 +265,7 @@ class shlex:
                         print "shlex: I see punctuation in word state"
                     self.state = ' '
                     if self.token:
-                        break   # emit current token
+                        break  # emit current token
                     else:
                         continue
         result = self.token
@@ -291,12 +305,13 @@ class shlex:
             raise StopIteration
         return token
 
+
 def split(s, comments=False):
     lex = shlex(s, posix=True)
     lex.whitespace_split = True
     if not comments:
         lex.commenters = ''
-    #return list(lex)
+    # return list(lex)
     result = []
     while True:
         token = lex.get_token()
@@ -304,6 +319,7 @@ def split(s, comments=False):
             break
         result.append(token)
     return result
+
 
 if __name__ == '__main__':
     if len(sys.argv) == 1:

@@ -40,6 +40,7 @@ import SCons.Defaults
 from SCons.Scanner.Fortran import FortranScan
 from FortranCommon import add_all_to_env
 
+
 def generate(env):
     """Add Builders and construction variables for ifort to an Environment."""
     # ifort supports Fortran 90 and Fortran 95
@@ -65,7 +66,8 @@ def generate(env):
     for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
         env['%s' % dialect] = fc
         env['SH%s' % dialect] = '$%s' % dialect
-        env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+        env['SH%sFLAGS' % dialect
+            ] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
 
     if env['PLATFORM'] == 'win32':
         # On Windows, the ifort compiler specifies the object on the
@@ -74,10 +76,12 @@ def generate(env):
         for dialect in ['F77', 'F90', 'FORTRAN', 'F95']:
             for var in ['%sCOM' % dialect, '%sPPCOM' % dialect,
                         'SH%sCOM' % dialect, 'SH%sPPCOM' % dialect]:
-                env[var] = string.replace(env[var], '-o $TARGET', '-object:$TARGET')
+                env[var] = string.replace(env[var], '-o $TARGET',
+                                          '-object:$TARGET')
         env['FORTRANMODDIRPREFIX'] = "/module:"
     else:
         env['FORTRANMODDIRPREFIX'] = "-module "
+
 
 def exists(env):
     return env.Detect('ifort')

@@ -40,6 +40,7 @@ CSuffixes = ['.c', '.m']
 if not SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CSuffixes.append('.C')
 
+
 def add_common_cc_variables(env):
     """
     Add underlying common "C compiler" variables that
@@ -57,10 +58,11 @@ def add_common_cc_variables(env):
             env['_CCCOMCOM'] = env['_CCCOMCOM'] + ' $_FRAMEWORKPATH'
 
     if not env.has_key('CCFLAGS'):
-        env['CCFLAGS']   = SCons.Util.CLVar('')
+        env['CCFLAGS'] = SCons.Util.CLVar('')
 
     if not env.has_key('SHCCFLAGS'):
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
+
 
 def generate(env):
     """
@@ -88,21 +90,23 @@ def generate(env):
 
     add_common_cc_variables(env)
 
-    env['CC']        = 'cc'
-    env['CFLAGS']    = SCons.Util.CLVar('')
-    env['CCCOM']     = '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
-    env['SHCC']      = '$CC'
+    env['CC'] = 'cc'
+    env['CFLAGS'] = SCons.Util.CLVar('')
+    env['CCCOM'] = '$CC -o $TARGET -c $CFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCC'] = '$CC'
     env['SHCFLAGS'] = SCons.Util.CLVar('$CFLAGS')
-    env['SHCCCOM']   = '$SHCC -o $TARGET -c $SHCFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCCCOM'
+        ] = '$SHCC -o $TARGET -c $SHCFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
-    env['CPPDEFPREFIX']  = '-D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
+    env['CPPDEFPREFIX'] = '-D'
+    env['CPPDEFSUFFIX'] = ''
+    env['INCPREFIX'] = '-I'
+    env['INCSUFFIX'] = ''
     env['SHOBJSUFFIX'] = '.os'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
     env['CFILESUFFIX'] = '.c'
+
 
 def exists(env):
     return env.Detect('cc')

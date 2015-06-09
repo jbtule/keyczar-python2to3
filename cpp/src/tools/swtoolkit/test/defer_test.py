@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for defer.  These are SMALL tests."""
 
 import unittest
@@ -38,251 +37,251 @@ import TestFramework
 
 
 class DeferTests(unittest.TestCase):
-  """Tests for defer module."""
 
-  def setUp(self):
-    """Per-test setup."""
-    self.call_list = []
-    self.env = self.root_env.Clone()
+    """Tests for defer module."""
 
-  def testSimpleDefer(self):
-    """Simple defer, passing function pointers."""
+    def setUp(self):
+        """Per-test setup."""
+        self.call_list = []
+        self.env = self.root_env.Clone()
 
-    def Sub1(env):
-      self.call_list.append(1)
-      # Somewhat counter-intuitively, defer does NOT make a copy of the
-      # environment, so VAR1 will actually be 'cherry' here.  Should we change
-      # this?
-      self.assertEqual(env['VAR1'], 'cherry')
+    def testSimpleDefer(self):
+        """Simple defer, passing function pointers."""
 
-    def Sub2(env):
-      env = env
-      self.call_list.append(2)
+        def Sub1(env):
+            self.call_list.append(1)
+            # Somewhat counter-intuitively, defer does NOT make a copy of the
+            # environment, so VAR1 will actually be 'cherry' here.  Should we change
+            # this?
+            self.assertEqual(env['VAR1'], 'cherry')
 
-    def Sub3(env):
-      env = env
-      self.call_list.append(3)
+        def Sub2(env):
+            env = env
+            self.call_list.append(2)
 
-    env = self.env
-    env['VAR1'] = 'apple'
-    env.Defer(Sub1)
-    env['VAR1'] = 'cherry'
-    env.Defer(Sub2, after=Sub1)
-    env.Defer(Sub3)
+        def Sub3(env):
+            env = env
+            self.call_list.append(3)
 
-    # Now add relationships between Sub3 and other methods.  Note that while
-    # after can refer to a function directly or by name, the function we're
-    # deferring needs to be referenced by name, since otherwise it'll add
-    # another instance that function to the list.
-    env.Defer('Sub3', after=Sub1)
-    env.Defer('Sub2', after='Sub3')
+        env = self.env
+        env['VAR1'] = 'apple'
+        env.Defer(Sub1)
+        env['VAR1'] = 'cherry'
+        env.Defer(Sub2, after=Sub1)
+        env.Defer(Sub3)
 
-    # Functions are not called until ExecuteDefer()
-    self.assertEqual(self.call_list, [])
-    env.ExecuteDefer()
-    self.assertEqual(self.call_list, [1, 3, 2])
+        # Now add relationships between Sub3 and other methods.  Note that while
+        # after can refer to a function directly or by name, the function we're
+        # deferring needs to be referenced by name, since otherwise it'll add
+        # another instance that function to the list.
+        env.Defer('Sub3', after=Sub1)
+        env.Defer('Sub2', after='Sub3')
 
-    # Calling ExecuteDefer() again won't do anything, since the previous call
-    # consumed the deferred functions.
-    env.ExecuteDefer()
-    self.assertEqual(self.call_list, [1, 3, 2])
+        # Functions are not called until ExecuteDefer()
+        self.assertEqual(self.call_list, [])
+        env.ExecuteDefer()
+        self.assertEqual(self.call_list, [1, 3, 2])
 
-  def testDeferGroups(self):
-    """Test defer groups."""
+        # Calling ExecuteDefer() again won't do anything, since the previous call
+        # consumed the deferred functions.
+        env.ExecuteDefer()
+        self.assertEqual(self.call_list, [1, 3, 2])
 
-    def Sub1a(env):
-      env = env
-      self.call_list.append(1)
+    def testDeferGroups(self):
+        """Test defer groups."""
 
-    def Sub1b(env):
-      env = env
-      # Append the same thing as 4a; order within defer groups is not defined.
-      self.call_list.append(1)
+        def Sub1a(env):
+            env = env
+            self.call_list.append(1)
 
-    def Sub2(env):
-      env = env
-      self.call_list.append(2)
+        def Sub1b(env):
+            env = env
+            # Append the same thing as 4a; order within defer groups is not defined.
+            self.call_list.append(1)
 
-    def Sub3(env):
-      env = env
-      self.call_list.append(3)
+        def Sub2(env):
+            env = env
+            self.call_list.append(2)
 
-    def Sub4(env):
-      env = env
-      self.call_list.append(4)
+        def Sub3(env):
+            env = env
+            self.call_list.append(3)
 
-    def Sub5(env):
-      env = env
-      self.call_list.append(5)
+        def Sub4(env):
+            env = env
+            self.call_list.append(4)
 
-    def Sub6(env):
-      env = env
-      self.call_list.append(6)
+        def Sub5(env):
+            env = env
+            self.call_list.append(5)
 
-    env = self.env
-    # Note that we can set up the relationships by name before any functions
-    # are actually deferred.  Also note that each function is implicitly in a
-    # group with its function name.
-    env.Defer('GroupA', after='Sub4')
-    # Can defer after multiple groups/functions, by either name or reference.
-    # Note that Sub6 is not actually deferred; just passing it in after, or by
-    # name only, doesn't cause it to be called.
-    env.Defer('Sub6')
-    env.Defer('GroupB', after=['GroupC', Sub5, Sub6])
-    env.Defer(Sub1a, 'GroupC', after='GroupA')
-    env.Defer(Sub1b, 'GroupC')
-    env.Defer(Sub2, 'GroupA')
-    env.Defer(Sub3, 'GroupB')
-    env.Defer(Sub4)
-    env.Defer(Sub5)
+        def Sub6(env):
+            env = env
+            self.call_list.append(6)
 
-    env.ExecuteDefer()
-    self.assertEqual(self.call_list, [4, 5, 2, 1, 1, 3])
+        env = self.env
+        # Note that we can set up the relationships by name before any functions
+        # are actually deferred.  Also note that each function is implicitly in a
+        # group with its function name.
+        env.Defer('GroupA', after='Sub4')
+        # Can defer after multiple groups/functions, by either name or reference.
+        # Note that Sub6 is not actually deferred; just passing it in after, or by
+        # name only, doesn't cause it to be called.
+        env.Defer('Sub6')
+        env.Defer('GroupB', after=['GroupC', Sub5, Sub6])
+        env.Defer(Sub1a, 'GroupC', after='GroupA')
+        env.Defer(Sub1b, 'GroupC')
+        env.Defer(Sub2, 'GroupA')
+        env.Defer(Sub3, 'GroupB')
+        env.Defer(Sub4)
+        env.Defer(Sub5)
 
-  def testDeferNotString(self):
-    """Test attempts to defer after things that aren't strings or functions."""
-    env = self.env
+        env.ExecuteDefer()
+        self.assertEqual(self.call_list, [4, 5, 2, 1, 1, 3])
 
-    # Can only defer after strings and functions
-    self.assertRaises(ValueError, env.Defer, 'GroupB', after=42)
+    def testDeferNotString(self):
+        """Test attempts to defer after things that aren't strings or functions."""
+        env = self.env
 
-  def testDeferInheritance(self):
-    """Test defer inheritance."""
+        # Can only defer after strings and functions
+        self.assertRaises(ValueError, env.Defer, 'GroupB', after=42)
 
-    def Sub1(env):
-      env = env
-      self.call_list.append(1)
+    def testDeferInheritance(self):
+        """Test defer inheritance."""
 
-    def Sub2(env):
-      env = env
-      self.call_list.append(2)
+        def Sub1(env):
+            env = env
+            self.call_list.append(1)
 
-    def Sub3(env):
-      env = env
-      self.call_list.append(3)
+        def Sub2(env):
+            env = env
+            self.call_list.append(2)
 
-    env = self.env
-    env.Defer(Sub1)
-    # Permitted (but not required) to forward-declare defer-after relationships
-    env.Defer('GroupA', after=Sub1)
+        def Sub3(env):
+            env = env
+            self.call_list.append(3)
 
-    env_child1 = env.Clone()
-    env_child1.Defer('GroupA', Sub2)
-    env_child2 = env.Clone()
-    env_child2.Defer('GroupA', Sub3)
+        env = self.env
+        env.Defer(Sub1)
+        # Permitted (but not required) to forward-declare defer-after relationships
+        env.Defer('GroupA', after=Sub1)
 
-    env.ExecuteDefer()              # Should execute Sub1 but not Sub2
-    self.assertEqual(self.call_list, [1])
+        env_child1 = env.Clone()
+        env_child1.Defer('GroupA', Sub2)
+        env_child2 = env.Clone()
+        env_child2.Defer('GroupA', Sub3)
 
-    self.call_list = []
-    env_child1.ExecuteDefer()       # Should execute Sub1 (again) and Sub2
-    self.assertEqual(self.call_list, [1, 2])
+        env.ExecuteDefer()  # Should execute Sub1 but not Sub2
+        self.assertEqual(self.call_list, [1])
 
-    self.call_list = []
-    env_child2.ExecuteDefer()       # Should execute Sub1 (again) and Sub3
-    self.assertEqual(self.call_list, [1, 3])
+        self.call_list = []
+        env_child1.ExecuteDefer()  # Should execute Sub1 (again) and Sub2
+        self.assertEqual(self.call_list, [1, 2])
 
-  def testDeferRoot(self):
-    """Test defer root."""
+        self.call_list = []
+        env_child2.ExecuteDefer()  # Should execute Sub1 (again) and Sub3
+        self.assertEqual(self.call_list, [1, 3])
 
-    # If SetDeferRoot() is used, deferrals are executed by the root's
-    # ExecuteDefer().  Deferrals inherited from parent environments are brought
-    # down to the new root environment.  Subsequent deferrals from children of
-    # the root keep their environments as specified by Defer().
-    def Sub1(env):
-      self.call_list.append(1)
-      # Defer from child of root is passed the child environment
-      self.assertEqual(env['VAR1'], 'child')
+    def testDeferRoot(self):
+        """Test defer root."""
 
-    def Sub2(env):
-      self.call_list.append(2)
-      # Defer from parent of root is passed the root environment
-      self.assertEqual(env['VAR2'], 'defer_root')
+        # If SetDeferRoot() is used, deferrals are executed by the root's
+        # ExecuteDefer().  Deferrals inherited from parent environments are brought
+        # down to the new root environment.  Subsequent deferrals from children of
+        # the root keep their environments as specified by Defer().
+        def Sub1(env):
+            self.call_list.append(1)
+            # Defer from child of root is passed the child environment
+            self.assertEqual(env['VAR1'], 'child')
 
-    env_parent = self.env.Clone(VAR2='parent')
-    env_parent.Defer(Sub2)
-    env_defer_root = env_parent.Clone(VAR2='defer_root')
-    env_defer_root.SetDeferRoot()
-    env_child = env_defer_root.Clone(VAR1='child')
-    env_child.Defer(Sub1, after=Sub2)
+        def Sub2(env):
+            self.call_list.append(2)
+            # Defer from parent of root is passed the root environment
+            self.assertEqual(env['VAR2'], 'defer_root')
 
-    # Since child is now the root, calling ExecuteDefer() from one of its
-    # children does nothing.
-    env_child.ExecuteDefer()
-    self.assertEqual(self.call_list, [])
+        env_parent = self.env.Clone(VAR2='parent')
+        env_parent.Defer(Sub2)
+        env_defer_root = env_parent.Clone(VAR2='defer_root')
+        env_defer_root.SetDeferRoot()
+        env_child = env_defer_root.Clone(VAR1='child')
+        env_child.Defer(Sub1, after=Sub2)
 
-    env_defer_root.ExecuteDefer()       # Should run Sub1
-    self.assertEqual(self.call_list, [2, 1])
+        # Since child is now the root, calling ExecuteDefer() from one of its
+        # children does nothing.
+        env_child.ExecuteDefer()
+        self.assertEqual(self.call_list, [])
 
-    # Environments above the one calling GetDeferRoot() keep their own roots.
-    self.assertEqual(env_parent.GetDeferRoot(), env_parent)
-    # Environments at or beneath should see the context for GetDeferRoot().
-    self.assertEqual(env_defer_root.GetDeferRoot(), env_defer_root)
-    self.assertEqual(env_child.GetDeferRoot(), env_defer_root)
+        env_defer_root.ExecuteDefer()  # Should run Sub1
+        self.assertEqual(self.call_list, [2, 1])
 
-  def testDeferReentrancy(self):
-    """Test re-entrant calls to ExecuteDefer()."""
+        # Environments above the one calling GetDeferRoot() keep their own roots.
+        self.assertEqual(env_parent.GetDeferRoot(), env_parent)
+        # Environments at or beneath should see the context for GetDeferRoot().
+        self.assertEqual(env_defer_root.GetDeferRoot(), env_defer_root)
+        self.assertEqual(env_child.GetDeferRoot(), env_defer_root)
 
-    def Sub1(env):
-      env.ExecuteDefer()
+    def testDeferReentrancy(self):
+        """Test re-entrant calls to ExecuteDefer()."""
 
-    env = self.env
-    env.Defer(Sub1)
-    self.assertRaises(SCons.Errors.UserError, env.ExecuteDefer)
+        def Sub1(env):
+            env.ExecuteDefer()
 
-  def testDeferNested(self):
-    """Test nested calls to ExecuteDefer()."""
+        env = self.env
+        env.Defer(Sub1)
+        self.assertRaises(SCons.Errors.UserError, env.ExecuteDefer)
 
-    def Sub1(env):
-      env = env
-      self.call_list.append(1)
+    def testDeferNested(self):
+        """Test nested calls to ExecuteDefer()."""
 
-    def Sub2(env):
-      env = env
-      self.call_list.append(2)
-      env.Defer(Sub1)
+        def Sub1(env):
+            env = env
+            self.call_list.append(1)
 
-    def Sub3(env):
-      env = env
-      self.call_list.append(3)
+        def Sub2(env):
+            env = env
+            self.call_list.append(2)
+            env.Defer(Sub1)
 
-    env = self.env
-    env.Defer(Sub2)
-    env.Defer(Sub3, after=Sub2)
+        def Sub3(env):
+            env = env
+            self.call_list.append(3)
 
-    # Make sure PrintDefer() at least doesn't crash.
-    env.PrintDefer()
+        env = self.env
+        env.Defer(Sub2)
+        env.Defer(Sub3, after=Sub2)
 
-    env.ExecuteDefer()
-    self.assertEqual(self.call_list, [2, 1, 3])
+        # Make sure PrintDefer() at least doesn't crash.
+        env.PrintDefer()
 
+        env.ExecuteDefer()
+        self.assertEqual(self.call_list, [2, 1, 3])
 
 #------------------------------------------------------------------------------
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
-  env = Environment(tools=['environment_tools', 'defer'])
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
+    env = Environment(tools=['environment_tools', 'defer'])
 
-  # Run unit tests
-  TestFramework.RunUnitTests(DeferTests, root_env=env)
+    # Run unit tests
+    TestFramework.RunUnitTests(DeferTests, root_env=env)
 
 
 def main():
-  test = TestFramework.TestFramework()
-  test.subdir('defer')
-  base = 'defer/'
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.run(chdir=base, stderr=None)
-  test.pass_test()
+    test = TestFramework.TestFramework()
+    test.subdir('defer')
+    base = 'defer/'
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.run(chdir=base, stderr=None)
+    test.pass_test()
 
 
 if __name__ == '__main__':
-  main()
+    main()

@@ -37,6 +37,7 @@ import SCons.Action
 import SCons.Builder
 import SCons.Util
 
+
 def generate(env):
     """Add a Builder factory function and construction variables for
     SCCS to an Environment."""
@@ -44,15 +45,16 @@ def generate(env):
     def SCCSFactory(env=env):
         """ """
         act = SCons.Action.Action('$SCCSCOM', '$SCCSCOMSTR')
-        return SCons.Builder.Builder(action = act, env = env)
+        return SCons.Builder.Builder(action=act, env=env)
 
     #setattr(env, 'SCCS', SCCSFactory)
     env.SCCS = SCCSFactory
 
-    env['SCCS']         = 'sccs'
-    env['SCCSFLAGS']    = SCons.Util.CLVar('')
+    env['SCCS'] = 'sccs'
+    env['SCCSFLAGS'] = SCons.Util.CLVar('')
     env['SCCSGETFLAGS'] = SCons.Util.CLVar('')
-    env['SCCSCOM']      = '$SCCS $SCCSFLAGS get $SCCSGETFLAGS $TARGET'
+    env['SCCSCOM'] = '$SCCS $SCCSFLAGS get $SCCSGETFLAGS $TARGET'
+
 
 def exists(env):
     return env.Detect('sccs')

@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Testing framework for the software construction toolkit.
 
 A TestFramework environment object is created via the usual invocation:
@@ -47,7 +46,6 @@ import unittest
 
 import TestCommon
 import TestSCons
-
 
 diff_re = TestCommon.diff_re
 fail_test = TestCommon.fail_test
@@ -70,7 +68,7 @@ file_expr = TestSCons.file_expr
 
 
 def RunUnitTests(testcase, **kwargs):
-  """Runs all unit tests from a test case.
+    """Runs all unit tests from a test case.
 
   Args:
     testcase: Test case class (derived from unittest.TestCase)
@@ -81,23 +79,24 @@ def RunUnitTests(testcase, **kwargs):
 
   If a test fails, exits the program via sys.exit(3).
   """
-  # Make the test suite
-  suite = unittest.makeSuite(testcase)
+    # Make the test suite
+    suite = unittest.makeSuite(testcase)
 
-  # Inject variables into each test
-  for t in suite._tests:
-    for k, v in kwargs.items():
-      setattr(t, k, v)
+    # Inject variables into each test
+    for t in suite._tests:
+        for k, v in kwargs.items():
+            setattr(t, k, v)
 
-  # Run test
-  result = unittest.TextTestRunner(verbosity=2).run(suite)
-  if not result.wasSuccessful():
-    # A unit test failed
-    sys.exit(3)
+    # Run test
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
+    if not result.wasSuccessful():
+        # A unit test failed
+        sys.exit(3)
 
 
 class TestFramework(TestCommon.TestCommon):
-  """Class for testing this framework.
+
+    """Class for testing this framework.
 
   Default behavior is to test hammer.bat on Windows or hammer.sh on
   any other type of system.
@@ -106,38 +105,38 @@ class TestFramework(TestCommon.TestCommon):
   automatically when we exit.
   """
 
-  def __init__(self, *args, **kw):
+    def __init__(self, *args, **kw):
 
-    # If they haven't specified that they want to test some other
-    # explicit program, either in the TestFramework() object creation or
-    # by setting the $TEST_FRAMEWORK_EXE / %TEST_FRAMEWORK_EXE% environment
-    # variable, then we test 'hammer.bat' on Windows systems and 'hammer.sh'
-    # everywhere else.
-    if not 'program' in kw:
-      kw['program'] = os.environ.get('TEST_FRAMEWORK_EXE')
-      if not kw['program']:
-        if sys.platform == 'win32':
-          kw['program'] = 'hammer.bat'
-        else:
-          kw['program'] = os.getcwd() + '/hammer.sh'
+        # If they haven't specified that they want to test some other
+        # explicit program, either in the TestFramework() object creation or
+        # by setting the $TEST_FRAMEWORK_EXE / %TEST_FRAMEWORK_EXE% environment
+        # variable, then we test 'hammer.bat' on Windows systems and 'hammer.sh'
+        # everywhere else.
+        if not 'program' in kw:
+            kw['program'] = os.environ.get('TEST_FRAMEWORK_EXE')
+            if not kw['program']:
+                if sys.platform == 'win32':
+                    kw['program'] = 'hammer.bat'
+                else:
+                    kw['program'] = os.getcwd() + '/hammer.sh'
 
-    # Pass in the magic workdir value '', which will cause a temporary
-    # directory to be created and get us chdir'ed there--but save
-    # the original cwd first in case we need to know where we were...
-    if not 'workdir' in kw:
-      kw['workdir'] = ''
+        # Pass in the magic workdir value '', which will cause a temporary
+        # directory to be created and get us chdir'ed there--but save
+        # the original cwd first in case we need to know where we were...
+        if not 'workdir' in kw:
+            kw['workdir'] = ''
 
-    TestCommon.TestCommon.__init__(self, *args, **kw)
+        TestCommon.TestCommon.__init__(self, *args, **kw)
 
-    # Use our match function, so we don't need to worry about trailing
-    # whitespace on output we want to compare.
-    self.match = self.match_visible
+        # Use our match function, so we don't need to worry about trailing
+        # whitespace on output we want to compare.
+        self.match = self.match_visible
 
-  def FakeWindowsCER(self, filename):
-    """Write out a fake windows certificate."""
-    # Generated with:
-    # makecert.exe -r -sv fake.pvk -n "CN=fakeco" fake.cer (password: secret)
-    self.write(filename, base64.b64decode("""
+    def FakeWindowsCER(self, filename):
+        """Write out a fake windows certificate."""
+        # Generated with:
+        # makecert.exe -r -sv fake.pvk -n "CN=fakeco" fake.cer (password: secret)
+        self.write(filename, base64.b64decode("""
 MIIB7TCCAVagAwIBAgIQcInZW/UOFodA41ESSHTYuzANBgkqhkiG9w0BAQQFADARMQ8wDQYDVQQD
 EwZmYWtlY28wHhcNMDgwNTA3MjAyNjI2WhcNMzkxMjMxMjM1OTU5WjARMQ8wDQYDVQQDEwZmYWtl
 Y28wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANERhPhli6dLzhU3xFO81uVPrluufLF9lqF6
@@ -149,11 +148,11 @@ JMJc/j8x0iNlW3IcVWNeDxh8x3TTJYODTM9WPXi2PL/Ouw2dPToYRnS5vP31EoXGLYlvp1sxnyzo
 LLE9zUGKBTvHeaWVjHhDh66dWS9ss6pXcVrElSgZVlBTg6jZgvxV27A=
 """))
 
-  def FakeWindowsPVK(self, filename):
-    """Write out a fake private key file."""
-    # Generated with:
-    # makecert.exe -r -sv fake.pvk -n "CN=fakeco" fake.cer (password: secret)
-    self.write(filename, base64.b64decode("""
+    def FakeWindowsPVK(self, filename):
+        """Write out a fake private key file."""
+        # Generated with:
+        # makecert.exe -r -sv fake.pvk -n "CN=fakeco" fake.cer (password: secret)
+        self.write(filename, base64.b64decode("""
 HvG1sAAAAAACAAAAAQAAABAAAABUAgAAHXQX+j2ePmaFlOVCODMBigcCAAAAJAAA6tHDlTGLFBkD
 JbgKswhpzNuqXFUxW3ZYGQb5oH9wy5UCpIddroTpfpM8y7PMz1YWCJ2ijqIdAksv3qc9pV5xlRyF
 YalQoLXPn9wklkYMbl2zBQAXnDgCy3JWa07tjCIMelieKQNzsCkTHq3iPpuF/IeL+q8o0AtxizK/
@@ -168,12 +167,12 @@ DmB7w6ikflbPvsx200M9FMbXkcXkT6LMFmye4D8uCaooPYJDrBLVFi9gbAXtRj8WJ2+hRefzG5+N
 pEUUTCf3tuiV
 """))
 
-  def FakeWindowsPFX(self, filename):
-    """Write out a fake windows certificate + private key file."""
-    # Generated using:
-    # makecert.exe -r -sv fake.pvk -n "CN=fakeco" fake.cer (password: secret)
-    # pvk2pfx.exe -pvk fake.pvk -spc fake.cer -pfx fake.pfx -po obscure
-    self.write(filename, base64.b64decode("""
+    def FakeWindowsPFX(self, filename):
+        """Write out a fake windows certificate + private key file."""
+        # Generated using:
+        # makecert.exe -r -sv fake.pvk -n "CN=fakeco" fake.cer (password: secret)
+        # pvk2pfx.exe -pvk fake.pvk -spc fake.cer -pfx fake.pfx -po obscure
+        self.write(filename, base64.b64decode("""
 MIIGqgIBAzCCBmYGCSqGSIb3DQEHAaCCBlcEggZTMIIGTzCCA8AGCSqGSIb3DQEHAaCCA7EEggOt
 MIIDqTCCA6UGCyqGSIb3DQEMCgECoIICtjCCArIwHAYKKoZIhvcNAQwBAzAOBAjtSpL9hCNo9AIC
 B9AEggKQr3Jg5t3vBCYsoXK/i19qbrGoP0SVBBT9/PHEtHCw4bSwPFTD8xKLcaVwh4pNbg+ij8Wc
@@ -206,8 +205,8 @@ hIK8U2W3lWubFhm7ymTU8DIWVKsC0sBusEFRKdz/4IsyJNJLGEgUbbOmIeRdTh/eD1GS8Tk/vQJn
 MAcGBSsOAwIaBBSplrQz2ypA7MX0qzq5MkSiRQhmtwQUZyfmXRh64tnnJN6H63+L1fRiqWMCAgfQ
 """))
 
-  def match_visible(self, str1, str2):
-    """Returns true if the strings look the same.
+    def match_visible(self, str1, str2):
+        """Returns true if the strings look the same.
 
     Args:
       str1: First string to compare.
@@ -217,14 +216,14 @@ MAcGBSsOAwIaBBSplrQz2ypA7MX0qzq5MkSiRQhmtwQUZyfmXRh64tnnJN6H63+L1fRiqWMCAgfQ
       True if the strings are the same, after stripping trailing whitespace
       from lines.  That is, if they look them same when printed to a terminal.
     """
-    # Add a newline at end of the strings, in case strings have trailing
-    # whitespace but no newline at the end.
-    str1 = re.sub('[ \t\r]*\n', '\n', str1 + '\n')
-    str2 = re.sub('[ \t\r]*\n', '\n', str2 + '\n')
-    return str1 == str2
+        # Add a newline at end of the strings, in case strings have trailing
+        # whitespace but no newline at the end.
+        str1 = re.sub('[ \t\r]*\n', '\n', str1 + '\n')
+        str2 = re.sub('[ \t\r]*\n', '\n', str2 + '\n')
+        return str1 == str2
 
-  def WriteSConscript(self, filename, function, python_paths=None):
-    """Writes a SConscript which will call the function.
+    def WriteSConscript(self, filename, function, python_paths=None):
+        """Writes a SConscript which will call the function.
 
     Args:
       filename: Destination filename.
@@ -244,36 +243,33 @@ MAcGBSsOAwIaBBSplrQz2ypA7MX0qzq5MkSiRQhmtwQUZyfmXRh64tnnJN6H63+L1fRiqWMCAgfQ
       Passthrough return from self.write().
     """
 
-    if python_paths is None:
-      python_paths = []
+        if python_paths is None:
+            python_paths = []
 
-    func_path, func_file = os.path.split(function.func_code.co_filename)
+        func_path, func_file = os.path.split(function.func_code.co_filename)
 
-    python_paths += [
-        # Directory containing the module with the function to call
-        func_path,
-        # Directory containing THIS module, since the module calling it most
-        # likely imports it, and the path to the TestCommon module, since this
-        # file imports it.
-        os.path.dirname(__file__),
-        os.path.dirname(TestCommon.__file__),
-    ]
+        python_paths += [
+            # Directory containing the module with the function to call
+            func_path,
+            # Directory containing THIS module, since the module calling it most
+            # likely imports it, and the path to the TestCommon module, since this
+            # file imports it.
+            os.path.dirname(__file__),
+            os.path.dirname(TestCommon.__file__),
+        ]
 
-    data = ('# SConscript file '
-            'automatically created by TestFramework.WriteSConscript().\n'
-            'import sys\n')
+        data = ('# SConscript file '
+                'automatically created by TestFramework.WriteSConscript().\n'
+                'import sys\n')
 
-    for p in python_paths:
-      # Need to turn backslashes into forward-slashes, since we're writing a
-      # string into a python source file.  (Could alternately double-up the
-      # backslashes.)
-      data += 'sys.path.append("%s")\n' % p.replace('\\', '/')
+        for p in python_paths:
+            # Need to turn backslashes into forward-slashes, since we're writing a
+            # string into a python source file.  (Could alternately double-up the
+            # backslashes.)
+            data += 'sys.path.append("%s")\n' % p.replace('\\', '/')
 
-    data += 'from %s import %s\n%s(globals())\n' % (
-        os.path.splitext(func_file)[0],
-        function.__name__,
-        function.__name__
-    )
+        data += 'from %s import %s\n%s(globals())\n' % (
+            os.path.splitext(func_file)[0], function.__name__,
+            function.__name__)
 
-    return self.write(filename, data)
-
+        return self.write(filename, data)

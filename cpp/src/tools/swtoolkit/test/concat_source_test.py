@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for concat_source.  These are MEDIUM tests."""
 
 import unittest
@@ -35,84 +34,86 @@ import TestFramework
 
 
 class ConcatSourceTests(unittest.TestCase):
-  """Tests for concat_source module."""
 
-  def setUp(self):
-    """Per-test setup."""
-    self.env = self.root_env.Clone()
+    """Tests for concat_source module."""
 
-  def testSingleFile(self):
-    """Test passing a single file."""
-    env = self.env
+    def setUp(self):
+        """Per-test setup."""
+        self.env = self.root_env.Clone()
 
-    # If only one concat-able source file is present, passes through
-    cs = env.ConcatSource('foo1.cc', ['a.cc'])
-    self.assertEqual(map(str, cs), ['a.cc'])
+    def testSingleFile(self):
+        """Test passing a single file."""
+        env = self.env
 
-  def testConcatSourceMultiple(self):
-    """Test passing multiple inputs."""
-    env = self.env
+        # If only one concat-able source file is present, passes through
+        cs = env.ConcatSource('foo1.cc', ['a.cc'])
+        self.assertEqual(map(str, cs), ['a.cc'])
 
-    # Multiple source files are combined, but object and mm files aren't.
-    # Check for both g++ and msvc.
-    env3 = env.Clone(CC='g++')
-    cs = env3.ConcatSource('foo2a.cc', ['a.cc', 'e.mm', 'b.cc', 'd.o', 'c.cc'])
-    self.assertEqual(map(str, cs), ['e.mm', 'd.o', 'foo2a.cc'])
+    def testConcatSourceMultiple(self):
+        """Test passing multiple inputs."""
+        env = self.env
 
-    env4 = env.Clone(CC='cl')
-    cs = env4.ConcatSource('foo2b.cc',
-                           ['a.cc', 'e.mm', 'b.cc', 'd.obj', 'c.cc'])
-    self.assertEqual(map(str, cs), ['e.mm', 'd.obj', 'foo2b.cc'])
+        # Multiple source files are combined, but object and mm files aren't.
+        # Check for both g++ and msvc.
+        env3 = env.Clone(CC='g++')
+        cs = env3.ConcatSource('foo2a.cc', ['a.cc', 'e.mm', 'b.cc', 'd.o',
+                                            'c.cc'])
+        self.assertEqual(map(str, cs), ['e.mm', 'd.o', 'foo2a.cc'])
 
-  def testConcatSourceMultipleButOneConcatable(self):
-    """Test passing multiple inputs, but only one concat-able."""
-    env = self.env
+        env4 = env.Clone(CC='cl')
+        cs = env4.ConcatSource('foo2b.cc', ['a.cc', 'e.mm', 'b.cc', 'd.obj',
+                                            'c.cc'])
+        self.assertEqual(map(str, cs), ['e.mm', 'd.obj', 'foo2b.cc'])
 
-    # Even if multiple input files, if only one is concat-able, won't concat.
-    cs = env.ConcatSource('foo3.cc', ['a.cc', 'd.o'])
-    self.assertEqual(map(str, cs), ['d.o', 'a.cc'])
+    def testConcatSourceMultipleButOneConcatable(self):
+        """Test passing multiple inputs, but only one concat-able."""
+        env = self.env
 
-  def testConcatDisabled(self):
-    """Test passthru if CONCAT_SOURCE_ENABLE is not set."""
-    env = self.env
+        # Even if multiple input files, if only one is concat-able, won't concat.
+        cs = env.ConcatSource('foo3.cc', ['a.cc', 'd.o'])
+        self.assertEqual(map(str, cs), ['d.o', 'a.cc'])
 
-    # If CONCAT_SOURCE_ENABLE is not set, files are passed through
-    env['CONCAT_SOURCE_ENABLE'] = False
-    cs = env.ConcatSource('foo4.cc', ['a.cc', 'b.cc', 'c.cc'])
-    self.assertEqual(map(str, cs), ['a.cc', 'b.cc', 'c.cc'])
+    def testConcatDisabled(self):
+        """Test passthru if CONCAT_SOURCE_ENABLE is not set."""
+        env = self.env
+
+        # If CONCAT_SOURCE_ENABLE is not set, files are passed through
+        env['CONCAT_SOURCE_ENABLE'] = False
+        cs = env.ConcatSource('foo4.cc', ['a.cc', 'b.cc', 'c.cc'])
+        self.assertEqual(map(str, cs), ['a.cc', 'b.cc', 'c.cc'])
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(tools=['concat_source'])
+    env = Environment(tools=['concat_source'])
 
-  # Run unit tests
-  TestFramework.RunUnitTests(ConcatSourceTests, root_env=env)
+    # Run unit tests
+    TestFramework.RunUnitTests(ConcatSourceTests, root_env=env)
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  test.subdir('concat_source')
-  base = 'concat_source/'
+    test.subdir('concat_source')
+    base = 'concat_source/'
 
-  test.WriteSConscript(base + '/SConstruct', TestSConstruct)
-  test.write(base + 'a.cc', '#define A_CC\n')
-  test.write(base + 'b.cc', '#define B_CC\n')
-  test.write(base + 'c.cc', '#define C_CC\n')
-  test.write(base + 'd.o', 'object file placeholder')
-  test.write(base + 'd.obj', 'object file placeholder')
-  test.write(base + 'e.mm', '#define E_CC\n')
+    test.WriteSConscript(base + '/SConstruct', TestSConstruct)
+    test.write(base + 'a.cc', '#define A_CC\n')
+    test.write(base + 'b.cc', '#define B_CC\n')
+    test.write(base + 'c.cc', '#define C_CC\n')
+    test.write(base + 'd.o', 'object file placeholder')
+    test.write(base + 'd.obj', 'object file placeholder')
+    test.write(base + 'e.mm', '#define E_CC\n')
 
-  expected_stdout = """scons: Reading SConscript files ...
+    expected_stdout = """scons: Reading SConscript files ...
 scons: done reading SConscript files.
 scons: Building targets ...
 Creating ConcatSource foo2a.cc from a.cc b.cc c.cc
@@ -120,21 +121,22 @@ Creating ConcatSource foo2b.cc from a.cc b.cc c.cc
 scons: done building targets.
 """
 
-  test.run(chdir=base, stdout=expected_stdout, stderr=None)
+    test.run(chdir=base, stdout=expected_stdout, stderr=None)
 
-  # Make sure targets which shouldn't have been allsrc'd weren't.
-  test.must_not_exist('foo1.cc', 'foo3.cc', 'foo4.cc')
+    # Make sure targets which shouldn't have been allsrc'd weren't.
+    test.must_not_exist('foo1.cc', 'foo3.cc', 'foo4.cc')
 
-  # msvc gets #pragma messages; g++ doesn't
-  expected_foo2a_cc = """\
+    # msvc gets #pragma messages; g++ doesn't
+    expected_foo2a_cc = """\
 // This file is auto-generated by the ConcatSource builder.
 #include "a.cc"
 #include "b.cc"
 #include "c.cc"
 """
-  test.must_match(base + 'foo2a.cc', expected_foo2a_cc)
 
-  expected_foo2b_cc = """\
+    test.must_match(base + 'foo2a.cc', expected_foo2a_cc)
+
+    expected_foo2b_cc = """\
 // This file is auto-generated by the ConcatSource builder.
 #pragma message("--a.cc")
 #include "a.cc"
@@ -143,9 +145,11 @@ scons: done building targets.
 #pragma message("--c.cc")
 #include "c.cc"
 """
-  test.must_match(base + 'foo2b.cc', expected_foo2b_cc)
 
-  test.pass_test()
+    test.must_match(base + 'foo2b.cc', expected_foo2b_cc)
+
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

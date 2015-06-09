@@ -36,14 +36,16 @@ import os.path
 import SCons.dblite
 import SCons.Warnings
 
+
 def corrupt_dblite_warning(filename):
     SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                        "Ignoring corrupt .sconsign file: %s"%filename)
+                        "Ignoring corrupt .sconsign file: %s" % filename)
+
 
 SCons.dblite.ignore_corrupt_dbfiles = 1
 SCons.dblite.corruption_warning = corrupt_dblite_warning
 
-#XXX Get rid of the global array so this becomes re-entrant.
+# XXX Get rid of the global array so this becomes re-entrant.
 sig_files = []
 
 # Info for the database SConsign implementation (now the default):
@@ -57,6 +59,7 @@ DB_Module = SCons.dblite
 DB_Name = ".sconsign"
 DB_sync_list = []
 
+
 def Get_DataBase(dir):
     global DataBase, DB_Module, DB_Name
     top = dir.fs.Top
@@ -68,8 +71,10 @@ def Get_DataBase(dir):
                     return DataBase[d], mode
                 except KeyError:
                     path = d.entry_abspath(DB_Name)
-                    try: db = DataBase[d] = DB_Module.open(path, mode)
-                    except (IOError, OSError): pass
+                    try:
+                        db = DataBase[d] = DB_Module.open(path, mode)
+                    except (IOError, OSError):
+                        pass
                     else:
                         if mode != "r":
                             DB_sync_list.append(db)
@@ -85,6 +90,7 @@ def Get_DataBase(dir):
         print "DataBase =", DataBase
         raise
 
+
 def Reset():
     """Reset global state.  Used by unit tests that end up using
     SConsign multiple times to get a clean slate for each test."""
@@ -92,7 +98,9 @@ def Reset():
     sig_files = []
     DB_sync_list = []
 
+
 normcase = os.path.normcase
+
 
 def write():
     global sig_files
@@ -102,11 +110,13 @@ def write():
         try:
             syncmethod = db.sync
         except AttributeError:
-            pass # Not all anydbm modules have sync() methods.
+            pass  # Not all anydbm modules have sync() methods.
         else:
             syncmethod()
 
+
 class SConsignEntry:
+
     """
     Wrapper class for the generic entry in a .sconsign file.
     The Node subclass populates it with attributes as it pleases.
@@ -115,16 +125,21 @@ class SConsignEntry:
     but we'll probably generalize this in the next refactorings.
     """
     current_version_id = 1
+
     def __init__(self):
         # Create an object attribute from the class attribute so it ends up
         # in the pickled data in the .sconsign file.
         _version_id = self.current_version_id
+
     def convert_to_sconsign(self):
         self.binfo.convert_to_sconsign()
+
     def convert_from_sconsign(self, dir, name):
         self.binfo.convert_from_sconsign(dir, name)
 
+
 class Base:
+
     """
     This is the controlling class for the signatures for the collection of
     entries associated with a specific directory.  The actual directory
@@ -133,6 +148,7 @@ class Base:
     methods for fetching and storing the individual bits of information
     that make up signature entry.
     """
+
     def __init__(self):
         self.entries = {}
         self.dirty = False
@@ -178,12 +194,15 @@ class Base:
             self.entries[key] = entry
         self.to_be_merged = {}
 
+
 class DB(Base):
+
     """
     A Base subclass that reads and writes signature information
     from a global .sconsign.db* file--the actual file suffix is
     determined by the database module.
     """
+
     def __init__(self, dir):
         Base.__init__(self)
 
@@ -208,8 +227,10 @@ class DB(Base):
             except KeyboardInterrupt:
                 raise
             except Exception, e:
-                SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                    "Ignoring corrupt sconsign entry : %s (%s)\n"%(self.dir.tpath, e))
+                SCons.Warnings.warn(
+                    SCons.Warnings.CorruptSConsignWarning,
+                    "Ignoring corrupt sconsign entry : %s (%s)\n" %
+                    (self.dir.tpath, e))
             for key, entry in self.entries.items():
                 entry.convert_from_sconsign(dir, key)
 
@@ -250,7 +271,9 @@ class DB(Base):
             else:
                 syncmethod()
 
+
 class Dir(Base):
+
     def __init__(self, fp=None, dir=None):
         """
         fp - file pointer to read entries from
@@ -269,10 +292,13 @@ class Dir(Base):
             for key, entry in self.entries.items():
                 entry.convert_from_sconsign(dir, key)
 
+
 class DirFile(Dir):
+
     """
     Encapsulates reading and writing a per-directory .sconsign file.
     """
+
     def __init__(self, dir):
         """
         dir - the directory for the file
@@ -292,7 +318,8 @@ class DirFile(Dir):
             raise
         except:
             SCons.Warnings.warn(SCons.Warnings.CorruptSConsignWarning,
-                                "Ignoring corrupt .sconsign file: %s"%self.sconsign)
+                                "Ignoring corrupt .sconsign file: %s" %
+                                self.sconsign)
 
         global sig_files
         sig_files.append(self)
@@ -357,7 +384,9 @@ class DirFile(Dir):
         except (IOError, OSError):
             pass
 
+
 ForDirectory = DB
+
 
 def File(name, dbm_module=None):
     """

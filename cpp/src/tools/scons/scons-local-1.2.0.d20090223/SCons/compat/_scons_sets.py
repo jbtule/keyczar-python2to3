@@ -61,26 +61,34 @@ except ImportError:
     # Code to make the module run under Py2.2
     def ifilter(predicate, iterable):
         if predicate is None:
+
             def predicate(x):
                 return x
+
         for x in iterable:
             if predicate(x):
                 yield x
+
     def ifilterfalse(predicate, iterable):
         if predicate is None:
+
             def predicate(x):
                 return x
+
         for x in iterable:
             if not predicate(x):
                 yield x
+
     try:
         True, False
     except NameError:
-        True, False = (0==0, 0!=0)
+        True, False = (0 == 0, 0 != 0)
 
 __all__ = ['BaseSet', 'Set', 'ImmutableSet']
 
+
 class BaseSet(object):
+
     """Common base class for mutable and immutable sets."""
 
     __slots__ = ['_data']
@@ -166,7 +174,7 @@ class BaseSet(object):
         result._data.update(self._data)
         return result
 
-    __copy__ = copy # For the copy module
+    __copy__ = copy  # For the copy module
 
     def __deepcopy__(self, memo):
         """Return a deep copy of a set; used by copy module."""
@@ -262,7 +270,7 @@ class BaseSet(object):
             data[elt] = value
         return result
 
-    def  __sub__(self, other):
+    def __sub__(self, other):
         """Return the difference of two sets as a new Set.
 
         (I.e. all elements that are in this set and not in the other.)
@@ -299,7 +307,7 @@ class BaseSet(object):
         except TypeError:
             transform = getattr(element, "__as_temporarily_immutable__", None)
             if transform is None:
-                raise # re-raise the TypeError exception we caught
+                raise  # re-raise the TypeError exception we caught
             return transform() in self._data
 
     # Subset and superset test
@@ -376,7 +384,7 @@ class BaseSet(object):
                 except TypeError:
                     transform = getattr(element, "__as_immutable__", None)
                     if transform is None:
-                        raise # re-raise the TypeError exception we caught
+                        raise  # re-raise the TypeError exception we caught
                     data[transform()] = value
         else:
             # Safe: only catch TypeError where intended
@@ -386,11 +394,12 @@ class BaseSet(object):
                 except TypeError:
                     transform = getattr(element, "__as_immutable__", None)
                     if transform is None:
-                        raise # re-raise the TypeError exception we caught
+                        raise  # re-raise the TypeError exception we caught
                     data[transform()] = value
 
 
 class ImmutableSet(BaseSet):
+
     """Immutable set class."""
 
     __slots__ = ['_hashcode']
@@ -415,7 +424,9 @@ class ImmutableSet(BaseSet):
     def __setstate__(self, state):
         self._data, self._hashcode = state
 
+
 class Set(BaseSet):
+
     """ Mutable set class."""
 
     __slots__ = []
@@ -526,7 +537,7 @@ class Set(BaseSet):
         except TypeError:
             transform = getattr(element, "__as_immutable__", None)
             if transform is None:
-                raise # re-raise the TypeError exception we caught
+                raise  # re-raise the TypeError exception we caught
             self._data[transform()] = True
 
     def remove(self, element):
@@ -539,7 +550,7 @@ class Set(BaseSet):
         except TypeError:
             transform = getattr(element, "__as_temporarily_immutable__", None)
             if transform is None:
-                raise # re-raise the TypeError exception we caught
+                raise  # re-raise the TypeError exception we caught
             del self._data[transform()]
 
     def discard(self, element):

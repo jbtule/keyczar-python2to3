@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Component targets MSVS test (MEDIUM test)."""
 
 import sys
@@ -35,56 +34,51 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  base_env = Environment(tools=['component_setup'])
-  base_env.Append(BUILD_COMPONENTS=['SConscript'])
+    base_env = Environment(tools=['component_setup'])
+    base_env.Append(BUILD_COMPONENTS=['SConscript'])
 
-  windows_env = base_env.Clone(
-      tools=['target_platform_windows', 'component_targets_msvs'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Windows build',
-  )
-  windows_env.Append(BUILD_GROUPS=['default'])
+    windows_env = base_env.Clone(
+        tools=['target_platform_windows', 'component_targets_msvs'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Windows build', )
+    windows_env.Append(BUILD_GROUPS=['default'])
 
-  BuildComponents([windows_env])
+    BuildComponents([windows_env])
 
-  # Dir source project
-  p = windows_env.ComponentVSDirProject(
-      'client_source',
-      ['$MAIN_DIR'],
-      COMPONENT_VS_SOURCE_FOLDERS=[
-          # Files are assigned to first matching folder.  Folder names of None
-          # are filters.
-          (None, '$DESTINATION_ROOT'),
-          ('bar', '$MAIN_DIR/bar'),
-          ('main', '$MAIN_DIR'),
-      ],
-      # Force source project to main dir, so that Visual Studio can find the
-      # source files corresponding to build errors.
-      COMPONENT_VS_PROJECT_DIR='$MAIN_DIR',
-  )
+    # Dir source project
+    p = windows_env.ComponentVSDirProject(
+        'client_source', ['$MAIN_DIR'],
+        COMPONENT_VS_SOURCE_FOLDERS=[
+            # Files are assigned to first matching folder.  Folder names of None
+            # are filters.
+            (None, '$DESTINATION_ROOT'),
+            ('bar', '$MAIN_DIR/bar'),
+            ('main', '$MAIN_DIR'),
+        ],
+        # Force source project to main dir, so that Visual Studio can find the
+        # source files corresponding to build errors.
+        COMPONENT_VS_PROJECT_DIR='$MAIN_DIR', )
 
-  # DAG-scanning source project
-  p += windows_env.ComponentVSSourceProject('foo2', ['foo'])
+    # DAG-scanning source project
+    p += windows_env.ComponentVSSourceProject('foo2', ['foo'])
 
-  # Solution and target projects
-  windows_env.ComponentVSSolution(
-      'test_sln',
-      [
-          'all_libraries',
-          'all_programs',
-          'all_test_programs',
-      ],
-      projects=[p],
-  )
+    # Solution and target projects
+    windows_env.ComponentVSSolution(
+        'test_sln', [
+            'all_libraries',
+            'all_programs',
+            'all_test_programs',
+        ],
+        projects=[p], )
 
 
 sconscript_contents = """
@@ -204,42 +198,44 @@ expected_foo2_vcproj = r"""<?xml version="1.0" encoding="Windows-1252"?>
 </VisualStudioProject>
 """
 
+
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  # Test only applies to Windows
-  if sys.platform not in ('win32', 'cygwin'):
-    test.skip_test('This test only applies to windows.\n')
-    return
+    # Test only applies to Windows
+    if sys.platform not in ('win32', 'cygwin'):
+        test.skip_test('This test only applies to windows.\n')
+        return
 
-  base = 'hello/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.write(base + 'SConscript', sconscript_contents)
-  test.write(base + 'hello.c', hello_c_contents)
-  test.write(base + 'foo.c', foo_c_contents)
-  test.subdir(base + 'bar')
-  test.write(base + 'bar/bar.cpp', foo_c_contents)
+    base = 'hello/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.write(base + 'SConscript', sconscript_contents)
+    test.write(base + 'hello.c', hello_c_contents)
+    test.write(base + 'foo.c', foo_c_contents)
+    test.subdir(base + 'bar')
+    test.write(base + 'bar/bar.cpp', foo_c_contents)
 
-  test.run(chdir=base, options='test_sln')
+    test.run(chdir=base, options='test_sln')
 
-  # Check that all solutions and projects were generated.
-  test.must_exist(base + 'scons-out/solution/test_sln.sln')
-  test.must_exist(base + 'client_source.vcproj')
-  test.must_exist(base + 'scons-out/solution/projects/foo.vcproj')
-  test.must_exist(base + 'scons-out/solution/projects/foo2.vcproj')
-  test.must_exist(base + 'scons-out/solution/projects/hello.vcproj')
+    # Check that all solutions and projects were generated.
+    test.must_exist(base + 'scons-out/solution/test_sln.sln')
+    test.must_exist(base + 'client_source.vcproj')
+    test.must_exist(base + 'scons-out/solution/projects/foo.vcproj')
+    test.must_exist(base + 'scons-out/solution/projects/foo2.vcproj')
+    test.must_exist(base + 'scons-out/solution/projects/hello.vcproj')
 
-  # Check file output for each type.  We can do this because the GUIDs are
-  # deterministic.
-  test.must_match(base + 'scons-out/solution/test_sln.sln', expected_sln)
-  test.must_match(base + 'scons-out/solution/projects/foo.vcproj',
-                  expected_foo_vcproj)
-  test.must_match(base + 'scons-out/solution/projects/foo2.vcproj',
-                  expected_foo2_vcproj)
-  test.must_match(base + 'client_source.vcproj', expected_client_source)
+    # Check file output for each type.  We can do this because the GUIDs are
+    # deterministic.
+    test.must_match(base + 'scons-out/solution/test_sln.sln', expected_sln)
+    test.must_match(base + 'scons-out/solution/projects/foo.vcproj',
+                    expected_foo_vcproj)
+    test.must_match(base + 'scons-out/solution/projects/foo2.vcproj',
+                    expected_foo2_vcproj)
+    test.must_match(base + 'client_source.vcproj', expected_client_source)
 
-  test.pass_test()
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

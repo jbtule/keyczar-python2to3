@@ -8,6 +8,7 @@ import sys
 
 import keyczar
 
+
 def Sign(keyset_path):
     if not os.path.exists(keyset_path):
         return
@@ -21,6 +22,7 @@ def Sign(keyset_path):
 
     verifier = keyczar.Verifier.Read(keyset_path)
     assert verifier.Verify(input, signature)
+
 
 if __name__ == '__main__':
     if (len(sys.argv) != 2 or not os.path.exists(sys.argv[1])):

@@ -42,12 +42,14 @@ import link
 
 cplusplus = __import__('c++', globals(), locals(), [])
 
+
 def smart_linkflags(source, target, env, for_signature):
     if cplusplus.iscplusplus(source):
         build_dir = env.subst('$BUILDDIR', target=target, source=source)
         if build_dir:
             return '-qtempinc=' + os.path.join(build_dir, 'tempinc')
     return ''
+
 
 def generate(env):
     """
@@ -57,9 +59,11 @@ def generate(env):
     link.generate(env)
 
     env['SMARTLINKFLAGS'] = smart_linkflags
-    env['LINKFLAGS']      = SCons.Util.CLVar('$SMARTLINKFLAGS')
-    env['SHLINKFLAGS']    = SCons.Util.CLVar('$LINKFLAGS -qmkshrobj -qsuppress=1501-218')
-    env['SHLIBSUFFIX']    = '.a'
+    env['LINKFLAGS'] = SCons.Util.CLVar('$SMARTLINKFLAGS')
+    env['SHLINKFLAGS'
+        ] = SCons.Util.CLVar('$LINKFLAGS -qmkshrobj -qsuppress=1501-218')
+    env['SHLIBSUFFIX'] = '.a'
+
 
 def exists(env):
     path, _cc, _shcc, version = aixcc.get_xlc(env)

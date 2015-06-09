@@ -32,21 +32,22 @@ selection method.
 
 __revision__ = "src/engine/SCons/Platform/os2.py 4043 2009/02/23 09:06:45 scons"
 
+
 def generate(env):
     if not env.has_key('ENV'):
-        env['ENV']        = {}
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.obj'
-    env['SHOBJPREFIX']    = '$OBJPREFIX'
-    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = '.exe'
-    env['LIBPREFIX']      = ''
-    env['LIBSUFFIX']      = '.lib'
-    env['SHLIBPREFIX']    = ''
-    env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = '$LIBPREFIX'
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
+        env['ENV'] = {}
+    env['OBJPREFIX'] = ''
+    env['OBJSUFFIX'] = '.obj'
+    env['SHOBJPREFIX'] = '$OBJPREFIX'
+    env['SHOBJSUFFIX'] = '$OBJSUFFIX'
+    env['PROGPREFIX'] = ''
+    env['PROGSUFFIX'] = '.exe'
+    env['LIBPREFIX'] = ''
+    env['LIBSUFFIX'] = '.lib'
+    env['SHLIBPREFIX'] = ''
+    env['SHLIBSUFFIX'] = '.dll'
+    env['LIBPREFIXES'] = '$LIBPREFIX'
+    env['LIBSUFFIXES'] = ['$LIBSUFFIX', '$SHLIBSUFFIX']
 
 # Local Variables:
 # tab-width:4

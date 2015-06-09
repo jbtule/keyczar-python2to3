@@ -44,6 +44,7 @@ CXXSuffixes = ['.cpp', '.cc', '.cxx', '.c++', '.C++', '.mm']
 if SCons.Util.case_sensitive_suffixes('.c', '.C'):
     CXXSuffixes.append('.C')
 
+
 def iscplusplus(source):
     if not source:
         # Source might be None for unusual cases like SConf.
@@ -54,6 +55,7 @@ def iscplusplus(source):
             if ext in CXXSuffixes:
                 return 1
     return 0
+
 
 def generate(env):
     """
@@ -72,22 +74,24 @@ def generate(env):
 
     SCons.Tool.cc.add_common_cc_variables(env)
 
-    env['CXX']        = 'c++'
-    env['CXXFLAGS']   = SCons.Util.CLVar('')
-    env['CXXCOM']     = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
-    env['SHCXX']      = '$CXX'
+    env['CXX'] = 'c++'
+    env['CXXFLAGS'] = SCons.Util.CLVar('')
+    env['CXXCOM'] = '$CXX -o $TARGET -c $CXXFLAGS $CCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCXX'] = '$CXX'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
-    env['SHCXXCOM']   = '$SHCXX -o $TARGET -c $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
+    env['SHCXXCOM'
+        ] = '$SHCXX -o $TARGET -c $SHCXXFLAGS $SHCCFLAGS $_CCCOMCOM $SOURCES'
 
-    env['CPPDEFPREFIX']  = '-D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
+    env['CPPDEFPREFIX'] = '-D'
+    env['CPPDEFSUFFIX'] = ''
+    env['INCPREFIX'] = '-I'
+    env['INCSUFFIX'] = ''
     env['SHOBJSUFFIX'] = '.os'
     env['OBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
 
     env['CXXFILESUFFIX'] = '.cc'
+
 
 def exists(env):
     return env.Detect(compilers)

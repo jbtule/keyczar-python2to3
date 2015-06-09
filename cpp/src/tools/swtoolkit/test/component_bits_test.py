@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for component_bits.  These are SMALL tests."""
 
 import sys
@@ -36,204 +35,207 @@ import TestFramework
 
 
 class BitTests(unittest.TestCase):
-  """Tests for component_bits module."""
 
-  def setUp(self):
-    """Per-test setup."""
-    self.env = self.root_env.Clone()
+    """Tests for component_bits module."""
 
-  def testDeclareBit(self):
-    """Test DeclareBit()."""
+    def setUp(self):
+        """Per-test setup."""
+        self.env = self.root_env.Clone()
 
-    DeclareBit('apple', 'Fruity bit')
+    def testDeclareBit(self):
+        """Test DeclareBit()."""
 
-    # Redeclaring with the same definition is ok
-    DeclareBit('apple', 'Fruity bit')
+        DeclareBit('apple', 'Fruity bit')
 
-    # Redeclaring with a different definition should raise an exception
-    self.assertRaises(ValueError, DeclareBit, 'apple', 'Vegetable')
+        # Redeclaring with the same definition is ok
+        DeclareBit('apple', 'Fruity bit')
 
-    # Must specify a definition
-    self.assertRaises(TypeError, DeclareBit, 'pear')
+        # Redeclaring with a different definition should raise an exception
+        self.assertRaises(ValueError, DeclareBit, 'apple', 'Vegetable')
 
-  def testBit(self):
-    """Test Bit()."""
-    env = self.env
+        # Must specify a definition
+        self.assertRaises(TypeError, DeclareBit, 'pear')
 
-    # Bits are not set by default
-    DeclareBit('berry', 'Fruit from vine')
-    self.assert_(not env.Bit('berry'))
+    def testBit(self):
+        """Test Bit()."""
+        env = self.env
 
-    # Undeclared bits raise exceptions
-    self.assertRaises(ValueError, env.Bit, 'cherry')
+        # Bits are not set by default
+        DeclareBit('berry', 'Fruit from vine')
+        self.assert_(not env.Bit('berry'))
 
-    # Check set and clear bits
-    env.SetBits('berry')
-    self.assert_(env.Bit('berry'))
-    env.ClearBits('berry')
-    self.assert_(not env.Bit('berry'))
+        # Undeclared bits raise exceptions
+        self.assertRaises(ValueError, env.Bit, 'cherry')
 
-  def testSetBits(self):
-    """Test SetBits()."""
-    env = self.env
+        # Check set and clear bits
+        env.SetBits('berry')
+        self.assert_(env.Bit('berry'))
+        env.ClearBits('berry')
+        self.assert_(not env.Bit('berry'))
 
-    DeclareBit('sb1', 'Set bit 1 test')
-    DeclareBit('sb2', 'Set bit 2 test', exclusive_groups=['harvard', 'yale'])
-    DeclareBit('sb3', 'Set bit 3 test', exclusive_groups='harvard')
-    DeclareBit('sb4', 'Set bit 4 test', exclusive_groups='yale')
-    DeclareBit('sb5', 'Set bit 5 test')
-    DeclareBit('sb6', 'Set bit 6 test')
+    def testSetBits(self):
+        """Test SetBits()."""
+        env = self.env
 
-    # Undeclared bit anywhere in the list should raise exception
-    self.assertRaises(ValueError, env.SetBits, 'sb1', 'sb2', 'sb99')
+        DeclareBit('sb1', 'Set bit 1 test')
+        DeclareBit('sb2', 'Set bit 2 test',
+                   exclusive_groups=['harvard', 'yale'])
+        DeclareBit('sb3', 'Set bit 3 test', exclusive_groups='harvard')
+        DeclareBit('sb4', 'Set bit 4 test', exclusive_groups='yale')
+        DeclareBit('sb5', 'Set bit 5 test')
+        DeclareBit('sb6', 'Set bit 6 test')
 
-    # Set a single bit
-    self.assert_(not env.Bit('sb3'))
-    env.SetBits('sb3')      # One harvard bit only
-    self.assert_(env.Bit('sb3'))
+        # Undeclared bit anywhere in the list should raise exception
+        self.assertRaises(ValueError, env.SetBits, 'sb1', 'sb2', 'sb99')
 
-    # Set multiple bits
-    self.assert_(not env.Bit('sb5'))
-    self.assert_(not env.Bit('sb6'))
-    env.SetBits('sb5', 'sb6')
-    self.assert_(env.Bit('sb5'))
-    self.assert_(env.Bit('sb6'))
+        # Set a single bit
+        self.assert_(not env.Bit('sb3'))
+        env.SetBits('sb3')  # One harvard bit only
+        self.assert_(env.Bit('sb3'))
 
-    # Check exclusive groups support
-    env.SetBits('sb3')      # Ok to set the same bit again
-    env.SetBits('sb1')      # Didn't go to harvard; that's ok
-    # One harvard grad only
-    self.assertRaises(ValueError, env.SetBits, 'sb2')
-    # Get rid of the first harvard bit; should be able to set the second
-    env.ClearBits('sb3')
-    env.SetBits('sb2')
-    # The yale exclusive bit should prevent sb4 from being set
-    self.assertRaises(ValueError, env.SetBits, 'sb4')
-    # Set multiple bits should check exceptions on all bits
-    self.assertRaises(ValueError, env.SetBits, 'sb5', 'sb4')
+        # Set multiple bits
+        self.assert_(not env.Bit('sb5'))
+        self.assert_(not env.Bit('sb6'))
+        env.SetBits('sb5', 'sb6')
+        self.assert_(env.Bit('sb5'))
+        self.assert_(env.Bit('sb6'))
 
-  def testClearBits(self):
-    """Test ClearBits()."""
-    env = self.env
+        # Check exclusive groups support
+        env.SetBits('sb3')  # Ok to set the same bit again
+        env.SetBits('sb1')  # Didn't go to harvard; that's ok
+        # One harvard grad only
+        self.assertRaises(ValueError, env.SetBits, 'sb2')
+        # Get rid of the first harvard bit; should be able to set the second
+        env.ClearBits('sb3')
+        env.SetBits('sb2')
+        # The yale exclusive bit should prevent sb4 from being set
+        self.assertRaises(ValueError, env.SetBits, 'sb4')
+        # Set multiple bits should check exceptions on all bits
+        self.assertRaises(ValueError, env.SetBits, 'sb5', 'sb4')
 
-    DeclareBit('cb1', 'Clear bit 1')
-    DeclareBit('cb2', 'Clear bit 2')
-    DeclareBit('cb3', 'Clear bit 3')
+    def testClearBits(self):
+        """Test ClearBits()."""
+        env = self.env
 
-    env.SetBits('cb1', 'cb2', 'cb3')
-    env.ClearBits('cb1')
-    self.assert_(not env.Bit('cb1'))
-    self.assert_(env.Bit('cb2'))
-    env.ClearBits('cb2', 'cb3')
-    self.assert_(not env.Bit('cb2'))
-    self.assert_(not env.Bit('cb3'))
+        DeclareBit('cb1', 'Clear bit 1')
+        DeclareBit('cb2', 'Clear bit 2')
+        DeclareBit('cb3', 'Clear bit 3')
 
-    # Undeclared bit anywhere in the list should raise exception
-    self.assertRaises(ValueError, env.ClearBits, 'cb1', 'cb42', 'cb2')
+        env.SetBits('cb1', 'cb2', 'cb3')
+        env.ClearBits('cb1')
+        self.assert_(not env.Bit('cb1'))
+        self.assert_(env.Bit('cb2'))
+        env.ClearBits('cb2', 'cb3')
+        self.assert_(not env.Bit('cb2'))
+        self.assert_(not env.Bit('cb3'))
 
-  def testAnyAllBits(self):
-    """Test AnyBits() and AllBits()."""
-    env = self.env
+        # Undeclared bit anywhere in the list should raise exception
+        self.assertRaises(ValueError, env.ClearBits, 'cb1', 'cb42', 'cb2')
 
-    DeclareBit('true1', 'Any/allbits true 1')
-    DeclareBit('true2', 'Any/allbits true 2')
-    DeclareBit('false1', 'Any/allbits false 1')
-    DeclareBit('false2', 'Any/allbits false 2')
-    env.SetBits('true1', 'true2')
+    def testAnyAllBits(self):
+        """Test AnyBits() and AllBits()."""
+        env = self.env
 
-    self.assert_(env.AnyBits('true1'))
-    self.assert_(not env.AnyBits('false1'))
-    self.assert_(env.AnyBits('false1', 'true1', 'false2'))
-    self.assert_(not env.AnyBits('false1', 'false2'))
+        DeclareBit('true1', 'Any/allbits true 1')
+        DeclareBit('true2', 'Any/allbits true 2')
+        DeclareBit('false1', 'Any/allbits false 1')
+        DeclareBit('false2', 'Any/allbits false 2')
+        env.SetBits('true1', 'true2')
 
-    self.assert_(env.AllBits('true1'))
-    self.assert_(not env.AllBits('false1'))
-    self.assert_(not env.AllBits('true1', 'false1', 'true2'))
-    self.assert_(env.AllBits('true1', 'true2'))
+        self.assert_(env.AnyBits('true1'))
+        self.assert_(not env.AnyBits('false1'))
+        self.assert_(env.AnyBits('false1', 'true1', 'false2'))
+        self.assert_(not env.AnyBits('false1', 'false2'))
 
-    # Undeclared bit anywhere in the list should raise exception
-    self.assertRaises(ValueError, env.AnyBits, 'true1', 'ambivalent')
-    self.assertRaises(ValueError, env.AllBits, 'eggplant', 'true1')
+        self.assert_(env.AllBits('true1'))
+        self.assert_(not env.AllBits('false1'))
+        self.assert_(not env.AllBits('true1', 'false1', 'true2'))
+        self.assert_(env.AllBits('true1', 'true2'))
 
-  def testSetBitFromOption(self):
-    """Test SetBitFromOption()."""
-    env = self.env
+        # Undeclared bit anywhere in the list should raise exception
+        self.assertRaises(ValueError, env.AnyBits, 'true1', 'ambivalent')
+        self.assertRaises(ValueError, env.AllBits, 'eggplant', 'true1')
 
-    DeclareBit('opt1', 'option 1')
-    DeclareBit('opt2', 'option 2')
-    DeclareBit('opt3', 'option 3')
-    DeclareBit('opt4', 'option 4')
+    def testSetBitFromOption(self):
+        """Test SetBitFromOption()."""
+        env = self.env
 
-    # If arg not specified, default should be used
-    env.SetBits('opt1')
-    env.SetBitFromOption('opt1', False)
-    self.assert_(not env.Bit('opt1'))
+        DeclareBit('opt1', 'option 1')
+        DeclareBit('opt2', 'option 2')
+        DeclareBit('opt3', 'option 3')
+        DeclareBit('opt4', 'option 4')
 
-    env.SetBitFromOption('opt2', True)
-    self.assert_(env.Bit('opt2'))
+        # If arg not specified, default should be used
+        env.SetBits('opt1')
+        env.SetBitFromOption('opt1', False)
+        self.assert_(not env.Bit('opt1'))
 
-    # Ok to set bit from option twice.  This lets us use SetBitFromOption() in
-    # a SConscript which is invoked in multiple sub-environments.
-    env.ClearBits('opt2')
-    env.SetBitFromOption('opt2', True)
-    self.assert_(env.Bit('opt2'))
+        env.SetBitFromOption('opt2', True)
+        self.assert_(env.Bit('opt2'))
 
-    # Set via option, default=false
-    env.SetBitFromOption('opt3', False)
-    self.assert_(env.Bit('opt3'))
+        # Ok to set bit from option twice.  This lets us use SetBitFromOption() in
+        # a SConscript which is invoked in multiple sub-environments.
+        env.ClearBits('opt2')
+        env.SetBitFromOption('opt2', True)
+        self.assert_(env.Bit('opt2'))
 
-    env.SetBits('opt4')
-    env.SetBitFromOption('opt4', True)
-    self.assert_(not env.Bit('opt4'))
+        # Set via option, default=false
+        env.SetBitFromOption('opt3', False)
+        self.assert_(env.Bit('opt3'))
 
-    # Undeclared bit should raise exception
-    self.assertRaises(ValueError, env.SetBitFromOption, 'opt99', False)
+        env.SetBits('opt4')
+        env.SetBitFromOption('opt4', True)
+        self.assert_(not env.Bit('opt4'))
 
-  def testPredeclaredBits(self):
-    """Test predeclared bits."""
-    env = self.env
+        # Undeclared bit should raise exception
+        self.assertRaises(ValueError, env.SetBitFromOption, 'opt99', False)
 
-    # None of the target bits should be set yet, but they should be declared.
-    # The AnyBits() call will throw an exception if they're not.
-    self.assert_(not env.AnyBits('debug', 'mac', 'linux', 'posix', 'windows'))
+    def testPredeclaredBits(self):
+        """Test predeclared bits."""
+        env = self.env
 
-    # Check that the correct host bit is set
-    if sys.platform in ('win32', 'cygwin'):
-      self.assert_(env.Bit('host_windows'))
-      self.assert_(not env.AnyBits('host_mac', 'host_linux'))
-    elif sys.platform in ('linux', 'linux2'):
-      self.assert_(env.Bit('host_linux'))
-      self.assert_(not env.AnyBits('host_mac', 'host_windows'))
-    elif sys.platform == 'darwin':
-      self.assert_(env.Bit('host_mac'))
-      self.assert_(not env.AnyBits('host_linux', 'host_windows'))
+        # None of the target bits should be set yet, but they should be declared.
+        # The AnyBits() call will throw an exception if they're not.
+        self.assert_(not env.AnyBits('debug', 'mac', 'linux', 'posix',
+                                     'windows'))
+
+        # Check that the correct host bit is set
+        if sys.platform in ('win32', 'cygwin'):
+            self.assert_(env.Bit('host_windows'))
+            self.assert_(not env.AnyBits('host_mac', 'host_linux'))
+        elif sys.platform in ('linux', 'linux2'):
+            self.assert_(env.Bit('host_linux'))
+            self.assert_(not env.AnyBits('host_mac', 'host_windows'))
+        elif sys.platform == 'darwin':
+            self.assert_(env.Bit('host_mac'))
+            self.assert_(not env.AnyBits('host_linux', 'host_windows'))
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(tools=['component_setup', 'component_bits'])
+    env = Environment(tools=['component_setup', 'component_bits'])
 
-  # Run unit tests
-  TestFramework.RunUnitTests(BitTests, root_env=env)
+    # Run unit tests
+    TestFramework.RunUnitTests(BitTests, root_env=env)
 
 
 def main():
-  base = 'component_bits'
-  test = TestFramework.TestFramework()
-  test.subdir(base)
-  test.WriteSConscript(base + '/SConstruct', TestSConstruct)
-  # Need to ignore stderr, since that's where unittest prints its output
-  test.run(chdir=base, options='--opt3 --no-opt4', stderr=None)
-  test.pass_test()
+    base = 'component_bits'
+    test = TestFramework.TestFramework()
+    test.subdir(base)
+    test.WriteSConscript(base + '/SConstruct', TestSConstruct)
+    # Need to ignore stderr, since that's where unittest prints its output
+    test.run(chdir=base, options='--opt3 --no-opt4', stderr=None)
+    test.pass_test()
 
 
 if __name__ == '__main__':
-  main()
+    main()

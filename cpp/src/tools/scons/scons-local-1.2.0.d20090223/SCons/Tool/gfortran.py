@@ -38,6 +38,7 @@ import SCons.Util
 
 import fortran
 
+
 def generate(env):
     """Add Builders and construction variables for gfortran to an
     Environment."""
@@ -49,10 +50,12 @@ def generate(env):
         if env['PLATFORM'] in ['cygwin', 'win32']:
             env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS' % dialect)
         else:
-            env['SH%sFLAGS' % dialect] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
+            env['SH%sFLAGS' % dialect
+                ] = SCons.Util.CLVar('$%sFLAGS -fPIC' % dialect)
 
         env['INC%sPREFIX' % dialect] = "-I"
         env['INC%sSUFFIX' % dialect] = ""
+
 
 def exists(env):
     return env.Detect('gfortran')

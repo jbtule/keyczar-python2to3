@@ -35,6 +35,7 @@ import SCons.Warnings
 
 warned = False
 
+
 def EnumOption(*args, **kw):
     global warned
     if not warned:

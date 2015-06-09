@@ -5,7 +5,7 @@ The zip SRC packager.
 
 #
 # Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -30,10 +30,12 @@ __revision__ = "src/engine/SCons/Tool/packaging/src_zip.py 4043 2009/02/23 09:06
 
 from SCons.Tool.packaging import putintopackageroot
 
+
 def package(env, target, source, PACKAGEROOT, **kw):
     bld = env['BUILDERS']['Zip']
     bld.set_suffix('.zip')
-    target, source = putintopackageroot(target, source, env, PACKAGEROOT, honor_install_location=0)
+    target, source = putintopackageroot(target, source, env, PACKAGEROOT,
+                                        honor_install_location=0)
     return bld(env, target, source)
 
 # Local Variables:

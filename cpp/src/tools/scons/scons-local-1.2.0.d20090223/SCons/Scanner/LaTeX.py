@@ -37,13 +37,17 @@ import SCons.Scanner
 import SCons.Util
 
 # list of graphics file extensions for TeX and LaTeX
-TexGraphics   = ['.eps', '.ps']
+TexGraphics = ['.eps', '.ps']
 LatexGraphics = ['.pdf', '.png', '.jpg', '.gif', '.tif']
+
 
 # Used as a return value of modify_env_var if the variable is not set.
 class _Null:
     pass
+
+
 _null = _Null
+
 
 # The user specifies the paths in env[variable], similar to other builders.
 # They may be relative and must be converted to absolute, as expected
@@ -58,13 +62,16 @@ def modify_env_var(env, var, abspath):
     env.PrependENVPath(var, abspath)
     try:
         if SCons.Util.is_List(env[var]):
-            #TODO(1.5)
+            # TODO(1.5)
             #env.PrependENVPath(var, [os.path.abspath(str(p)) for p in env[var]])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)), env[var]))
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(str(p)),
+                                        env[var]))
         else:
             # Split at os.pathsep to convert into absolute path
-            #TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
-            env.PrependENVPath(var, map(lambda p: os.path.abspath(p), string.split(str(env[var]), os.pathsep)))
+            # TODO(1.5) env.PrependENVPath(var, [os.path.abspath(p) for p in str(env[var]).split(os.pathsep)])
+            env.PrependENVPath(var, map(lambda p: os.path.abspath(p),
+                                        string.split(str(env[var]),
+                                                     os.pathsep)))
     except KeyError:
         pass
 
@@ -81,11 +88,15 @@ def modify_env_var(env, var, abspath):
 
     return save
 
+
 class FindENVPathDirs:
+
     """A class to bind a specific *PATH variable name to a function that
     will return all of the *path directories."""
+
     def __init__(self, variable):
         self.variable = variable
+
     def __call__(self, env, dir=None, target=None, source=None, argument=None):
         import SCons.PathList
         try:
@@ -98,30 +109,32 @@ class FindENVPathDirs:
         return tuple(dir.Rfindalldirs(path))
 
 
-
 def LaTeXScanner():
     """Return a prototype Scanner instance for scanning LaTeX source files
     when built with latex.
     """
-    ds = LaTeX(name = "LaTeXScanner",
-               suffixes =  '$LATEXSUFFIXES',
+    ds = LaTeX(name="LaTeXScanner",
+               suffixes='$LATEXSUFFIXES',
                # in the search order, see below in LaTeX class docstring
-               graphics_extensions = TexGraphics,
-               recursive = 0)
+               graphics_extensions=TexGraphics,
+               recursive=0)
     return ds
+
 
 def PDFLaTeXScanner():
     """Return a prototype Scanner instance for scanning LaTeX source files
     when built with pdflatex.
     """
-    ds = LaTeX(name = "PDFLaTeXScanner",
-               suffixes =  '$LATEXSUFFIXES',
+    ds = LaTeX(name="PDFLaTeXScanner",
+               suffixes='$LATEXSUFFIXES',
                # in the search order, see below in LaTeX class docstring
-               graphics_extensions = LatexGraphics,
-               recursive = 0)
+               graphics_extensions=LatexGraphics,
+               recursive=0)
     return ds
 
+
 class LaTeX(SCons.Scanner.Base):
+
     """Class for scanning LaTeX files for included files.
 
     Unlike most scanners, which use regular expressions that just
@@ -136,7 +149,7 @@ class LaTeX(SCons.Scanner.Base):
     Finally, if there is no extension for an "includegraphics" keyword
     latex will append .ps or .eps to find the file, while pdftex may use .pdf,
     .jpg, .tif, .mps, or .png.
-    
+
     The actual subset and search order may be altered by
     DeclareGraphicsExtensions command. This complication is ignored.
     The default order corresponds to experimentation with teTeX
@@ -157,12 +170,14 @@ class LaTeX(SCons.Scanner.Base):
     FIXME: also look for the class or style in document[class|style]{}
     FIXME: also look for the argument of bibliographystyle{}
     """
-    keyword_paths = {'include': 'TEXINPUTS',
-                     'input': 'TEXINPUTS',
-                     'includegraphics': 'TEXINPUTS',
-                     'bibliography': 'BIBINPUTS',
-                     'bibliographystyle': 'BSTINPUTS',
-                     'usepackage': 'TEXINPUTS'}
+    keyword_paths = {
+        'include': 'TEXINPUTS',
+        'input': 'TEXINPUTS',
+        'includegraphics': 'TEXINPUTS',
+        'bibliography': 'BIBINPUTS',
+        'bibliographystyle': 'BSTINPUTS',
+        'usepackage': 'TEXINPUTS'
+    }
     env_variables = SCons.Util.unique(keyword_paths.values())
 
     def __init__(self, name, suffixes, graphics_extensions, *args, **kw):
@@ -183,6 +198,7 @@ class LaTeX(SCons.Scanner.Base):
             return self.scan(node, path)
 
         class FindMultiPathDirs:
+
             """The stock FindPathDirs function has the wrong granularity:
             it is called once per target, while we need the path that depends
             on what kind of included files is being searched. This wrapper
@@ -193,32 +209,45 @@ class LaTeX(SCons.Scanner.Base):
             back and uses a dictionary of tuples rather than a single tuple
             of paths.
             """
+
             def __init__(self, dictionary):
                 self.dictionary = {}
-                for k,n in dictionary.items():
-                    self.dictionary[k] = ( SCons.Scanner.FindPathDirs(n),
-                                           FindENVPathDirs(n) )
+                for k, n in dictionary.items():
+                    self.dictionary[k] = (SCons.Scanner.FindPathDirs(n),
+                                          FindENVPathDirs(n))
 
-            def __call__(self, env, dir=None, target=None, source=None,
-                                    argument=None):
+            def __call__(self, env,
+                         dir=None,
+                         target=None,
+                         source=None,
+                         argument=None):
                 di = {}
-                for k,(c,cENV)  in self.dictionary.items():
-                    di[k] = ( c(env, dir=None, target=None, source=None,
-                                   argument=None) ,
-                              cENV(env, dir=None, target=None, source=None,
-                                   argument=None) )
+                for k, (c, cENV) in self.dictionary.items():
+                    di[k] = (c(env,
+                               dir=None,
+                               target=None,
+                               source=None,
+                               argument=None), cENV(env,
+                                                    dir=None,
+                                                    target=None,
+                                                    source=None,
+                                                    argument=None))
                 # To prevent "dict is not hashable error"
                 return tuple(di.items())
 
         class LaTeXScanCheck:
+
             """Skip all but LaTeX source files, i.e., do not scan *.eps,
             *.pdf, *.jpg, etc.
             """
+
             def __init__(self, suffixes):
                 self.suffixes = suffixes
+
             def __call__(self, node, env):
                 current = not node.has_builder() or node.is_up_to_date()
-                scannable = node.get_suffix() in env.subst_list(self.suffixes)[0]
+                scannable = node.get_suffix() in env.subst_list(
+                    self.suffixes)[0]
                 # Returning false means that the file is not scanned.
                 return scannable and current
 
@@ -229,32 +258,33 @@ class LaTeX(SCons.Scanner.Base):
         kw['scan_check'] = LaTeXScanCheck(suffixes)
         kw['name'] = name
 
-        apply(SCons.Scanner.Base.__init__, (self,) + args, kw)
+        apply(SCons.Scanner.Base.__init__, (self, ) + args, kw)
 
     def _latex_names(self, include):
         filename = include[1]
         if include[0] == 'input':
-            base, ext = os.path.splitext( filename )
+            base, ext = os.path.splitext(filename)
             if ext == "":
                 return [filename + '.tex']
         if (include[0] == 'include'):
             return [filename + '.tex']
         if include[0] == 'bibliography':
-            base, ext = os.path.splitext( filename )
+            base, ext = os.path.splitext(filename)
             if ext == "":
                 return [filename + '.bib']
         if include[0] == 'usepackage':
-            base, ext = os.path.splitext( filename )
+            base, ext = os.path.splitext(filename)
             if ext == "":
                 return [filename + '.sty']
         if include[0] == 'includegraphics':
-            base, ext = os.path.splitext( filename )
+            base, ext = os.path.splitext(filename)
             if ext == "":
-                #TODO(1.5) return [filename + e for e in self.graphics_extensions]
-                #return map(lambda e, f=filename: f+e, self.graphics_extensions + TexGraphics)
+                # TODO(1.5) return [filename + e for e in self.graphics_extensions]
+                # return map(lambda e, f=filename: f+e, self.graphics_extensions + TexGraphics)
                 # use the line above to find dependency for PDF builder when only .eps figure is present
                 # Since it will be found if the user tell scons how to make the pdf figure leave it out for now.
-                return map(lambda e, f=filename: f+e, self.graphics_extensions)
+                return map(lambda e, f=filename: f + e,
+                           self.graphics_extensions)
         return [filename]
 
     def sort_key(self, include):
@@ -268,11 +298,11 @@ class LaTeX(SCons.Scanner.Base):
         try_names = self._latex_names(include)
         for n in try_names:
             # see if we find it using the path in env[var]
-            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path[0])
+            i = SCons.Node.FS.find_file(n, (source_dir, ) + sub_path[0])
             if i:
                 return i, include
             # see if we find it using the path in env['ENV'][var]
-            i = SCons.Node.FS.find_file(n, (source_dir,) + sub_path[1])
+            i = SCons.Node.FS.find_file(n, (source_dir, ) + sub_path[1])
             if i:
                 return i, include
         return i, include
@@ -301,9 +331,9 @@ class LaTeX(SCons.Scanner.Base):
             split_includes = []
             for include in includes:
                 inc_type = noopt_cre.sub('', include[0])
-                inc_list = string.split(include[1],',')
+                inc_list = string.split(include[1], ',')
                 for j in range(len(inc_list)):
-                    split_includes.append( (inc_type, inc_list[j]) )
+                    split_includes.append((inc_type, inc_list[j]))
             #
             includes = split_includes
             node.includes = includes
@@ -326,8 +356,10 @@ class LaTeX(SCons.Scanner.Base):
                 # Do not bother with 'usepackage' warnings, as they most
                 # likely refer to system-level files
                 if include[0] != 'usepackage':
-                    SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                                        "No dependency generated for file: %s (included from: %s) -- file not found" % (i, node))
+                    SCons.Warnings.warn(
+                        SCons.Warnings.DependencyWarning,
+                        "No dependency generated for file: %s (included from: %s) -- file not found"
+                        % (i, node))
             else:
                 sortkey = self.sort_key(n)
                 nodes.append((sortkey, n))

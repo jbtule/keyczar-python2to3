@@ -39,15 +39,17 @@ import SCons.Memoize
 
 
 class Batch:
+
     """Remembers exact association between targets
     and sources of executor."""
+
     def __init__(self, targets=[], sources=[]):
         self.targets = targets
         self.sources = sources
 
 
-
 class TSList(UserList.UserList):
+
     """A class that implements $TARGETS or $SOURCES expansions by wrapping
     an executor Method.  This class is used in the Executor.lvars()
     to delay creation of NodeList objects until they're needed.
@@ -57,44 +59,58 @@ class TSList(UserList.UserList):
     a list during variable expansion.  We're not really using any
     UserList.UserList methods in practice.
     """
+
     def __init__(self, func):
         self.func = func
+
     def __getattr__(self, attr):
         nl = self.func()
         return getattr(nl, attr)
+
     def __getitem__(self, i):
         nl = self.func()
         return nl[i]
+
     def __getslice__(self, i, j):
         nl = self.func()
-        i = max(i, 0); j = max(j, 0)
+        i = max(i, 0)
+        j = max(j, 0)
         return nl[i:j]
+
     def __str__(self):
         nl = self.func()
         return str(nl)
+
     def __repr__(self):
         nl = self.func()
         return repr(nl)
 
+
 class TSObject:
+
     """A class that implements $TARGET or $SOURCE expansions by wrapping
     an Executor method.
     """
+
     def __init__(self, func):
         self.func = func
+
     def __getattr__(self, attr):
         n = self.func()
         return getattr(n, attr)
+
     def __str__(self):
         n = self.func()
         if n:
             return str(n)
         return ''
+
     def __repr__(self):
         n = self.func()
         if n:
             return repr(n)
         return ''
+
 
 def rfile(node):
     """
@@ -111,6 +127,7 @@ def rfile(node):
 
 
 class Executor:
+
     """A class for controlling instances of executing an action.
 
     This largely exists to hold a single association of an action,
@@ -123,9 +140,14 @@ class Executor:
 
     memoizer_counters = []
 
-    def __init__(self, action, env=None, overridelist=[{}],
-                 targets=[], sources=[], builder_kw={}):
-        if __debug__: logInstanceCreation(self, 'Executor.Executor')
+    def __init__(self, action,
+                 env=None,
+                 overridelist=[{}],
+                 targets=[],
+                 sources=[],
+                 builder_kw={}):
+        if __debug__:
+            logInstanceCreation(self, 'Executor.Executor')
         self.set_action_list(action)
         self.pre_actions = []
         self.post_actions = []
@@ -143,14 +165,14 @@ class Executor:
             return self.lvars
         except AttributeError:
             self.lvars = {
-                'CHANGED_SOURCES' : TSList(self._get_changed_sources),
-                'CHANGED_TARGETS' : TSList(self._get_changed_targets),
-                'SOURCE' : TSObject(self._get_source),
-                'SOURCES' : TSList(self._get_sources),
-                'TARGET' : TSObject(self._get_target),
-                'TARGETS' : TSList(self._get_targets),
-                'UNCHANGED_SOURCES' : TSList(self._get_unchanged_sources),
-                'UNCHANGED_TARGETS' : TSList(self._get_unchanged_targets),
+                'CHANGED_SOURCES': TSList(self._get_changed_sources),
+                'CHANGED_TARGETS': TSList(self._get_changed_targets),
+                'SOURCE': TSObject(self._get_source),
+                'SOURCES': TSList(self._get_sources),
+                'TARGET': TSObject(self._get_target),
+                'TARGETS': TSList(self._get_targets),
+                'UNCHANGED_SOURCES': TSList(self._get_unchanged_sources),
+                'UNCHANGED_TARGETS': TSList(self._get_unchanged_targets),
             }
             return self.lvars
 
@@ -186,18 +208,20 @@ class Executor:
             return self._changed_targets_list
 
     def _get_source(self, *args, **kw):
-        #return SCons.Util.NodeList([rfile(self.batches[0].sources[0]).get_subst_proxy()])
+        # return SCons.Util.NodeList([rfile(self.batches[0].sources[0]).get_subst_proxy()])
         return rfile(self.batches[0].sources[0]).get_subst_proxy()
 
     def _get_sources(self, *args, **kw):
-        return SCons.Util.NodeList(map(lambda n: rfile(n).get_subst_proxy(), self.get_all_sources()))
+        return SCons.Util.NodeList(map(lambda n: rfile(n).get_subst_proxy(),
+                                       self.get_all_sources()))
 
     def _get_target(self, *args, **kw):
-        #return SCons.Util.NodeList([self.batches[0].targets[0].get_subst_proxy()])
+        # return SCons.Util.NodeList([self.batches[0].targets[0].get_subst_proxy()])
         return self.batches[0].targets[0].get_subst_proxy()
 
     def _get_targets(self, *args, **kw):
-        return SCons.Util.NodeList(map(lambda n: n.get_subst_proxy(), self.get_all_targets()))
+        return SCons.Util.NodeList(map(lambda n: n.get_subst_proxy(),
+                                       self.get_all_targets()))
 
     def _get_unchanged_sources(self, *args, **kw):
         try:
@@ -276,7 +300,6 @@ class Executor:
         return result
 
     def get_action_side_effects(self):
-
         """Returns all side effects for all batches of this
         Executor used by the underlying Action.
         """
@@ -321,8 +344,7 @@ class Executor:
             cwd = self.batches[0].targets[0].cwd
         except (IndexError, AttributeError):
             cwd = None
-        return scanner.path(env, cwd,
-                            self.get_all_targets(),
+        return scanner.path(env, cwd, self.get_all_targets(),
                             self.get_all_sources())
 
     def get_kw(self, kw={}):
@@ -349,9 +371,9 @@ class Executor:
             elif status:
                 msg = "Error %s" % status
                 raise SCons.Errors.BuildError(
-                    errstr=msg, 
+                    errstr=msg,
                     node=self.batches[0].targets,
-                    executor=self, 
+                    executor=self,
                     action=act)
         return status
 
@@ -372,7 +394,8 @@ class Executor:
         # TODO(batch):  extend to multiple batches
         assert (len(self.batches) == 1)
         # TODO(batch):  remove duplicates?
-        sources = filter(lambda x, s=self.batches[0].sources: x not in s, sources)
+        sources = filter(lambda x, s=self.batches[0].sources: x not in s,
+                         sources)
         self.batches[0].sources.extend(sources)
 
     def get_sources(self):
@@ -394,7 +417,8 @@ class Executor:
         for s in self.get_all_sources():
             if s.missing():
                 msg = "Source `%s' not found, needed by target `%s'."
-                raise SCons.Errors.StopError, msg % (s, self.batches[0].targets[0])
+                raise SCons.Errors.StopError, msg % (
+                    s, self.batches[0].targets[0])
 
     def add_pre_action(self, action):
         self.pre_actions.append(action)
@@ -407,9 +431,8 @@ class Executor:
     def my_str(self):
         env = self.get_build_env()
         get = lambda action, t=self.get_all_targets(), s=self.get_all_sources(), e=env: \
-                     action.genstring(t, s, e)
+            action.genstring(t, s, e)
         return string.join(map(get, self.get_action_list()), "\n")
-
 
     def __str__(self):
         return self.my_str()
@@ -417,7 +440,7 @@ class Executor:
     def nullify(self):
         self.cleanup()
         self.do_execute = self.do_nothing
-        self.my_str     = lambda S=self: ''
+        self.my_str = lambda S=self: ''
 
     memoizer_counters.append(SCons.Memoize.CountValue('get_contents'))
 
@@ -432,7 +455,7 @@ class Executor:
             pass
         env = self.get_build_env()
         get = lambda action, t=self.get_all_targets(), s=self.get_all_sources(), e=env: \
-                     action.get_contents(t, s, e)
+            action.get_contents(t, s, e)
         result = string.join(map(get, self.get_action_list()), "")
         self._memo['get_contents'] = result
         return result
@@ -490,12 +513,13 @@ class Executor:
             tgt.add_to_implicit(deps)
 
     def _get_unignored_sources_key(self, node, ignore=()):
-        return (node,) + tuple(ignore)
+        return (node, ) + tuple(ignore)
 
-    memoizer_counters.append(SCons.Memoize.CountDict('get_unignored_sources', _get_unignored_sources_key))
+    memoizer_counters.append(SCons.Memoize.CountDict(
+        'get_unignored_sources', _get_unignored_sources_key))
 
     def get_unignored_sources(self, node, ignore=()):
-        key = (node,) + tuple(ignore)
+        key = (node, ) + tuple(ignore)
         try:
             memo_dict = self._memo['get_unignored_sources']
         except KeyError:
@@ -521,7 +545,8 @@ class Executor:
             idict = {}
             for i in ignore:
                 idict[i] = 1
-            sourcelist = filter(lambda s, i=idict: not i.has_key(s), sourcelist)
+            sourcelist = filter(lambda s, i=idict: not i.has_key(s),
+                                sourcelist)
 
         memo_dict[key] = sourcelist
 
@@ -534,21 +559,22 @@ class Executor:
         build_env = self.get_build_env()
         for act in self.get_action_list():
             deps = act.get_implicit_deps(self.get_all_targets(),
-                                         self.get_all_sources(),
-                                         build_env)
+                                         self.get_all_sources(), build_env)
             result.extend(deps)
         return result
 
 
-
 _batch_executors = {}
+
 
 def GetBatchExecutor(key):
     return _batch_executors[key]
 
+
 def AddBatchExecutor(key, executor):
     assert not _batch_executors.has_key(key)
     _batch_executors[key] = executor
+
 
 nullenv = None
 
@@ -558,10 +584,12 @@ def get_NullEnvironment():
     global nullenv
 
     import SCons.Util
+
     class NullEnvironment(SCons.Util.Null):
         import SCons.CacheDir
         _CacheDir_path = None
         _CacheDir = SCons.CacheDir.CacheDir(None)
+
         def get_CacheDir(self):
             return self._CacheDir
 
@@ -569,7 +597,9 @@ def get_NullEnvironment():
         nullenv = NullEnvironment()
     return nullenv
 
+
 class Null:
+
     """A null Executor, with a null build Environment, that does
     nothing when the rest of the methods call it.
 
@@ -577,42 +607,59 @@ class Null:
     disassociate Builders from Nodes entirely, so we're not
     going to worry about unit tests for this--at least for now.
     """
+
     def __init__(self, *args, **kw):
-        if __debug__: logInstanceCreation(self, 'Executor.Null')
+        if __debug__:
+            logInstanceCreation(self, 'Executor.Null')
         self.batches = [Batch(kw['targets'][:], [])]
+
     def get_build_env(self):
         return get_NullEnvironment()
+
     def get_build_scanner_path(self):
         return None
+
     def cleanup(self):
         pass
+
     def prepare(self):
         pass
+
     def get_unignored_sources(self, *args, **kw):
         return tuple(())
+
     def get_action_targets(self):
         return []
+
     def get_action_list(self):
         return []
+
     def get_all_targets(self):
         return self.batches[0].targets
+
     def get_all_sources(self):
         return self.batches[0].targets[0].sources
+
     def get_all_children(self):
         return self.get_all_sources()
+
     def get_all_prerequisites(self):
         return []
+
     def get_action_side_effects(self):
         return []
+
     def __call__(self, *args, **kw):
         return 0
+
     def get_contents(self):
         return ''
+
     def _morph(self):
         """Morph this Null executor to a real Executor object."""
         batches = self.batches
         self.__class__ = Executor
-        self.__init__([])            
+        self.__init__([])
         self.batches = batches
 
     # The following methods require morphing this Null Executor to a
@@ -621,13 +668,14 @@ class Null:
     def add_pre_action(self, action):
         self._morph()
         self.add_pre_action(action)
+
     def add_post_action(self, action):
         self._morph()
         self.add_post_action(action)
+
     def set_action_list(self, action):
         self._morph()
         self.set_action_list(action)
-
 
 # Local Variables:
 # tab-width:4

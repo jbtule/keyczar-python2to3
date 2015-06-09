@@ -57,13 +57,13 @@ for dir in dirs:
         acc = cc
         break
 
-        
+
 def generate(env):
     """Add Builders and construction variables for g++ to an Environment."""
     cplusplus.generate(env)
 
     if acc:
-        env['CXX']        = acc or 'aCC'
+        env['CXX'] = acc or 'aCC'
         env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
         # determine version of aCC
         line = os.popen(acc + ' -V 2>&1').readline().rstrip()
@@ -74,6 +74,7 @@ def generate(env):
             env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
         else:
             env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS +Z')
+
 
 def exists(env):
     return acc

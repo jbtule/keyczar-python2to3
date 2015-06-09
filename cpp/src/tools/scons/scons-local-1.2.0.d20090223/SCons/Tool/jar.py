@@ -36,6 +36,7 @@ __revision__ = "src/engine/SCons/Tool/jar.py 4043 2009/02/23 09:06:45 scons"
 import SCons.Subst
 import SCons.Util
 
+
 def jarSources(target, source, env, for_signature):
     """Only include sources that are not a manifest file."""
     try:
@@ -67,6 +68,7 @@ def jarSources(target, source, env, for_signature):
             result.append(src)
     return result
 
+
 def jarManifest(target, source, env, for_signature):
     """Look in sources for a manifest file, if any."""
     for src in source:
@@ -74,6 +76,7 @@ def jarManifest(target, source, env, for_signature):
         if contents[:16] == "Manifest-Version":
             return src
     return ''
+
 
 def jarFlags(target, source, env, for_signature):
     """If we have a manifest, make sure that the 'm'
@@ -87,18 +90,20 @@ def jarFlags(target, source, env, for_signature):
             break
     return jarflags
 
+
 def generate(env):
     """Add Builders and construction variables for jar to an Environment."""
     SCons.Tool.CreateJarBuilder(env)
 
-    env['JAR']        = 'jar'
-    env['JARFLAGS']   = SCons.Util.CLVar('cf')
-    env['_JARFLAGS']  = jarFlags
+    env['JAR'] = 'jar'
+    env['JARFLAGS'] = SCons.Util.CLVar('cf')
+    env['_JARFLAGS'] = jarFlags
     env['_JARMANIFEST'] = jarManifest
     env['_JARSOURCES'] = jarSources
-    env['_JARCOM']    = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARSOURCES'
-    env['JARCOM']     = "${TEMPFILE('$_JARCOM')}"
-    env['JARSUFFIX']  = '.jar'
+    env['_JARCOM'] = '$JAR $_JARFLAGS $TARGET $_JARMANIFEST $_JARSOURCES'
+    env['JARCOM'] = "${TEMPFILE('$_JARCOM')}"
+    env['JARSUFFIX'] = '.jar'
+
 
 def exists(env):
     return env.Detect('jar')

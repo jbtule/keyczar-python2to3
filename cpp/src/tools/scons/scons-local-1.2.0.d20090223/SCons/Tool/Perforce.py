@@ -43,13 +43,12 @@ import SCons.Util
 # This function should maybe be moved to SCons.Util?
 from SCons.Tool.PharLapCommon import addPathIfNotExists
 
-
-
 # Variables that we want to import from the base OS environment.
-_import_env = [ 'P4PORT', 'P4CLIENT', 'P4USER', 'USER', 'USERNAME', 'P4PASSWD',
-                'P4CHARSET', 'P4LANGUAGE', 'SystemRoot' ]
+_import_env = ['P4PORT', 'P4CLIENT', 'P4USER', 'USER', 'USERNAME', 'P4PASSWD',
+               'P4CHARSET', 'P4LANGUAGE', 'SystemRoot']
 
 PerforceAction = SCons.Action.Action('$P4COM', '$P4COMSTR')
+
 
 def generate(env):
     """Add a Builder factory function and construction variables for
@@ -57,14 +56,14 @@ def generate(env):
 
     def PerforceFactory(env=env):
         """ """
-        return SCons.Builder.Builder(action = PerforceAction, env = env)
+        return SCons.Builder.Builder(action=PerforceAction, env=env)
 
     #setattr(env, 'Perforce', PerforceFactory)
     env.Perforce = PerforceFactory
 
-    env['P4']      = 'p4'
+    env['P4'] = 'p4'
     env['P4FLAGS'] = SCons.Util.CLVar('')
-    env['P4COM']   = '$P4 $P4FLAGS sync $TARGET'
+    env['P4COM'] = '$P4 $P4FLAGS sync $TARGET'
     try:
         environ = env['ENV']
     except KeyError:
@@ -85,14 +84,15 @@ def generate(env):
     if SCons.Util.can_read_reg:
         # If we can read the registry, add the path to Perforce to our environment.
         try:
-            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                      'Software\\Perforce\\environment')
+            k = SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                                        'Software\\Perforce\\environment')
             val, tok = SCons.Util.RegQueryValueEx(k, 'P4INSTROOT')
             addPathIfNotExists(environ, 'PATH', val)
         except SCons.Util.RegError:
             # Can't detect where Perforce is, hope the user has it set in the
             # PATH.
             pass
+
 
 def exists(env):
     return env.Detect('p4')

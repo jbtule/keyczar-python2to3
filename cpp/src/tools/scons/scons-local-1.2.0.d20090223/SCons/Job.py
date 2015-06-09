@@ -51,17 +51,19 @@ interrupt_msg = 'Build interrupted.'
 
 
 class InterruptState:
-   def __init__(self):
-       self.interrupted = False
 
-   def set(self):
-       self.interrupted = True
+    def __init__(self):
+        self.interrupted = False
 
-   def __call__(self):
-       return self.interrupted
+    def set(self):
+        self.interrupted = True
+
+    def __call__(self):
+        return self.interrupted
 
 
 class Jobs:
+
     """An instance of this class initializes N jobs, and provides
     methods for starting, stopping, and waiting on all N jobs.
     """
@@ -85,7 +87,7 @@ class Jobs:
             stack_size = explicit_stack_size
             if stack_size is None:
                 stack_size = default_stack_size
-                
+
             try:
                 self.job = Parallel(taskmaster, num, stack_size)
                 self.num_jobs = num
@@ -136,6 +138,7 @@ class Jobs:
         SCons forks before executing another process. In that case, we
         want the child to exit immediately.
         """
+
         def handler(signum, stack, self=self, parentpid=os.getpid()):
             if os.getpid() == parentpid:
                 self.job.taskmaster.stop()
@@ -143,7 +146,7 @@ class Jobs:
             else:
                 os._exit(2)
 
-        self.old_sigint  = signal.signal(signal.SIGINT, handler)
+        self.old_sigint = signal.signal(signal.SIGINT, handler)
         self.old_sigterm = signal.signal(signal.SIGTERM, handler)
         try:
             self.old_sighup = signal.signal(signal.SIGHUP, handler)
@@ -161,7 +164,9 @@ class Jobs:
         except AttributeError:
             pass
 
+
 class Serial:
+
     """This class is used to execute tasks in series, and is more efficient
     than Parallel, but is only appropriate for non-parallel builds. Only
     one instance of this class should be in existence at a time.
@@ -177,7 +182,7 @@ class Serial:
         taskmaster's executed() method will be called for each task when it
         is successfully executed or failed() will be called if it failed to
         execute (e.g. execute() raised an exception)."""
-        
+
         self.taskmaster = taskmaster
         self.interrupted = InterruptState()
 
@@ -186,7 +191,7 @@ class Serial:
         and executing them, and return when there are no more tasks. If a task
         fails to execute (i.e. execute() raises an exception), then the job will
         stop."""
-        
+
         while 1:
             task = self.taskmaster.next_task()
 
@@ -201,7 +206,8 @@ class Serial:
                 if self.interrupted():
                     try:
                         raise SCons.Errors.BuildError(
-                            task.targets[0], errstr=interrupt_msg)
+                            task.targets[0],
+                            errstr=interrupt_msg)
                     except:
                         task.exception_set()
                 else:
@@ -216,7 +222,6 @@ class Serial:
             task.postprocess()
         self.taskmaster.cleanup()
 
-
 # Trap import failure so that everything in the Job module but the
 # Parallel class (and its dependent classes) will work if the interpreter
 # doesn't support threads.
@@ -226,7 +231,9 @@ try:
 except ImportError:
     pass
 else:
+
     class Worker(threading.Thread):
+
         """A worker thread waits on a task to be posted to its request queue,
         dequeues the task, executes it, and posts a tuple including the task
         and a boolean indicating whether the task executed successfully. """
@@ -252,7 +259,8 @@ else:
                 try:
                     if self.interrupted():
                         raise SCons.Errors.BuildError(
-                            task.targets[0], errstr=interrupt_msg)
+                            task.targets[0],
+                            errstr=interrupt_msg)
                     task.execute()
                 except:
                     task.exception_set()
@@ -263,11 +271,12 @@ else:
                 self.resultsQueue.put((task, ok))
 
     class ThreadPool:
+
         """This class is responsible for spawning and managing worker threads."""
 
         def __init__(self, num, stack_size, interrupted):
             """Create the request and reply queues, and 'num' worker threads.
-            
+
             One must specify the stack size of the worker threads. The
             stack size is specified in kilobytes.
             """
@@ -275,7 +284,7 @@ else:
             self.resultsQueue = Queue.Queue(0)
 
             try:
-                prev_size = threading.stack_size(stack_size*1024) 
+                prev_size = threading.stack_size(stack_size * 1024)
             except AttributeError, e:
                 # Only print a warning if the stack size has been
                 # explicitly set.
@@ -290,11 +299,12 @@ else:
             # Create worker threads
             self.workers = []
             for _ in range(num):
-                worker = Worker(self.requestQueue, self.resultsQueue, interrupted)
+                worker = Worker(self.requestQueue, self.resultsQueue,
+                                interrupted)
                 self.workers.append(worker)
 
             # Once we drop Python 1.5 we can change the following to:
-            #if 'prev_size' in locals():
+            # if 'prev_size' in locals():
             if 'prev_size' in locals().keys():
                 threading.stack_size(prev_size)
 
@@ -322,7 +332,7 @@ else:
                 self.requestQueue.put(None)
 
             # Wait for all of the workers to terminate.
-            # 
+            #
             # If we don't do this, later Python versions (2.4, 2.5) often
             # seem to raise exceptions during shutdown.  This happens
             # in requestQueue.get(), as an assertion failure that
@@ -339,6 +349,7 @@ else:
             self.workers = []
 
     class Parallel:
+
         """This class is used to execute tasks in parallel, and is somewhat 
         less efficient than Serial, but is appropriate for parallel builds.
 
@@ -373,7 +384,7 @@ else:
             an exception), then the job will stop."""
 
             jobs = 0
-            
+
             while 1:
                 # Start up as many available tasks as we're
                 # allowed to.
@@ -398,7 +409,8 @@ else:
                             task.executed()
                             task.postprocess()
 
-                if not task and not jobs: break
+                if not task and not jobs:
+                    break
 
                 # Let any/all completed tasks finish up before we go
                 # back and put the next batch of tasks on the queue.
@@ -412,7 +424,8 @@ else:
                         if self.interrupted():
                             try:
                                 raise SCons.Errors.BuildError(
-                                    task.targets[0], errstr=interrupt_msg)
+                                    task.targets[0],
+                                    errstr=interrupt_msg)
                             except:
                                 task.exception_set()
 

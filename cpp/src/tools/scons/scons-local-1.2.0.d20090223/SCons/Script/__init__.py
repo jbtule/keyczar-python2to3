@@ -89,7 +89,7 @@ import SCons.Defaults
 
 import Main
 
-main                    = Main.main
+main = Main.main
 
 # The following are global class definitions and variables that used to
 # live directly in this module back before 0.96.90, when it contained
@@ -102,17 +102,17 @@ main                    = Main.main
 # Some of these are commented out because it's *really* unlikely anyone
 # used them, but we're going to leave the comment here to try to make
 # it obvious what to do if the situation arises.
-BuildTask               = Main.BuildTask
-CleanTask               = Main.CleanTask
-QuestionTask            = Main.QuestionTask
+BuildTask = Main.BuildTask
+CleanTask = Main.CleanTask
+QuestionTask = Main.QuestionTask
 #PrintHelp               = Main.PrintHelp
 #SConscriptSettableOptions = Main.SConscriptSettableOptions
 
-AddOption               = Main.AddOption
-GetOption               = Main.GetOption
-SetOption               = Main.SetOption
-Progress                = Main.Progress
-GetBuildFailures        = Main.GetBuildFailures
+AddOption = Main.AddOption
+GetOption = Main.GetOption
+SetOption = Main.SetOption
+Progress = Main.Progress
+GetBuildFailures = Main.GetBuildFailures
 
 #keep_going_on_error     = Main.keep_going_on_error
 #print_dtree             = Main.print_dtree
@@ -133,70 +133,75 @@ GetBuildFailures        = Main.GetBuildFailures
 import SConscript
 _SConscript = SConscript
 
-call_stack              = _SConscript.call_stack
+call_stack = _SConscript.call_stack
 
 #
-Action                  = SCons.Action.Action
-AddMethod               = SCons.Util.AddMethod
-AllowSubstExceptions    = SCons.Subst.SetAllowableExceptions
-Builder                 = SCons.Builder.Builder
-Configure               = _SConscript.Configure
-Environment             = SCons.Environment.Environment
+Action = SCons.Action.Action
+AddMethod = SCons.Util.AddMethod
+AllowSubstExceptions = SCons.Subst.SetAllowableExceptions
+Builder = SCons.Builder.Builder
+Configure = _SConscript.Configure
+Environment = SCons.Environment.Environment
 #OptParser               = SCons.SConsOptions.OptParser
-FindPathDirs            = SCons.Scanner.FindPathDirs
-Platform                = SCons.Platform.Platform
-Return                  = _SConscript.Return
-Scanner                 = SCons.Scanner.Base
-Tool                    = SCons.Tool.Tool
-WhereIs                 = SCons.Util.WhereIs
+FindPathDirs = SCons.Scanner.FindPathDirs
+Platform = SCons.Platform.Platform
+Return = _SConscript.Return
+Scanner = SCons.Scanner.Base
+Tool = SCons.Tool.Tool
+WhereIs = SCons.Util.WhereIs
 
 #
-BoolVariable            = SCons.Variables.BoolVariable
-EnumVariable            = SCons.Variables.EnumVariable
-ListVariable            = SCons.Variables.ListVariable
-PackageVariable         = SCons.Variables.PackageVariable
-PathVariable            = SCons.Variables.PathVariable
+BoolVariable = SCons.Variables.BoolVariable
+EnumVariable = SCons.Variables.EnumVariable
+ListVariable = SCons.Variables.ListVariable
+PackageVariable = SCons.Variables.PackageVariable
+PathVariable = SCons.Variables.PathVariable
 
 # Deprecated names that will go away some day.
-BoolOption              = SCons.Options.BoolOption
-EnumOption              = SCons.Options.EnumOption
-ListOption              = SCons.Options.ListOption
-PackageOption           = SCons.Options.PackageOption
-PathOption              = SCons.Options.PathOption
+BoolOption = SCons.Options.BoolOption
+EnumOption = SCons.Options.EnumOption
+ListOption = SCons.Options.ListOption
+PackageOption = SCons.Options.PackageOption
+PathOption = SCons.Options.PathOption
 
 # Action factories.
-Chmod                   = SCons.Defaults.Chmod
-Copy                    = SCons.Defaults.Copy
-Delete                  = SCons.Defaults.Delete
-Mkdir                   = SCons.Defaults.Mkdir
-Move                    = SCons.Defaults.Move
-Touch                   = SCons.Defaults.Touch
+Chmod = SCons.Defaults.Chmod
+Copy = SCons.Defaults.Copy
+Delete = SCons.Defaults.Delete
+Mkdir = SCons.Defaults.Mkdir
+Move = SCons.Defaults.Move
+Touch = SCons.Defaults.Touch
 
 # Pre-made, public scanners.
-CScanner                = SCons.Tool.CScanner
-DScanner                = SCons.Tool.DScanner
-DirScanner              = SCons.Defaults.DirScanner
-ProgramScanner          = SCons.Tool.ProgramScanner
-SourceFileScanner       = SCons.Tool.SourceFileScanner
+CScanner = SCons.Tool.CScanner
+DScanner = SCons.Tool.DScanner
+DirScanner = SCons.Defaults.DirScanner
+ProgramScanner = SCons.Tool.ProgramScanner
+SourceFileScanner = SCons.Tool.SourceFileScanner
 
 # Functions we might still convert to Environment methods.
-CScan                   = SCons.Defaults.CScan
-DefaultEnvironment      = SCons.Defaults.DefaultEnvironment
+CScan = SCons.Defaults.CScan
+DefaultEnvironment = SCons.Defaults.DefaultEnvironment
+
 
 # Other variables we provide.
 class TargetList(UserList.UserList):
+
     def _do_nothing(self, *args, **kw):
         pass
+
     def _add_Default(self, list):
         self.extend(list)
+
     def _clear(self):
         del self[:]
 
-ARGUMENTS               = {}
-ARGLIST                 = []
-BUILD_TARGETS           = TargetList()
-COMMAND_LINE_TARGETS    = []
-DEFAULT_TARGETS         = []
+
+ARGUMENTS = {}
+ARGLIST = []
+BUILD_TARGETS = TargetList()
+COMMAND_LINE_TARGETS = []
+DEFAULT_TARGETS = []
 
 # BUILD_TARGETS can be modified in the SConscript files.  If so, we
 # want to treat the modified BUILD_TARGETS list as if they specified
@@ -209,11 +214,13 @@ DEFAULT_TARGETS         = []
 # own targets to BUILD_TARGETS.
 _build_plus_default = TargetList()
 
+
 def _Add_Arguments(alist):
     for arg in alist:
         a, b = string.split(arg, '=', 1)
         ARGUMENTS[a] = b
         ARGLIST.append((a, b))
+
 
 def _Add_Targets(tlist):
     if tlist:
@@ -225,15 +232,19 @@ def _Add_Targets(tlist):
         _build_plus_default._add_Default = _build_plus_default._do_nothing
         _build_plus_default._clear = _build_plus_default._do_nothing
 
+
 def _Set_Default_Targets_Has_Been_Called(d, fs):
     return DEFAULT_TARGETS
+
 
 def _Set_Default_Targets_Has_Not_Been_Called(d, fs):
     if d is None:
         d = [fs.Dir('.')]
     return d
 
+
 _Get_Default_Targets = _Set_Default_Targets_Has_Not_Been_Called
+
 
 def _Set_Default_Targets(env, tlist):
     global DEFAULT_TARGETS
@@ -260,6 +271,7 @@ def _Set_Default_Targets(env, tlist):
 #
 help_text = None
 
+
 def HelpFunction(text):
     global help_text
     if SCons.Script.help_text is None:
@@ -271,9 +283,11 @@ def HelpFunction(text):
 # Will be non-zero if we are reading an SConscript file.
 sconscript_reading = 0
 
+
 #
 def Variables(files=[], args=ARGUMENTS):
     return SCons.Variables.Variables(files, args)
+
 
 def Options(files=[], args=ARGUMENTS):
     return SCons.Options.Options(files, args)
@@ -293,7 +307,6 @@ GlobalDefaultEnvironmentFunctions = [
     'Import',
     #'SConscript', is handled separately, below.
     'SConscriptChdir',
-
     # Methods from the Environment.Base class.
     'AddPostAction',
     'AddPreAction',
@@ -302,7 +315,7 @@ GlobalDefaultEnvironmentFunctions = [
     'BuildDir',
     'CacheDir',
     'Clean',
-    #The Command() method is handled separately, below.
+    # The Command() method is handled separately, below.
     'Decider',
     'Depends',
     'Dir',

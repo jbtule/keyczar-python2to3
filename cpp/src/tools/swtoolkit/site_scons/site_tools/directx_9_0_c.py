@@ -27,14 +27,13 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Windows DirectX 9.0c tool for SCons."""
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  env['DIRECTX9_DIR'] = '$DIRECTX9_0_C_DIR'
-  env.AppendENVPath('INCLUDE', env.Dir('$DIRECTX9_DIR/include').abspath)
-  env.AppendENVPath('LIB', env.Dir('$DIRECTX9_DIR/lib').abspath)
+    env['DIRECTX9_DIR'] = '$DIRECTX9_0_C_DIR'
+    env.AppendENVPath('INCLUDE', env.Dir('$DIRECTX9_DIR/include').abspath)
+    env.AppendENVPath('LIB', env.Dir('$DIRECTX9_DIR/lib').abspath)

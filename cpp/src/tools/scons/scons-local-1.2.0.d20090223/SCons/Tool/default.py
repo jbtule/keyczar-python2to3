@@ -35,10 +35,12 @@ __revision__ = "src/engine/SCons/Tool/default.py 4043 2009/02/23 09:06:45 scons"
 
 import SCons.Tool
 
+
 def generate(env):
     """Add default tools."""
     for t in SCons.Tool.tool_list(env['PLATFORM'], env):
         SCons.Tool.Tool(t)(env)
+
 
 def exists(env):
     return 1

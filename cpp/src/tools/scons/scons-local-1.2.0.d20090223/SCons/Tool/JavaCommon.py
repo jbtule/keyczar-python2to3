@@ -56,16 +56,18 @@ if java_parsing:
     #     any alphanumeric token surrounded by angle brackets (generics);
     #     the multi-line comment begin and end tokens /* and */;
     #     array declarations "[]".
-    _reToken = re.compile(r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.\(\)]|' +
-                          r'\d*\.\d*|[A-Za-z_][\w\$\.]*|<[A-Za-z_]\w+>|' +
-                          r'/\*|\*/|\[\])')
+    _reToken = re.compile(
+        r'(\n|\\\\|//|\\[\'"]|[\'"\{\}\;\.\(\)]|' +
+        r'\d*\.\d*|[A-Za-z_][\w\$\.]*|<[A-Za-z_]\w+>|' + r'/\*|\*/|\[\])')
 
     class OuterState:
+
         """The initial state for parsing a Java file for classes,
         interfaces, and anonymous inner classes."""
+
         def __init__(self, version=default_java_version):
 
-            if not version in ('1.1', '1.2', '1.3','1.4', '1.5', '1.6'):
+            if not version in ('1.1', '1.2', '1.3', '1.4', '1.5', '1.6'):
                 msg = "Java version %s not supported" % version
                 raise NotImplementedError, msg
 
@@ -115,7 +117,7 @@ if java_parsing:
                 ret = SkipState(1, self)
                 self.skipState = ret
                 return ret
-        
+
         def __getAnonStack(self):
             return self.anonStacksStack[-1]
 
@@ -145,13 +147,13 @@ if java_parsing:
                 self.openBracket()
             elif token == '}':
                 self.closeBracket()
-            elif token in [ '"', "'" ]:
+            elif token in ['"', "'"]:
                 return IgnoreState(token, self)
             elif token == "new":
                 # anonymous inner class
                 if len(self.listClasses) > 0:
                     return self.__getAnonClassState()
-                return self.__getSkipState() # Skip the class name
+                return self.__getSkipState()  # Skip the class name
             elif token in ['class', 'interface', 'enum']:
                 if len(self.listClasses) == 0:
                     self.nextAnon = 1
@@ -187,12 +189,15 @@ if java_parsing:
             self.package = package
 
     class AnonClassState:
+
         """A state that looks for anonymous inner classes."""
+
         def __init__(self, old_state):
             # outer_state is always an instance of OuterState
             self.outer_state = old_state.outer_state
             self.old_state = old_state
             self.brace_level = 0
+
         def parseToken(self, token):
             # This is an anonymous class if and only if the next
             # non-whitespace token is a bracket. Everything between
@@ -212,7 +217,7 @@ if java_parsing:
                 if token == 'new':
                     # look further for anonymous inner class
                     return SkipState(1, AnonClassState(self))
-                elif token in [ '"', "'" ]:
+                elif token in ['"', "'"]:
                     return IgnoreState(token, self)
                 elif token == ')':
                     self.brace_level = self.brace_level - 1
@@ -222,11 +227,14 @@ if java_parsing:
             return self.old_state.parseToken(token)
 
     class SkipState:
+
         """A state that will skip a specified number of tokens before
         reverting to the previous state."""
+
         def __init__(self, tokens_to_skip, old_state):
             self.tokens_to_skip = tokens_to_skip
             self.old_state = old_state
+
         def parseToken(self, token):
             self.tokens_to_skip = self.tokens_to_skip - 1
             if self.tokens_to_skip < 1:
@@ -234,10 +242,13 @@ if java_parsing:
             return self
 
     class ClassState:
+
         """A state we go into when we hit a class or interface keyword."""
+
         def __init__(self, outer_state):
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
+
         def parseToken(self, token):
             # the next non-whitespace token should be the name of the class
             if token == '\n':
@@ -246,12 +257,12 @@ if java_parsing:
             # requires an index prepended to the class-name, e.g.
             # 'Foo$1Inner' (Tigris Issue 2087)
             if self.outer_state.localClasses and \
-                self.outer_state.stackBrackets[-1] > \
-                self.outer_state.stackBrackets[-2]+1:
+                    self.outer_state.stackBrackets[-1] > \
+                    self.outer_state.stackBrackets[-2] + 1:
                 locals = self.outer_state.localClasses[-1]
                 try:
                     idx = locals[token]
-                    locals[token] = locals[token]+1
+                    locals[token] = locals[token] + 1
                 except KeyError:
                     locals[token] = 1
                 token = str(locals[token]) + token
@@ -261,22 +272,28 @@ if java_parsing:
             return self.outer_state
 
     class IgnoreState:
+
         """A state that will ignore all tokens until it gets to a
         specified token."""
+
         def __init__(self, ignore_until, old_state):
             self.ignore_until = ignore_until
             self.old_state = old_state
+
         def parseToken(self, token):
             if self.ignore_until == token:
                 return self.old_state
             return self
 
     class PackageState:
+
         """The state we enter when we encounter the package keyword.
         We assume the next token will be the package name."""
+
         def __init__(self, outer_state):
             # outer_state is always an instance of OuterState
             self.outer_state = outer_state
+
         def parseToken(self, token):
             self.outer_state.setPackage(token)
             return self.outer_state
@@ -295,7 +312,8 @@ if java_parsing:
             # The regex produces a bunch of groups, but only one will
             # have anything in it.
             currstate = currstate.parseToken(token)
-            if trace: trace(token, currstate)
+            if trace:
+                trace(token, currstate)
         if initial.package:
             package = string.replace(initial.package, '.', os.sep)
         return (package, initial.listOutputs)

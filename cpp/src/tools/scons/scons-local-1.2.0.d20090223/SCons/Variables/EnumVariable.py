@@ -39,11 +39,12 @@ Usage example:
 
 __revision__ = "src/engine/SCons/Variables/EnumVariable.py 4043 2009/02/23 09:06:45 scons"
 
-__all__ = ['EnumVariable',]
+__all__ = ['EnumVariable', ]
 
 import string
 
 import SCons.Errors
+
 
 def _validator(key, val, env, vals):
     if not val in vals:
@@ -84,20 +85,20 @@ def EnumVariable(key, help, default, allowed_values, map={}, ignorecase=0):
     # define validator
     if ignorecase >= 1:
         validator = lambda key, val, env, vals=allowed_values: \
-                    _validator(key, string.lower(val), env, vals)
+            _validator(key, string.lower(val), env, vals)
     else:
         validator = lambda key, val, env, vals=allowed_values: \
-                    _validator(key, val, env, vals)
+            _validator(key, val, env, vals)
     # define converter
     if ignorecase == 2:
         converter = lambda val, map=map: \
-                    string.lower(map.get(string.lower(val), val))
+            string.lower(map.get(string.lower(val), val))
     elif ignorecase == 1:
         converter = lambda val, map=map: \
-                    map.get(string.lower(val), val)
+            map.get(string.lower(val), val)
     else:
         converter = lambda val, map=map: \
-                    map.get(val, val)
+            map.get(val, val)
     return (key, help, default, validator, converter)
 
 # Local Variables:

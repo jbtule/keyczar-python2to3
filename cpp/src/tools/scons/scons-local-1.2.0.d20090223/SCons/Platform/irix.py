@@ -34,6 +34,7 @@ __revision__ = "src/engine/SCons/Platform/irix.py 4043 2009/02/23 09:06:45 scons
 
 import posix
 
+
 def generate(env):
     posix.generate(env)
 

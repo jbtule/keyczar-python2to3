@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Component builders publishing test (SMALL test)."""
 
 import sys
@@ -36,10 +35,11 @@ import TestFramework
 
 
 class ComponentBuilderPublishTests(unittest.TestCase):
-  """Tests for component_builders module publishing resources."""
 
-  def assertPublished(self, target, resource_type, files):
-    """Check that the target has published the specified files.
+    """Tests for component_builders module publishing resources."""
+
+    def assertPublished(self, target, resource_type, files):
+        """Check that the target has published the specified files.
 
     Args:
       target: Name of target.
@@ -50,129 +50,124 @@ class ComponentBuilderPublishTests(unittest.TestCase):
     Raises:
       AssertionError: Published files do not match expected list.
     """
-    env = self.env
+        env = self.env
 
-    # Get sorted list of published files
-    found = sorted(map(str, env.GetPublished(target, resource_type)))
+        # Get sorted list of published files
+        found = sorted(map(str, env.GetPublished(target, resource_type)))
 
-    # Get list of expected files
-    expected = sorted(str(env.File(x)) for x in files)
+        # Get list of expected files
+        expected = sorted(str(env.File(x)) for x in files)
 
-    if found != expected:
-      raise AssertionError('Target %r resource %r expected %r, found %r' %
-                           (target, resource_type, expected, found))
+        if found != expected:
+            raise AssertionError('Target %r resource %r expected %r, found %r'
+                                 % (target, resource_type, expected, found))
 
-  def testPublished(self):
-    """Test that the correct artifacts were published."""
+    def testPublished(self):
+        """Test that the correct artifacts were published."""
 
-    # Static library
-    self.assertPublished(
-        'a_static_lib', 'link',
-        ['$OBJ_ROOT/${LIBPREFIX}a_static_lib$LIBSUFFIX'])
-    self.assertPublished('a_static_lib', 'run', [])
-    self.assertPublished('a_static_lib', 'debug', [])
+        # Static library
+        self.assertPublished(
+            'a_static_lib', 'link',
+            ['$OBJ_ROOT/${LIBPREFIX}a_static_lib$LIBSUFFIX'])
+        self.assertPublished('a_static_lib', 'run', [])
+        self.assertPublished('a_static_lib', 'debug', [])
 
-    # Shared library
-    self.assertPublished(
-        'a_shared_lib', 'run',
-        ['$OBJ_ROOT/${SHLIBPREFIX}a_shared_lib$SHLIBSUFFIX'])
-    if sys.platform in ('win32', 'cygwin'):
-      # Link against .lib, debug info in .pdb
-      self.assertPublished(
-          'a_shared_lib', 'link',
-          ['$OBJ_ROOT/${LIBPREFIX}a_shared_lib$LIBSUFFIX'])
-      self.assertPublished(
-          'a_shared_lib', 'debug',
-          ['$OBJ_ROOT/${SHLIBPREFIX}a_shared_lib.pdb'])
-    else:
-      # Posix - link against .so/.dylib, debug info in the shared lib itself.
-      self.assertPublished(
-          'a_shared_lib', 'link',
-          ['$OBJ_ROOT/${SHLIBPREFIX}a_shared_lib$SHLIBSUFFIX'])
-      self.assertPublished('a_shared_lib', 'debug', [])
+        # Shared library
+        self.assertPublished(
+            'a_shared_lib', 'run',
+            ['$OBJ_ROOT/${SHLIBPREFIX}a_shared_lib$SHLIBSUFFIX'])
+        if sys.platform in ('win32', 'cygwin'):
+            # Link against .lib, debug info in .pdb
+            self.assertPublished(
+                'a_shared_lib', 'link',
+                ['$OBJ_ROOT/${LIBPREFIX}a_shared_lib$LIBSUFFIX'])
+            self.assertPublished(
+                'a_shared_lib', 'debug',
+                ['$OBJ_ROOT/${SHLIBPREFIX}a_shared_lib.pdb'])
+        else:
+            # Posix - link against .so/.dylib, debug info in the shared lib itself.
+            self.assertPublished(
+                'a_shared_lib', 'link',
+                ['$OBJ_ROOT/${SHLIBPREFIX}a_shared_lib$SHLIBSUFFIX'])
+            self.assertPublished('a_shared_lib', 'debug', [])
 
-    # Program
-    self.assertPublished('a_prog', 'run', ['$OBJ_ROOT/a_prog$PROGSUFFIX'])
-    if sys.platform in ('win32', 'cygwin'):
-      self.assertPublished('a_prog', 'debug', ['$OBJ_ROOT/a_prog.pdb'])
-    else:
-      self.assertPublished('a_prog', 'debug', [])
+        # Program
+        self.assertPublished('a_prog', 'run', ['$OBJ_ROOT/a_prog$PROGSUFFIX'])
+        if sys.platform in ('win32', 'cygwin'):
+            self.assertPublished('a_prog', 'debug', ['$OBJ_ROOT/a_prog.pdb'])
+        else:
+            self.assertPublished('a_prog', 'debug', [])
 
-    # Test program
-    self.assertPublished('a_test', 'run', ['$OBJ_ROOT/a_test$PROGSUFFIX'])
-    if sys.platform in ('win32', 'cygwin'):
-      self.assertPublished('a_test', 'debug', ['$OBJ_ROOT/a_test.pdb'])
-    else:
-      self.assertPublished('a_test', 'debug', [])
-
+        # Test program
+        self.assertPublished('a_test', 'run', ['$OBJ_ROOT/a_test$PROGSUFFIX'])
+        if sys.platform in ('win32', 'cygwin'):
+            self.assertPublished('a_test', 'debug', ['$OBJ_ROOT/a_test.pdb'])
+        else:
+            self.assertPublished('a_test', 'debug', [])
 
 #------------------------------------------------------------------------------
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  base_env = Environment(tools=['component_setup'])
-  base_env.Append(BUILD_COMPONENTS=['SConscript'])
+    base_env = Environment(tools=['component_setup'])
+    base_env.Append(BUILD_COMPONENTS=['SConscript'])
 
-  windows_env = base_env.Clone(
-      tools=['target_platform_windows'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Windows build',
-  )
-  windows_env.Append(BUILD_GROUPS=['default'])
+    windows_env = base_env.Clone(
+        tools=['target_platform_windows'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Windows build', )
+    windows_env.Append(BUILD_GROUPS=['default'])
 
-  mac_env = base_env.Clone(
-      tools=['target_platform_mac'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Mac build',
-  )
-  mac_env.Append(BUILD_GROUPS=['default'])
+    mac_env = base_env.Clone(
+        tools=['target_platform_mac'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Mac build', )
+    mac_env.Append(BUILD_GROUPS=['default'])
 
-  linux_env = base_env.Clone(
-      tools=['target_platform_linux'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Linux build',
-  )
-  linux_env.Append(BUILD_GROUPS=['default'])
+    linux_env = base_env.Clone(
+        tools=['target_platform_linux'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Linux build', )
+    linux_env.Append(BUILD_GROUPS=['default'])
 
-  BuildComponents([windows_env, mac_env, linux_env])
+    BuildComponents([windows_env, mac_env, linux_env])
 
-  # Exit normally, before SCons tries to build anything
-  sys.exit(0)
+    # Exit normally, before SCons tries to build anything
+    sys.exit(0)
 
 
 def TestSConscript(scons_globals):
-  """Test SConscript file.
+    """Test SConscript file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  scons_globals['Import']('env')
-  env = scons_globals['env']
+    # Get globals from SCons
+    scons_globals['Import']('env')
+    env = scons_globals['env']
 
-  # Build an object so we can link it into different targets
-  a_obj = env.ComponentObject('a.cpp')
+    # Build an object so we can link it into different targets
+    a_obj = env.ComponentObject('a.cpp')
 
-  # Targets with default settings
-  env.ComponentLibrary('a_static_lib', a_obj, COMPONENT_STATIC=True)
-  env.ComponentLibrary('a_shared_lib', a_obj, COMPONENT_STATIC=False)
-  env.ComponentProgram('a_prog', a_obj)
-  env.ComponentTestProgram('a_test', a_obj)
+    # Targets with default settings
+    env.ComponentLibrary('a_static_lib', a_obj, COMPONENT_STATIC=True)
+    env.ComponentLibrary('a_shared_lib', a_obj, COMPONENT_STATIC=False)
+    env.ComponentProgram('a_prog', a_obj)
+    env.ComponentTestProgram('a_test', a_obj)
 
-  # Run unit tests inside the SConscript, since they're platform-specific
-  TestFramework.RunUnitTests(ComponentBuilderPublishTests, env=env.Clone())
+    # Run unit tests inside the SConscript, since they're platform-specific
+    TestFramework.RunUnitTests(ComponentBuilderPublishTests, env=env.Clone())
 
 #------------------------------------------------------------------------------
-
 
 abc_h_contents = """
 void testa();
@@ -199,16 +194,17 @@ void testa() {
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  base = 'test/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.WriteSConscript(base + 'SConscript', TestSConscript)
-  test.write(base + 'a.cpp', a_cpp_contents)
+    base = 'test/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.WriteSConscript(base + 'SConscript', TestSConscript)
+    test.write(base + 'a.cpp', a_cpp_contents)
 
-  test.run(chdir=base, stderr=None)
-  test.pass_test()
+    test.run(chdir=base, stderr=None)
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

@@ -37,10 +37,11 @@ import SCons.Action
 import SCons.Builder
 import SCons.Util
 
+
 def generate(env):
     """Add Builders and construction variables for m4 to an Environment."""
     M4Action = SCons.Action.Action('$M4COM', '$M4COMSTR')
-    bld = SCons.Builder.Builder(action = M4Action, src_suffix = '.m4')
+    bld = SCons.Builder.Builder(action=M4Action, src_suffix='.m4')
 
     env['BUILDERS']['M4'] = bld
 
@@ -49,9 +50,12 @@ def generate(env):
     # file and run from there.
     # The src_suffix setup is like so: file.c.m4 -> file.c,
     # file.cpp.m4 -> file.cpp etc.
-    env['M4']      = 'm4'
+    env['M4'] = 'm4'
     env['M4FLAGS'] = SCons.Util.CLVar('-E')
-    env['M4COM']   = 'cd ${SOURCE.rsrcdir} && $M4 $M4FLAGS < ${SOURCE.file} > ${TARGET.abspath}'
+    env[
+        'M4COM'
+    ] = 'cd ${SOURCE.rsrcdir} && $M4 $M4FLAGS < ${SOURCE.file} > ${TARGET.abspath}'
+
 
 def exists(env):
     return env.Detect('m4')

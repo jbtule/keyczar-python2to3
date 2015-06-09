@@ -42,8 +42,6 @@ from SCons.Platform.posix import exitvalmap
 from SCons.Platform import TempFileMunge
 import SCons.Util
 
-
-
 try:
     import msvcrt
     import win32api
@@ -71,25 +69,22 @@ else:
     def _scons_file(*args, **kw):
         fp = apply(_builtin_file, args, kw)
         win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
-                                      win32con.HANDLE_FLAG_INHERIT,
-                                      0)
+                                      win32con.HANDLE_FLAG_INHERIT, 0)
         return fp
 
     def _scons_open(*args, **kw):
         fp = apply(_builtin_open, args, kw)
         win32api.SetHandleInformation(msvcrt.get_osfhandle(fp.fileno()),
-                                      win32con.HANDLE_FLAG_INHERIT,
-                                      0)
+                                      win32con.HANDLE_FLAG_INHERIT, 0)
         return fp
 
     __builtin__.file = _scons_file
     __builtin__.open = _scons_open
 
-
-
 # The upshot of all this is that, if you are using Python 1.5.2,
 # you had better have cmd or command.com in your PATH when you run
 # scons.
+
 
 def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     # There is no direct way to do that in python. What we do
@@ -99,7 +94,8 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
     #   (tmpFileStderr) and copy the contents of this file
     #   to stdout (stderr) given in the argument
     if not sh:
-        sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+        sys.stderr.write(
+            "scons: Could not find command interpreter, is it in your PATH?\n")
         return 127
     else:
         # one temporary file for stdout and stderr
@@ -111,11 +107,11 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
         stderrRedirected = 0
         for arg in args:
             # are there more possibilities to redirect stdout ?
-            if (string.find( arg, ">", 0, 1 ) != -1 or
-                string.find( arg, "1>", 0, 2 ) != -1):
+            if (string.find(arg, ">", 0, 1) != -1 or
+                    string.find(arg, "1>", 0, 2) != -1):
                 stdoutRedirected = 1
             # are there more possibilities to redirect stderr ?
-            if string.find( arg, "2>", 0, 2 ) != -1:
+            if string.find(arg, "2>", 0, 2) != -1:
                 stderrRedirected = 1
 
         # redirect output of non-redirected streams to our tempfiles
@@ -126,32 +122,35 @@ def piped_spawn(sh, escape, cmd, args, env, stdout, stderr):
 
         # actually do the spawn
         try:
-            args = [sh, '/C', escape(string.join(args)) ]
+            args = [sh, '/C', escape(string.join(args))]
             ret = os.spawnve(os.P_WAIT, sh, args, env)
         except OSError, e:
             # catch any error
             try:
                 ret = exitvalmap[e[0]]
             except KeyError:
-                sys.stderr.write("scons: unknown OSError exception code %d - %s: %s\n" % (e[0], cmd, e[1]))
+                sys.stderr.write(
+                    "scons: unknown OSError exception code %d - %s: %s\n" %
+                    (e[0], cmd, e[1]))
             if stderr != None:
                 stderr.write("scons: %s: %s\n" % (cmd, e[1]))
         # copy child output from tempfiles to our streams
         # and do clean up stuff
         if stdout != None and stdoutRedirected == 0:
             try:
-                stdout.write(open( tmpFileStdout, "r" ).read())
-                os.remove( tmpFileStdout )
+                stdout.write(open(tmpFileStdout, "r").read())
+                os.remove(tmpFileStdout)
             except (IOError, OSError):
                 pass
 
         if stderr != None and stderrRedirected == 0:
             try:
-                stderr.write(open( tmpFileStderr, "r" ).read())
-                os.remove( tmpFileStderr )
+                stderr.write(open(tmpFileStderr, "r").read())
+                os.remove(tmpFileStderr)
             except (IOError, OSError):
                 pass
         return ret
+
 
 def exec_spawn(l, env):
     try:
@@ -169,14 +168,19 @@ def exec_spawn(l, env):
                     command = l[0]
             else:
                 command = l[0]
-            sys.stderr.write("scons: unknown OSError exception code %d - '%s': %s\n" % (e[0], command, e[1]))
+            sys.stderr.write(
+                "scons: unknown OSError exception code %d - '%s': %s\n" %
+                (e[0], command, e[1]))
     return result
+
 
 def spawn(sh, escape, cmd, args, env):
     if not sh:
-        sys.stderr.write("scons: Could not find command interpreter, is it in your PATH?\n")
+        sys.stderr.write(
+            "scons: Could not find command interpreter, is it in your PATH?\n")
         return 127
     return exec_spawn([sh, '/C', escape(string.join(args))], env)
+
 
 # Windows does not allow special characters in file names anyway, so no
 # need for a complex escape function, we will just quote the arg, except
@@ -191,6 +195,7 @@ def escape(x):
 # Get the windows system directory name
 _system_root = None
 
+
 def get_system_root():
     global _system_root
     if _system_root is not None:
@@ -202,14 +207,16 @@ def get_system_root():
     if SCons.Util.can_read_reg:
         try:
             # Look for Windows NT system root
-            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                      'Software\\Microsoft\\Windows NT\\CurrentVersion')
+            k = SCons.Util.RegOpenKeyEx(
+                SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                'Software\\Microsoft\\Windows NT\\CurrentVersion')
             val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
         except SCons.Util.RegError:
             try:
                 # Okay, try the Windows 9x system root
-                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                          'Software\\Microsoft\\Windows\\CurrentVersion')
+                k = SCons.Util.RegOpenKeyEx(
+                    SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                    'Software\\Microsoft\\Windows\\CurrentVersion')
                 val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
             except KeyboardInterrupt:
                 raise
@@ -218,6 +225,7 @@ def get_system_root():
     _system_root = val
     return val
 
+
 # Get the location of the program files directory
 def get_program_files_dir():
     # Now see if we can look in the registry...
@@ -225,8 +233,9 @@ def get_program_files_dir():
     if SCons.Util.can_read_reg:
         try:
             # Look for Windows Program Files directory
-            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                      'Software\\Microsoft\\Windows\\CurrentVersion')
+            k = SCons.Util.RegOpenKeyEx(
+                SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                'Software\\Microsoft\\Windows\\CurrentVersion')
             val, tok = SCons.Util.RegQueryValueEx(k, 'ProgramFilesDir')
         except SCons.Util.RegError:
             val = ''
@@ -235,9 +244,10 @@ def get_program_files_dir():
     if val == '':
         # A reasonable default if we can't read the registry
         # (Actually, it's pretty reasonable even if we can :-)
-        val = os.path.join(os.path.dirname(get_system_root()),"Program Files")
-        
+        val = os.path.join(os.path.dirname(get_system_root()), "Program Files")
+
     return val
+
 
 def generate(env):
     # Attempt to find cmd.exe (for WinNT/2k/XP) or
@@ -247,15 +257,17 @@ def generate(env):
     if SCons.Util.can_read_reg:
         try:
             # Look for Windows NT system root
-            k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                          'Software\\Microsoft\\Windows NT\\CurrentVersion')
+            k = SCons.Util.RegOpenKeyEx(
+                SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                'Software\\Microsoft\\Windows NT\\CurrentVersion')
             val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
             cmd_interp = os.path.join(val, 'System32\\cmd.exe')
         except SCons.Util.RegError:
             try:
                 # Okay, try the Windows 9x system root
-                k=SCons.Util.RegOpenKeyEx(SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
-                                              'Software\\Microsoft\\Windows\\CurrentVersion')
+                k = SCons.Util.RegOpenKeyEx(
+                    SCons.Util.hkey_mod.HKEY_LOCAL_MACHINE,
+                    'Software\\Microsoft\\Windows\\CurrentVersion')
                 val, tok = SCons.Util.RegQueryValueEx(k, 'SystemRoot')
                 cmd_interp = os.path.join(val, 'command.com')
             except KeyboardInterrupt:
@@ -271,10 +283,10 @@ def generate(env):
     if not cmd_interp:
         systemroot = get_system_root()
         tmp_path = systemroot + os.pathsep + \
-                   os.path.join(systemroot,'System32')
+            os.path.join(systemroot, 'System32')
         tmp_pathext = '.com;.exe;.bat;.cmd'
         if os.environ.has_key('PATHEXT'):
-            tmp_pathext = os.environ['PATHEXT'] 
+            tmp_pathext = os.environ['PATHEXT']
         cmd_interp = SCons.Util.WhereIs('cmd', tmp_path, tmp_pathext)
         if not cmd_interp:
             cmd_interp = SCons.Util.WhereIs('command', tmp_path, tmp_pathext)
@@ -284,9 +296,8 @@ def generate(env):
         if not cmd_interp:
             cmd_interp = env.Detect('command')
 
-    
     if not env.has_key('ENV'):
-        env['ENV']        = {}
+        env['ENV'] = {}
 
     # Import things from the external environment to the construction
     # environment's ENV.  This is a potential slippery slope, because we
@@ -296,7 +307,7 @@ def generate(env):
     # for SystemDrive because it's related.
     #
     # Weigh the impact carefully before adding other variables to this list.
-    import_env = [ 'SystemDrive', 'SystemRoot', 'TEMP', 'TMP' ]
+    import_env = ['SystemDrive', 'SystemRoot', 'TEMP', 'TMP']
     for var in import_env:
         v = os.environ.get(var)
         if v:
@@ -310,25 +321,25 @@ def generate(env):
     env.AppendENVPath('PATH', get_system_root() + '\System32')
 
     env['ENV']['PATHEXT'] = '.COM;.EXE;.BAT;.CMD'
-    env['OBJPREFIX']      = ''
-    env['OBJSUFFIX']      = '.obj'
-    env['SHOBJPREFIX']    = '$OBJPREFIX'
-    env['SHOBJSUFFIX']    = '$OBJSUFFIX'
-    env['PROGPREFIX']     = ''
-    env['PROGSUFFIX']     = '.exe'
-    env['LIBPREFIX']      = ''
-    env['LIBSUFFIX']      = '.lib'
-    env['SHLIBPREFIX']    = ''
-    env['SHLIBSUFFIX']    = '.dll'
-    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
-    env['LIBSUFFIXES']    = [ '$LIBSUFFIX' ]
-    env['PSPAWN']         = piped_spawn
-    env['SPAWN']          = spawn
-    env['SHELL']          = cmd_interp
-    env['TEMPFILE']       = TempFileMunge
+    env['OBJPREFIX'] = ''
+    env['OBJSUFFIX'] = '.obj'
+    env['SHOBJPREFIX'] = '$OBJPREFIX'
+    env['SHOBJSUFFIX'] = '$OBJSUFFIX'
+    env['PROGPREFIX'] = ''
+    env['PROGSUFFIX'] = '.exe'
+    env['LIBPREFIX'] = ''
+    env['LIBSUFFIX'] = '.lib'
+    env['SHLIBPREFIX'] = ''
+    env['SHLIBSUFFIX'] = '.dll'
+    env['LIBPREFIXES'] = ['$LIBPREFIX']
+    env['LIBSUFFIXES'] = ['$LIBSUFFIX']
+    env['PSPAWN'] = piped_spawn
+    env['SPAWN'] = spawn
+    env['SHELL'] = cmd_interp
+    env['TEMPFILE'] = TempFileMunge
     env['TEMPFILEPREFIX'] = '@'
-    env['MAXLINELENGTH']  = 2048
-    env['ESCAPE']         = escape
+    env['MAXLINELENGTH'] = 2048
+    env['ESCAPE'] = escape
 
 # Local Variables:
 # tab-width:4

@@ -46,6 +46,7 @@ if SCons.Util.case_sensitive_suffixes('.s', '.S'):
 else:
     ASSuffixes.extend(['.S'])
 
+
 def generate(env):
     """Add Builders and construction variables for as to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -62,11 +63,14 @@ def generate(env):
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
-    env['AS']        = env.Detect(assemblers) or 'as'
-    env['ASFLAGS']   = SCons.Util.CLVar('')
-    env['ASCOM']     = '$AS $ASFLAGS -o $TARGET $SOURCES'
+    env['AS'] = env.Detect(assemblers) or 'as'
+    env['ASFLAGS'] = SCons.Util.CLVar('')
+    env['ASCOM'] = '$AS $ASFLAGS -o $TARGET $SOURCES'
     env['ASPPFLAGS'] = '$ASFLAGS'
-    env['ASPPCOM']   = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+    env[
+        'ASPPCOM'
+    ] = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o $TARGET $SOURCES'
+
 
 def exists(env):
     return env.Detect(assemblers)

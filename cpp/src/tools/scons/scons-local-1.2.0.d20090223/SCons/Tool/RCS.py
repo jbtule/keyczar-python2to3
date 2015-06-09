@@ -37,6 +37,7 @@ import SCons.Action
 import SCons.Builder
 import SCons.Util
 
+
 def generate(env):
     """Add a Builder factory function and construction variables for
     RCS to an Environment."""
@@ -44,15 +45,16 @@ def generate(env):
     def RCSFactory(env=env):
         """ """
         act = SCons.Action.Action('$RCS_COCOM', '$RCS_COCOMSTR')
-        return SCons.Builder.Builder(action = act, env = env)
+        return SCons.Builder.Builder(action=act, env=env)
 
     #setattr(env, 'RCS', RCSFactory)
     env.RCS = RCSFactory
 
-    env['RCS']          = 'rcs'
-    env['RCS_CO']       = 'co'
-    env['RCS_COFLAGS']  = SCons.Util.CLVar('')
-    env['RCS_COCOM']    = '$RCS_CO $RCS_COFLAGS $TARGET'
+    env['RCS'] = 'rcs'
+    env['RCS_CO'] = 'co'
+    env['RCS_COFLAGS'] = SCons.Util.CLVar('')
+    env['RCS_COCOM'] = '$RCS_CO $RCS_COFLAGS $TARGET'
+
 
 def exists(env):
     return env.Detect('rcs')

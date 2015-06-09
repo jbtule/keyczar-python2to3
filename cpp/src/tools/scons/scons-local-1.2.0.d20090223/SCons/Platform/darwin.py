@@ -34,6 +34,7 @@ __revision__ = "src/engine/SCons/Platform/darwin.py 4043 2009/02/23 09:06:45 sco
 
 import posix
 
+
 def generate(env):
     posix.generate(env)
     env['SHLIBSUFFIX'] = '.dylib'

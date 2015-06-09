@@ -42,16 +42,17 @@ def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)
 
-    env['AR']          = 'ar'
-    env['ARFLAGS']     = SCons.Util.CLVar('rc')
-    env['ARCOM']       = '$AR $ARFLAGS $TARGET $SOURCES'
-    env['LIBPREFIX']   = 'lib'
-    env['LIBSUFFIX']   = '.a'
+    env['AR'] = 'ar'
+    env['ARFLAGS'] = SCons.Util.CLVar('rc')
+    env['ARCOM'] = '$AR $ARFLAGS $TARGET $SOURCES'
+    env['LIBPREFIX'] = 'lib'
+    env['LIBSUFFIX'] = '.a'
 
     if env.Detect('ranlib'):
-        env['RANLIB']      = 'ranlib'
+        env['RANLIB'] = 'ranlib'
         env['RANLIBFLAGS'] = SCons.Util.CLVar('')
-        env['RANLIBCOM']   = '$RANLIB $RANLIBFLAGS $TARGET'
+        env['RANLIBCOM'] = '$RANLIB $RANLIBFLAGS $TARGET'
+
 
 def exists(env):
     return env.Detect('ar')

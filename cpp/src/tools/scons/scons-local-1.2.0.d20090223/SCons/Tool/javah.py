@@ -42,6 +42,7 @@ import SCons.Node.FS
 import SCons.Tool.javac
 import SCons.Util
 
+
 def emit_java_headers(target, source, env):
     """Create and return lists of Java stub header files that will
     be created from a set of class files.
@@ -93,12 +94,14 @@ def emit_java_headers(target, source, env):
             target[0]._morph()
         tlist = []
         for s in source:
-            fname = string.replace(s.attributes.java_classname, '.', '_') + '.h'
+            fname = string.replace(s.attributes.java_classname, '.',
+                                   '_') + '.h'
             t = target[0].File(fname)
             t.attributes.java_lookupdir = target[0]
             tlist.append(t)
 
     return tlist, source
+
 
 def JavaHOutFlagGenerator(target, source, env, for_signature):
     try:
@@ -110,23 +113,28 @@ def JavaHOutFlagGenerator(target, source, env, for_signature):
     except AttributeError:
         return '-o ' + str(t)
 
-def getJavaHClassPath(env,target, source, for_signature):
+
+def getJavaHClassPath(env, target, source, for_signature):
     path = "${SOURCE.attributes.java_classdir}"
     if env.has_key('JAVACLASSPATH') and env['JAVACLASSPATH']:
         path = SCons.Util.AppendPath(path, env['JAVACLASSPATH'])
     return "-classpath %s" % (path)
+
 
 def generate(env):
     """Add Builders and construction variables for javah to an Environment."""
     java_javah = SCons.Tool.CreateJavaHBuilder(env)
     java_javah.emitter = emit_java_headers
 
-    env['_JAVAHOUTFLAG']    = JavaHOutFlagGenerator
-    env['JAVAH']            = 'javah'
-    env['JAVAHFLAGS']       = SCons.Util.CLVar('')
-    env['_JAVAHCLASSPATH']  = getJavaHClassPath
-    env['JAVAHCOM']         = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG $_JAVAHCLASSPATH ${SOURCES.attributes.java_classname}'
-    env['JAVACLASSSUFFIX']  = '.class'
+    env['_JAVAHOUTFLAG'] = JavaHOutFlagGenerator
+    env['JAVAH'] = 'javah'
+    env['JAVAHFLAGS'] = SCons.Util.CLVar('')
+    env['_JAVAHCLASSPATH'] = getJavaHClassPath
+    env[
+        'JAVAHCOM'
+    ] = '$JAVAH $JAVAHFLAGS $_JAVAHOUTFLAG $_JAVAHCLASSPATH ${SOURCES.attributes.java_classname}'
+    env['JAVACLASSSUFFIX'] = '.class'
+
 
 def exists(env):
     return env.Detect('javah')

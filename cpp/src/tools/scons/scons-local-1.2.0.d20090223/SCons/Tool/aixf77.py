@@ -44,11 +44,13 @@ import f77
 # SCons.Platform.aix_get_xlc() call the in the function below.
 packages = []
 
+
 def get_xlf77(env):
     xlf77 = env.get('F77', 'xlf77')
     xlf77_r = env.get('SHF77', 'xlf77_r')
-    #return SCons.Platform.aix.get_xlc(env, xlf77, xlf77_r, packages)
+    # return SCons.Platform.aix.get_xlc(env, xlf77, xlf77_r, packages)
     return (None, xlf77, xlf77_r, None)
+
 
 def generate(env):
     """
@@ -64,6 +66,7 @@ def generate(env):
 
     env['F77'] = _f77
     env['SHF77'] = _shf77
+
 
 def exists(env):
     path, _f77, _shf77, version = get_xlf77(env)

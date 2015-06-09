@@ -35,13 +35,15 @@ __revision__ = "src/engine/SCons/Tool/sgicc.py 4043 2009/02/23 09:06:45 scons"
 
 import cc
 
+
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
     cc.generate(env)
 
-    env['CXX']        = 'CC'
+    env['CXX'] = 'CC'
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+
 
 def exists(env):
     return env.Detect('cc')

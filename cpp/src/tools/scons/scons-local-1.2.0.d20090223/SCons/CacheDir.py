@@ -39,6 +39,7 @@ cache_debug = False
 cache_force = False
 cache_show = False
 
+
 def CacheRetrieveFunc(target, source, env):
     t = target[0]
     fs = t.fs
@@ -57,6 +58,7 @@ def CacheRetrieveFunc(target, source, env):
         fs.chmod(t.path, stat.S_IMODE(st[stat.ST_MODE]) | stat.S_IWRITE)
     return 0
 
+
 def CacheRetrieveString(target, source, env):
     t = target[0]
     fs = t.fs
@@ -66,9 +68,11 @@ def CacheRetrieveString(target, source, env):
         return "Retrieved `%s' from cache" % t.path
     return None
 
+
 CacheRetrieve = SCons.Action.Action(CacheRetrieveFunc, CacheRetrieveString)
 
 CacheRetrieveSilent = SCons.Action.Action(CacheRetrieveFunc, None)
+
 
 def CachePushFunc(target, source, env):
     t = target[0]
@@ -85,12 +89,13 @@ def CachePushFunc(target, source, env):
         # other person running the same build pushes their copy to
         # the cache after we decide we need to build it but before our
         # build completes.
-        cd.CacheDebug('CachePush(%s):  %s already exists in cache\n', t, cachefile)
+        cd.CacheDebug('CachePush(%s):  %s already exists in cache\n', t,
+                      cachefile)
         return
 
     cd.CacheDebug('CachePush(%s):  pushing to %s\n', t, cachefile)
 
-    tempfile = cachefile+'.tmp'+str(os.getpid())
+    tempfile = cachefile + '.tmp' + str(os.getpid())
     errfmt = "Unable to copy %s to cache. Cache file is %s"
 
     if not fs.isdir(cachedir):
@@ -120,7 +125,9 @@ def CachePushFunc(target, source, env):
         msg = errfmt % (str(target), cachefile)
         SCons.Warnings.warn(SCons.Warnings.CacheWriteErrorWarning, msg)
 
+
 CachePush = SCons.Action.Action(CachePushFunc, None)
+
 
 class CacheDir:
 

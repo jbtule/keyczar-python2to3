@@ -35,7 +35,9 @@ import SCons.Util
 
 import SCons.cpp
 
+
 class SConsCPPScanner(SCons.cpp.PreProcessor):
+
     """
     SCons-specific subclass of the cpp.py module's processing.
 
@@ -43,19 +45,24 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
     by Nodes, not strings; 2) we can keep track of the files that are
     missing.
     """
+
     def __init__(self, *args, **kw):
-        apply(SCons.cpp.PreProcessor.__init__, (self,)+args, kw)
+        apply(SCons.cpp.PreProcessor.__init__, (self, ) + args, kw)
         self.missing = []
+
     def initialize_result(self, fname):
         self.result = SCons.Util.UniqueList([fname])
+
     def finalize_result(self, fname):
         return self.result[1:]
+
     def find_include_file(self, t):
         keyword, quote, fname = t
         result = SCons.Node.FS.find_file(fname, self.searchpath[quote])
         if not result:
             self.missing.append((fname, self.current_file))
         return result
+
     def read_file(self, file):
         try:
             fp = open(str(file.rfile()))
@@ -64,6 +71,7 @@ class SConsCPPScanner(SCons.cpp.PreProcessor):
             return ''
         else:
             return fp.read()
+
 
 def dictify_CPPDEFINES(env):
     cppdefines = env.get('CPPDEFINES', {})
@@ -78,10 +86,12 @@ def dictify_CPPDEFINES(env):
                 result[c] = None
         return result
     if not SCons.Util.is_Dict(cppdefines):
-        return {cppdefines : None}
+        return {cppdefines: None}
     return cppdefines
 
+
 class SConsCPPScannerWrapper:
+
     """
     The SCons wrapper around a cpp.py scanner.
 
@@ -90,13 +100,15 @@ class SConsCPPScannerWrapper:
     to look for #include lines with reasonably real C-preprocessor-like
     evaluation of #if/#ifdef/#else/#elif lines.
     """
+
     def __init__(self, name, variable):
         self.name = name
         self.path = SCons.Scanner.FindPathDirs(variable)
-    def __call__(self, node, env, path = ()):
-        cpp = SConsCPPScanner(current = node.get_dir(),
-                              cpppath = path,
-                              dict = dictify_CPPDEFINES(env))
+
+    def __call__(self, node, env, path=()):
+        cpp = SConsCPPScanner(current=node.get_dir(),
+                              cpppath=path,
+                              dict=dictify_CPPDEFINES(env))
         result = cpp(node)
         for included, includer in cpp.missing:
             fmt = "No dependency generated for file: %s (included from: %s) -- file not found"
@@ -106,8 +118,10 @@ class SConsCPPScannerWrapper:
 
     def recurse_nodes(self, nodes):
         return nodes
+
     def select(self, node):
         return self
+
 
 def CScanner():
     """Return a prototype Scanner instance for scanning source files
@@ -117,12 +131,11 @@ def CScanner():
     # knows how to evaluate #if/#ifdef/#else/#elif lines when searching
     # for #includes.  This is commented out for now until we add the
     # right configurability to let users pick between the scanners.
-    #return SConsCPPScannerWrapper("CScanner", "CPPPATH")
+    # return SConsCPPScannerWrapper("CScanner", "CPPPATH")
 
-    cs = SCons.Scanner.ClassicCPP("CScanner",
-                                  "$CPPSUFFIXES",
-                                  "CPPPATH",
-                                  '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
+    cs = SCons.Scanner.ClassicCPP(
+        "CScanner", "$CPPSUFFIXES", "CPPPATH",
+        '^[ \t]*#[ \t]*(?:include|import)[ \t]*(<|")([^>"]+)(>|")')
     return cs
 
 # Local Variables:

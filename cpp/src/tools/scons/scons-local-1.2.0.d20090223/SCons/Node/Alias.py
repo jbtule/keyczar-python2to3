@@ -1,4 +1,3 @@
-
 """scons.Node.Alias
 
 Alias nodes.
@@ -39,14 +38,16 @@ import SCons.Errors
 import SCons.Node
 import SCons.Util
 
+
 class AliasNameSpace(UserDict.UserDict):
+
     def Alias(self, name, **kw):
         if isinstance(name, SCons.Node.Alias.Alias):
             return name
         try:
             a = self[name]
         except KeyError:
-            a = apply(SCons.Node.Alias.Alias, (name,), kw)
+            a = apply(SCons.Node.Alias.Alias, (name, ), kw)
             self[name] = a
         return a
 
@@ -56,14 +57,18 @@ class AliasNameSpace(UserDict.UserDict):
         except KeyError:
             return None
 
+
 class AliasNodeInfo(SCons.Node.NodeInfoBase):
     current_version_id = 1
     field_list = ['csig']
+
     def str_to_node(self, s):
         return default_ans.Alias(s)
 
+
 class AliasBuildInfo(SCons.Node.BuildInfoBase):
     current_version_id = 1
+
 
 class Alias(SCons.Node.Node):
 
@@ -118,8 +123,10 @@ class Alias(SCons.Node.Node):
         pass
 
     def convert(self):
-        try: del self.builder
-        except AttributeError: pass
+        try:
+            del self.builder
+        except AttributeError:
+            pass
         self.reset_executor()
         self.build = self.really_build
 
@@ -141,6 +148,7 @@ class Alias(SCons.Node.Node):
         csig = SCons.Util.MD5signature(contents)
         self.get_ninfo().csig = csig
         return csig
+
 
 default_ans = AliasNameSpace()
 

@@ -38,6 +38,7 @@ import string
 
 import SCons.Util
 
+
 def set_vars(env):
     """Set MWCW_VERSION, MWCW_VERSIONS, and some codewarrior environment vars
 
@@ -72,7 +73,7 @@ def set_vars(env):
     env['MWCW_VERSION'] = version
 
     if version is None:
-      return 0
+        return 0
 
     env.PrependENVPath('PATH', version.clpath)
     env.PrependENVPath('PATH', version.dllpath)
@@ -89,9 +90,9 @@ def find_versions():
     """Return a list of MWVersion objects representing installed versions"""
     versions = []
 
-    ### This function finds CodeWarrior by reading from the registry on
-    ### Windows. Some other method needs to be implemented for other
-    ### platforms, maybe something that calls env.WhereIs('mwcc')
+    # This function finds CodeWarrior by reading from the registry on
+    # Windows. Some other method needs to be implemented for other
+    # platforms, maybe something that calls env.WhereIs('mwcc')
 
     if SCons.Util.can_read_reg:
         try:
@@ -121,6 +122,7 @@ def find_versions():
 
 
 class MWVersion:
+
     def __init__(self, version, path, platform):
         self.version = version
         self.path = path
@@ -135,8 +137,8 @@ class MWVersion:
         # to be handed to them in environment variables. The members set
         # below control what information scons injects into the environment
 
-        ### The paths below give a normal build environment in CodeWarrior for
-        ### Windows, other versions of CodeWarrior might need different paths.
+        # The paths below give a normal build environment in CodeWarrior for
+        # Windows, other versions of CodeWarrior might need different paths.
 
         msl = os.path.join(path, 'MSL')
         support = os.path.join(path, '%s Support' % platform)
@@ -170,32 +172,33 @@ def generate(env):
         static_obj.add_action(suffix, SCons.Defaults.CXXAction)
         shared_obj.add_action(suffix, SCons.Defaults.ShCXXAction)
 
-    env['CCCOMFLAGS'] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -nolink -o $TARGET $SOURCES'
+    env['CCCOMFLAGS'
+        ] = '$CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -nolink -o $TARGET $SOURCES'
 
-    env['CC']         = 'mwcc'
-    env['CCCOM']      = '$CC $CFLAGS $CCFLAGS $CCCOMFLAGS'
+    env['CC'] = 'mwcc'
+    env['CCCOM'] = '$CC $CFLAGS $CCFLAGS $CCCOMFLAGS'
 
-    env['CXX']        = 'mwcc'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CCCOMFLAGS'
+    env['CXX'] = 'mwcc'
+    env['CXXCOM'] = '$CXX $CXXFLAGS $CCCOMFLAGS'
 
-    env['SHCC']       = '$CC'
-    env['SHCCFLAGS']  = '$CCFLAGS'
-    env['SHCFLAGS']   = '$CFLAGS'
-    env['SHCCCOM']    = '$SHCC $SHCFLAGS $SHCCFLAGS $CCCOMFLAGS'
+    env['SHCC'] = '$CC'
+    env['SHCCFLAGS'] = '$CCFLAGS'
+    env['SHCFLAGS'] = '$CFLAGS'
+    env['SHCCCOM'] = '$SHCC $SHCFLAGS $SHCCFLAGS $CCCOMFLAGS'
 
-    env['SHCXX']       = '$CXX'
-    env['SHCXXFLAGS']  = '$CXXFLAGS'
-    env['SHCXXCOM']    = '$SHCXX $SHCXXFLAGS $CCCOMFLAGS'
+    env['SHCXX'] = '$CXX'
+    env['SHCXXFLAGS'] = '$CXXFLAGS'
+    env['SHCXXCOM'] = '$SHCXX $SHCXXFLAGS $CCCOMFLAGS'
 
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cpp'
-    env['CPPDEFPREFIX']  = '-D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
+    env['CPPDEFPREFIX'] = '-D'
+    env['CPPDEFSUFFIX'] = ''
+    env['INCPREFIX'] = '-I'
+    env['INCSUFFIX'] = ''
 
-    #env['PCH'] = ?
-    #env['PCHSTOP'] = ?
+    # env['PCH'] = ?
+    # env['PCHSTOP'] = ?
 
 
 def exists(env):

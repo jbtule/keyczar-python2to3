@@ -35,19 +35,25 @@ __revision__ = "src/engine/SCons/Tool/icc.py 4043 2009/02/23 09:06:45 scons"
 
 import cc
 
+
 def generate(env):
     """Add Builders and construction variables for the OS/2 to an Environment."""
     cc.generate(env)
 
-    env['CC']         = 'icc'
-    env['CCCOM']      = '$CC $CFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['CXXCOM']     = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['CPPDEFPREFIX']  = '/D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '/I'
-    env['INCSUFFIX']  = ''
+    env['CC'] = 'icc'
+    env[
+        'CCCOM'
+    ] = '$CC $CFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env[
+        'CXXCOM'
+    ] = '$CXX $CXXFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['CPPDEFPREFIX'] = '/D'
+    env['CPPDEFSUFFIX'] = ''
+    env['INCPREFIX'] = '/I'
+    env['INCSUFFIX'] = ''
     env['CFILESUFFIX'] = '.c'
     env['CXXFILESUFFIX'] = '.cc'
+
 
 def exists(env):
     return env.Detect('icc')

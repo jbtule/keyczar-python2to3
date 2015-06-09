@@ -38,6 +38,7 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_f77_to_env
 
 compilers = ['g77', 'f77']
 
+
 def generate(env):
     """Add Builders and construction variables for g77 to an Environment."""
     add_all_to_env(env)
@@ -62,6 +63,7 @@ def generate(env):
 
     env['INCF77PREFIX'] = "-I"
     env['INCF77SUFFIX'] = ""
+
 
 def exists(env):
     return env.Detect(compilers)

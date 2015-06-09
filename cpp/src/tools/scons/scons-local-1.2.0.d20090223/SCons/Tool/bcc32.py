@@ -37,6 +37,7 @@ import SCons.Defaults
 import SCons.Tool
 import SCons.Util
 
+
 def findIt(program, env):
     # First search in the SCons path and then the OS path:
     borwin = env.WhereIs(program) or SCons.Util.WhereIs(program)
@@ -44,6 +45,7 @@ def findIt(program, env):
         dir = os.path.dirname(borwin)
         env.PrependENVPath('PATH', dir)
     return borwin
+
 
 def generate(env):
     findIt('bcc32', env)
@@ -56,21 +58,26 @@ def generate(env):
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
-    env['CC']        = 'bcc32'
-    env['CCFLAGS']   = SCons.Util.CLVar('')
-    env['CFLAGS']   = SCons.Util.CLVar('')
-    env['CCCOM']     = '$CC -q $CFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o$TARGET $SOURCES'
-    env['SHCC']      = '$CC'
+    env['CC'] = 'bcc32'
+    env['CCFLAGS'] = SCons.Util.CLVar('')
+    env['CFLAGS'] = SCons.Util.CLVar('')
+    env[
+        'CCCOM'
+    ] = '$CC -q $CFLAGS $CCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o$TARGET $SOURCES'
+    env['SHCC'] = '$CC'
     env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS')
     env['SHCFLAGS'] = SCons.Util.CLVar('$CFLAGS')
-    env['SHCCCOM']   = '$SHCC -WD $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o$TARGET $SOURCES'
-    env['CPPDEFPREFIX']  = '-D'
-    env['CPPDEFSUFFIX']  = ''
-    env['INCPREFIX']  = '-I'
-    env['INCSUFFIX']  = ''
+    env[
+        'SHCCCOM'
+    ] = '$SHCC -WD $SHCFLAGS $SHCCFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS -c -o$TARGET $SOURCES'
+    env['CPPDEFPREFIX'] = '-D'
+    env['CPPDEFSUFFIX'] = ''
+    env['INCPREFIX'] = '-I'
+    env['INCSUFFIX'] = ''
     env['SHOBJSUFFIX'] = '.dll'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 0
     env['CFILESUFFIX'] = '.cpp'
+
 
 def exists(env):
     return findIt('bcc32', env)

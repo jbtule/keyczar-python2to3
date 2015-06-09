@@ -62,6 +62,7 @@ rest of our code will find our pre-loaded compatibility module.
 
 __revision__ = "src/engine/SCons/compat/__init__.py 4043 2009/02/23 09:06:45 scons"
 
+
 def import_as(module, name):
     """
     Imports the specified module (from our local directory) as the
@@ -72,6 +73,7 @@ def import_as(module, name):
     dir = os.path.split(__file__)[0]
     file, filename, suffix_mode_type = imp.find_module(module, [dir])
     imp.load_module(name, file, filename, suffix_mode_type)
+
 
 import builtins
 
@@ -114,8 +116,9 @@ except AttributeError:
     # Pre-2.2 Python has no fnmatch.filter() function.
     def filter(names, pat):
         """Return the subset of the list NAMES that match PAT"""
-        import os,posixpath
-        result=[]
+        import os
+        import posixpath
+        result = []
         pat = os.path.normcase(pat)
         if not fnmatch._cache.has_key(pat):
             import re
@@ -132,6 +135,7 @@ except AttributeError:
                 if match(os.path.normcase(name)):
                     result.append(name)
         return result
+
     fnmatch.filter = filter
     del filter
 
@@ -173,6 +177,7 @@ except AttributeError:
     # Pre-2.4 Python has no os.path.lexists function
     def lexists(path):
         return os.path.exists(path) or os.path.islink(path)
+
     os.path.lexists = lexists
 
 import shlex
@@ -187,7 +192,6 @@ except AttributeError:
     # minor modifications for older Python versions.
     del shlex
     import_as('_scons_shlex', 'shlex')
-
 
 import shutil
 try:
@@ -212,21 +216,23 @@ except AttributeError:
         except OSError:
             if os.path.isdir(src):
                 if shutil.destinsrc(src, dst):
-                    raise Error, "Cannot move a directory '%s' into itself '%s'." % (src, dst)
+                    raise Error, "Cannot move a directory '%s' into itself '%s'." % (
+                        src, dst)
                 shutil.copytree(src, dst, symlinks=True)
                 shutil.rmtree(src)
             else:
-                shutil.copy2(src,dst)
+                shutil.copy2(src, dst)
                 os.unlink(src)
+
     shutil.move = move
     del move
 
     def destinsrc(src, dst):
         src = os.path.abspath(src)
         return os.path.abspath(dst)[:len(src)] == src
+
     shutil.destinsrc = destinsrc
     del destinsrc
-
 
 try:
     import subprocess

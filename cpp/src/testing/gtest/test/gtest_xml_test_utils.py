@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Unit test utilities for gtest_xml_output"""
 
 __author__ = 'eefacm@gmail.com (Sean Mcafee)'
@@ -38,17 +37,18 @@ import unittest
 
 from xml.dom import minidom, Node
 
-GTEST_OUTPUT_FLAG         = "--gtest_output"
+GTEST_OUTPUT_FLAG = "--gtest_output"
 GTEST_DEFAULT_OUTPUT_FILE = "test_detail.xml"
 
+
 class GTestXMLTestCase(unittest.TestCase):
-  """
+
+    """
   Base class for tests of Google Test's XML output functionality.
   """
 
-
-  def AssertEquivalentNodes(self, expected_node, actual_node):
-    """
+    def AssertEquivalentNodes(self, expected_node, actual_node):
+        """
     Asserts that actual_node (a DOM node object) is equivalent to
     expected_node (another DOM node object), in that either both of
     them are CDATA nodes and have the same value, or both are DOM
@@ -65,40 +65,40 @@ class GTestXMLTestCase(unittest.TestCase):
        particular order.
     """
 
-    if expected_node.nodeType == Node.CDATA_SECTION_NODE:
-      self.assertEquals(Node.CDATA_SECTION_NODE, actual_node.nodeType)
-      self.assertEquals(expected_node.nodeValue, actual_node.nodeValue)
-      return
+        if expected_node.nodeType == Node.CDATA_SECTION_NODE:
+            self.assertEquals(Node.CDATA_SECTION_NODE, actual_node.nodeType)
+            self.assertEquals(expected_node.nodeValue, actual_node.nodeValue)
+            return
 
-    self.assertEquals(Node.ELEMENT_NODE, actual_node.nodeType)
-    self.assertEquals(Node.ELEMENT_NODE, expected_node.nodeType)
-    self.assertEquals(expected_node.tagName, actual_node.tagName)
+        self.assertEquals(Node.ELEMENT_NODE, actual_node.nodeType)
+        self.assertEquals(Node.ELEMENT_NODE, expected_node.nodeType)
+        self.assertEquals(expected_node.tagName, actual_node.tagName)
 
-    expected_attributes = expected_node.attributes
-    actual_attributes   = actual_node  .attributes
-    self.assertEquals(expected_attributes.length, actual_attributes.length)
-    for i in range(expected_attributes.length):
-      expected_attr = expected_attributes.item(i)
-      actual_attr   = actual_attributes.get(expected_attr.name)
-      self.assert_(actual_attr is not None)
-      self.assertEquals(expected_attr.value, actual_attr.value)
+        expected_attributes = expected_node.attributes
+        actual_attributes = actual_node.attributes
+        self.assertEquals(expected_attributes.length, actual_attributes.length)
+        for i in range(expected_attributes.length):
+            expected_attr = expected_attributes.item(i)
+            actual_attr = actual_attributes.get(expected_attr.name)
+            self.assert_(actual_attr is not None)
+            self.assertEquals(expected_attr.value, actual_attr.value)
 
-    expected_children = self._GetChildren(expected_node)
-    actual_children = self._GetChildren(actual_node)
-    self.assertEquals(len(expected_children), len(actual_children))
-    for child_id, child in expected_children.iteritems():
-      self.assert_(child_id in actual_children,
-                   '<%s> is not in <%s>' % (child_id, actual_children))
-      self.AssertEquivalentNodes(child, actual_children[child_id])
+        expected_children = self._GetChildren(expected_node)
+        actual_children = self._GetChildren(actual_node)
+        self.assertEquals(len(expected_children), len(actual_children))
+        for child_id, child in expected_children.iteritems():
+            self.assert_(child_id in actual_children,
+                         '<%s> is not in <%s>' % (child_id, actual_children))
+            self.AssertEquivalentNodes(child, actual_children[child_id])
 
-  identifying_attribute = {
-    "testsuite": "name",
-    "testcase":  "name",
-    "failure":   "message",
+    identifying_attribute = {
+        "testsuite": "name",
+        "testcase": "name",
+        "failure": "message",
     }
 
-  def _GetChildren(self, element):
-    """
+    def _GetChildren(self, element):
+        """
     Fetches all of the child nodes of element, a DOM Element object.
     Returns them as the values of a dictionary keyed by the IDs of the
     children.  For <testsuite> and <testcase> elements, the ID is the
@@ -111,25 +111,28 @@ class GTestXMLTestCase(unittest.TestCase):
     whitespace.
     """
 
-    children = {}
-    for child in element.childNodes:
-      if child.nodeType == Node.ELEMENT_NODE:
-        self.assert_(child.tagName in self.identifying_attribute,
-                     "Encountered unknown element <%s>" % child.tagName)
-        childID = child.getAttribute(self.identifying_attribute[child.tagName])
-        self.assert_(childID not in children)
-        children[childID] = child
-      elif child.nodeType == Node.TEXT_NODE:
-        self.assert_(child.nodeValue.isspace())
-      elif child.nodeType == Node.CDATA_SECTION_NODE:
-        self.assert_("detail" not in children)
-        children["detail"] = child
-      else:
-        self.fail("Encountered unexpected node type %d" % child.nodeType)
-    return children
+        children = {}
+        for child in element.childNodes:
+            if child.nodeType == Node.ELEMENT_NODE:
+                self.assert_(child.tagName in self.identifying_attribute,
+                             "Encountered unknown element <%s>" %
+                             child.tagName)
+                childID = child.getAttribute(
+                    self.identifying_attribute[child.tagName])
+                self.assert_(childID not in children)
+                children[childID] = child
+            elif child.nodeType == Node.TEXT_NODE:
+                self.assert_(child.nodeValue.isspace())
+            elif child.nodeType == Node.CDATA_SECTION_NODE:
+                self.assert_("detail" not in children)
+                children["detail"] = child
+            else:
+                self.fail("Encountered unexpected node type %d" %
+                          child.nodeType)
+        return children
 
-  def NormalizeXml(self, element):
-    """
+    def NormalizeXml(self, element):
+        """
     Normalizes Google Test's XML output to eliminate references to transient
     information that may change from run to run.
 
@@ -142,17 +145,18 @@ class GTestXMLTestCase(unittest.TestCase):
     *  The stack traces are removed.
     """
 
-    if element.tagName in ("testsuite", "testcase"):
-      time = element.getAttributeNode("time")
-      time.value = re.sub(r"^\d+(\.\d+)?$", "*", time.value)
-    elif element.tagName == "failure":
-      for child in element.childNodes:
-        if child.nodeType == Node.CDATA_SECTION_NODE:
-          # Removes the source line number.
-          cdata = re.sub(r"^.*/(.*:)\d+\n", "\\1*\n", child.nodeValue)
-          # Removes the actual stack trace.
-          child.nodeValue = re.sub(r"\nStack trace:\n(.|\n)*",
-                                   "", cdata)
-    for child in element.childNodes:
-      if child.nodeType == Node.ELEMENT_NODE:
-        self.NormalizeXml(child)
+        if element.tagName in ("testsuite", "testcase"):
+            time = element.getAttributeNode("time")
+            time.value = re.sub(r"^\d+(\.\d+)?$", "*", time.value)
+        elif element.tagName == "failure":
+            for child in element.childNodes:
+                if child.nodeType == Node.CDATA_SECTION_NODE:
+                    # Removes the source line number.
+                    cdata = re.sub(r"^.*/(.*:)\d+\n", "\\1*\n",
+                                   child.nodeValue)
+                    # Removes the actual stack trace.
+                    child.nodeValue = re.sub(r"\nStack trace:\n(.|\n)*", "",
+                                             cdata)
+        for child in element.childNodes:
+            if child.nodeType == Node.ELEMENT_NODE:
+                self.NormalizeXml(child)
