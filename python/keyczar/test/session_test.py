@@ -36,8 +36,8 @@ def _get_test_dir(subdir):
 class SessionEncrypterTest(unittest.TestCase):
 
     """
-  Tests Session encryption
-  """
+    Tests Session encryption
+    """
 
     def setUp(self):
         self.input = "This is some test data"

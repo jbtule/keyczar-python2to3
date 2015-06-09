@@ -51,15 +51,15 @@ class KeyMetadata(object):
 
     def AddVersion(self, version):
         """
-    Adds given version and returns True if successful.
+        Adds given version and returns True if successful.
 
-    @param version: version to add
-    @type version: L{KeyVersion}
+        @param version: version to add
+        @type version: L{KeyVersion}
 
-    @return: True if version was successfully added (i.e. no previous version
-      had the same version number), False otherwise.
-    @rtype: boolean
-    """
+        @return: True if version was successfully added (i.e. no previous version
+          had the same version number), False otherwise.
+        @rtype: boolean
+        """
         num = version.version_number
         if num not in self.__versions:
             self.__versions[num] = version
@@ -68,16 +68,16 @@ class KeyMetadata(object):
 
     def RemoveVersion(self, version_number):
         """
-    Removes version with given version number and returns it if it exists.
+        Removes version with given version number and returns it if it exists.
 
-    @param version_number: version number to remove
-    @type version_number: integer
+        @param version_number: version number to remove
+        @type version_number: integer
 
-    @return: the removed version if it exists
-    @rtype: L{KeyVersion}
+        @return: the removed version if it exists
+        @rtype: L{KeyVersion}
 
-    @raise KeyczarError: if the version number is non-existent
-    """
+        @raise KeyczarError: if the version number is non-existent
+        """
         try:
             self.__versions.pop(version_number)
         except KeyError:
@@ -86,16 +86,16 @@ class KeyMetadata(object):
 
     def GetVersion(self, version_number):
         """
-    Return the version corresponding to the given version number.
+        Return the version corresponding to the given version number.
 
-    @param version_number: integer version number of desired version
-    @type version_number: integer
+        @param version_number: integer version number of desired version
+        @type version_number: integer
 
-    @return: the corresponding version if it exists
-    @rtype: L{KeyVersion}
+        @return: the corresponding version if it exists
+        @rtype: L{KeyVersion}
 
-    @raise KeyczarError: if the version number is non-existent.
-    """
+        @raise KeyczarError: if the version number is non-existent.
+        """
         try:
             return self.__versions[version_number]
         except KeyError:
@@ -105,14 +105,14 @@ class KeyMetadata(object):
     @staticmethod
     def Read(json_string):
         """
-    Return KeyMetadata object constructed from JSON string representation.
+        Return KeyMetadata object constructed from JSON string representation.
 
-    @param json_string: a JSON representation of a KeyMetadata object
-    @type json_string: string
+        @param json_string: a JSON representation of a KeyMetadata object
+        @type json_string: string
 
-    @return: the constructed KeyMetadata object
-    @rtype: L{KeyMetadata}
-    """
+        @return: the constructed KeyMetadata object
+        @rtype: L{KeyMetadata}
+        """
         meta = json.loads(json_string)
         kmd = KeyMetadata(meta['name'], keyinfo.GetPurpose(meta['purpose']),
                           keyinfo.GetType(meta['type']), meta['encrypted'])
@@ -144,14 +144,14 @@ class KeyVersion(object):
     @staticmethod
     def Read(version):
         """
-    Return KeyVersion object constructed from dictionary derived from JSON.
+        Return KeyVersion object constructed from dictionary derived from JSON.
 
-    @param version: a dictionary obtained from a JSON string representation
-    @type version: dictionary
+        @param version: a dictionary obtained from a JSON string representation
+        @type version: dictionary
 
-    @return: constructed KeyVersion object
-    @rtype: L{KeyVersion}
-    """
+        @return: constructed KeyVersion object
+        @rtype: L{KeyVersion}
+        """
         return KeyVersion(version['versionNumber'],
                           keyinfo.GetStatus(version['status']),
                           version['exportable'])

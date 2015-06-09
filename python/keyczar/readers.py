@@ -31,11 +31,12 @@ from keyczar import util
 
 
 def CreateReader(location):
-    """Factory function for Reader's
+    """
+    Factory function for Reader's
 
     @param location: where (file, uri, etc) the reader should read from
     @type location: string
-  """
+    """
     # make sure all readers are available
     util.ImportBackends()
     # return the first that accepts the location
@@ -57,47 +58,47 @@ class Reader(object):
     @abstractmethod
     def GetMetadata(self):
         """
-    Return the KeyMetadata for the key set being read.
+        Return the KeyMetadata for the key set being read.
 
-    @return: JSON string representation of KeyMetadata object
-    @rtype: string
+        @return: JSON string representation of KeyMetadata object
+        @rtype: string
 
-    @raise KeyczarError: if unable to read metadata (e.g. IOError)
-    """
+        @raise KeyczarError: if unable to read metadata (e.g. IOError)
+        """
         return
 
     @abstractmethod
     def GetKey(self, version_number):
         """
-    Return the key corresponding to the given version.
+        Return the key corresponding to the given version.
 
-    @param version_number: the version number of the desired key
-    @type version_number: integer
+        @param version_number: the version number of the desired key
+        @type version_number: integer
 
-    @return: JSON string representation of a Key object
-    @rtype: string
+        @return: JSON string representation of a Key object
+        @rtype: string
 
-    @raise KeyczarError: if unable to read key info (e.g. IOError)
-    """
+        @raise KeyczarError: if unable to read key info (e.g. IOError)
+        """
         return
 
     @abstractmethod
     def Close(self):
         """
-    Clean up this reader
+        Clean up this reader
 
-    @raise KeyczarError: if error during close
-    """
+        @raise KeyczarError: if error during close
+        """
         return
 
     @classmethod
     def CreateReader(cls, location):
         """
-    Return an instance of this class if it handles the location
+        Return an instance of this class if it handles the location
 
-    @param location: where (file, uri, etc) the reader should read from
-    @type location: string
-    """
+        @param location: where (file, uri, etc) the reader should read from
+        @type location: string
+        """
         raise NotImplementedError(
             'CreateReader() class method MUST be implemented for:%s' % cls)
 

@@ -341,11 +341,11 @@ class BaseCrypterTest(unittest.TestCase):
 
     def testAesStreamEncryptAndStreamDecryptInterop(self):
         """
-    Test streaming in both directions.
+        Test streaming in both directions.
 
-    NOTE: we only test the 1 set of data as the other tests exercise the stream
-    readers/writers individually
-    """
+        NOTE: we only test the 1 set of data as the other tests exercise the stream
+        readers/writers individually
+        """
         self.__testStreamEncryptAndStreamDecrypt('aes', self.all_data[0], -1,
                                                  -1, 'default')
 
@@ -383,17 +383,17 @@ class BaseCrypterTest(unittest.TestCase):
 
     def testStreamDecryptHandlesIOModuleBlockingNoneReturned(self):
         """
-    Test for input streams that conform to the blocking I/O module spec, i.e.
-    read() returns None to indicate no data available, but not EOF
-    """
+        Test for input streams that conform to the blocking I/O module spec, i.e.
+        read() returns None to indicate no data available, but not EOF
+        """
         crypter = keyczar.Crypter.Read(os.path.join(TEST_DATA, 'aes'))
         ciphertext = crypter.Encrypt(self.input_data)
 
         class PseudoBlockingStream(object):
 
             """
-      A 'stream' that blocks every 2nd call to read() to simultate blocking i/o
-      """
+              A 'stream' that blocks every 2nd call to read() to simultate blocking i/o
+              """
 
             def __init__(self, string):
                 self.current_posn = 0
@@ -425,19 +425,19 @@ class BaseCrypterTest(unittest.TestCase):
 
     def testStreamDecryptHandlesIOModuleBlockingExceptionRaised(self):
         """
-    Test for input streams that conform to the blocking I/O module spec wrt
-    buffered blocking, i.e. if the underlying raw stream is in non blocking-mode,
-    a BlockingIOError is raised indicate no data available, but not EOF
-    """
+        Test for input streams that conform to the blocking I/O module spec wrt
+        buffered blocking, i.e. if the underlying raw stream is in non blocking-mode,
+        a BlockingIOError is raised indicate no data available, but not EOF
+        """
         crypter = keyczar.Crypter.Read(os.path.join(TEST_DATA, 'aes'))
         ciphertext = crypter.Encrypt(self.input_data)
 
         class PseudoBlockingStream(object):
 
             """
-      A 'stream' that raises BlockingIOError every 2nd call to read() to
-      simultate buffered blocking
-      """
+            A 'stream' that raises BlockingIOError every 2nd call to read() to
+            simultate buffered blocking
+            """
 
             def __init__(self, string):
                 self.current_posn = 0
@@ -580,9 +580,9 @@ class CreateReaderTest(unittest.TestCase):
 
     def testCreateReaderDirectInstantiation(self):
         """
-    Only FileReader can be instantiated by CreateReader.
-    All others in readers.py must be instantiated via their constructor.
-    """
+        Only FileReader can be instantiated by CreateReader.
+        All others in readers.py must be instantiated via their constructor.
+        """
         location = os.path.join(TEST_DATA, 'aes')
         self.assertTrue(os.path.isdir(location))
         # make sure all readers are available
@@ -633,9 +633,9 @@ class CreateWriterTest(unittest.TestCase):
 
     def testCreateWriterDirectInstantiation(self):
         """
-    Only FileWriter can be instantiated by CreateWriter.
-    All others in writers.py must be instantiated via their constructor.
-    """
+        Only FileWriter can be instantiated by CreateWriter.
+        All others in writers.py must be instantiated via their constructor.
+        """
         location = os.path.join(TEST_DATA, 'aes')
         self.assertTrue(os.path.isdir(location))
         # make sure all writers are available

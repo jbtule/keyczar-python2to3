@@ -55,19 +55,19 @@ from keyczar import constants
 
 def GenKey(key_type, size=None):
     """
-  Generates a key of the given key_type and length.
+    Generates a key of the given key_type and length.
 
-  @param key_type: the key_type of key to generate
-  @key_type key_type: L{keyinfo.KeyType}
+    @param key_type: the key_type of key to generate
+    @key_type key_type: L{keyinfo.KeyType}
 
-  @param size: the length in bits of the key to be generated
-  @key_type size: integer
+    @param size: the length in bits of the key to be generated
+    @key_type size: integer
 
-  @return: the generated key of the given key_type and size
+    @return: the generated key of the given key_type and size
 
-  @raise KeyczarError: if key_type is a public key or unsupported or if key size
-                       is unsupported.
-  """
+    @raise KeyczarError: if key_type is a public key or unsupported or if key size
+                         is unsupported.
+    """
     if size is None:
         size = key_type.default_size
 
@@ -91,18 +91,18 @@ def GenKey(key_type, size=None):
 
 def ReadKey(key_type, key):
     """
-  Reads a key of the given key_type from a JSON string representation.
+    Reads a key of the given key_type from a JSON string representation.
 
-  @param key_type: the key_type of key to read
-  @key_type key_type: L{keyinfo.KeyType}
+    @param key_type: the key_type of key to read
+    @key_type key_type: L{keyinfo.KeyType}
 
-  @param key: the JSON string representation of the key
-  @key_type key: string
+    @param key: the JSON string representation of the key
+    @key_type key: string
 
-  @return: the key object read from the JSON string
+    @return: the key object read from the JSON string
 
-  @raise KeyczarError: if key_type is unsupported
-  """
+    @raise KeyczarError: if key_type is unsupported
+    """
     try:
         return {
             keyinfo.AES: AesKey.Read,
@@ -141,8 +141,8 @@ class Key(object):
 
     def _Hash(self):
         """
-    Compute and return the hash_id id of this key. Can override default hash_id.
-    """
+        Compute and return the hash_id id of this key. Can override default hash_id.
+        """
         fullhash = util.PrefixHash(self.key_bytes)
         return util.Base64WSEncode(fullhash[:constants.KEY_HASH_SIZE])
 
@@ -172,8 +172,8 @@ class Key(object):
 
     def Header(self):
         """
-    Return the 5-byte header string including version byte, 4-byte hash_id.
-    """
+        Return the 5-byte header string including version byte, 4-byte hash_id.
+        """
         return (bytes(bytearray([constants.VERSION])) +
                 util.Base64WSDecode(self.hash_id))
 
@@ -207,23 +207,23 @@ class AesKey(SymmetricKey):
     class AESAdaptor(object):
 
         """
-    Adaptor class to make PyCrypto's Cipher behave the same as M2Crypto's
-    EVP.Cipher class
-    """
+        Adaptor class to make PyCrypto's Cipher behave the same as M2Crypto's
+        EVP.Cipher class
+        """
 
         def __init__(self, key_bytes, iv_bytes, mode):
             """
-      Constructor
+            Constructor
 
-      @param key_bytes: the key for this cipher
-      @type key: string
+            @param key_bytes: the key for this cipher
+            @type key: string
 
-      @param iv_bytes: the initialization vector for this cipher
-      @type iv_bytes: string
+            @param iv_bytes: the initialization vector for this cipher
+            @type iv_bytes: string
 
-      @param mode: the cipher mode
-      @type mode: integer (using AES values, e.g. AES.MODE_CBC)
-      """
+            @param mode: the cipher mode
+            @type mode: integer (using AES values, e.g. AES.MODE_CBC)
+            """
             self.cipher = AES.new(key_bytes, mode, iv_bytes)
 
         def __getattr__(self, name):
@@ -232,19 +232,19 @@ class AesKey(SymmetricKey):
 
         def final(self):
             """
-      Collect any remaining encrypted data i.e. non-block size conforming
+            Collect any remaining encrypted data i.e. non-block size conforming
 
-      @return: remaining encrypted data, if any
-      """
+            @return: remaining encrypted data, if any
+            """
             # except 'final' which is a no-op
             return b''
 
     class EVPAdaptor(object):
 
         """
-    Adaptor class to make M2Crypto's EVP.Cipher behave the same as PyCrypto's
-    Cipher class
-    """
+        Adaptor class to make M2Crypto's EVP.Cipher behave the same as PyCrypto's
+        Cipher class
+        """
 
         # cipher selection mode - EVP needs a different cipher for each
         OP_ACTIVE = -1  # indicator that the request is for an existing cipher
@@ -254,17 +254,17 @@ class AesKey(SymmetricKey):
 
         def __init__(self, key_bytes, iv_bytes, mode):
             """
-      Constructor
+            Constructor
 
-      @param key_bytes: the key for this cipher
-      @type key: string
+            @param key_bytes: the key for this cipher
+            @type key: string
 
-      @param iv_bytes: the initialization vector for this cipher
-      @type iv_bytes: string
+            @param iv_bytes: the initialization vector for this cipher
+            @type iv_bytes: string
 
-      @param mode: the cipher mode
-      @type mode: integer (using AES values, e.g. AES.MODE_CBC)
-      """
+            @param mode: the cipher mode
+            @type mode: integer (using AES values, e.g. AES.MODE_CBC)
+            """
             # defer construction of ciphers until encrypt/decrypt request made
             self.ciphers = {}
             # preserve the data needed for cipher construction
@@ -276,13 +276,13 @@ class AesKey(SymmetricKey):
 
         def __Cipher(self, selector):
             """
-      Helper to get the cipher for this adaptor, creates if required
+            Helper to get the cipher for this adaptor, creates if required
 
-      @param selector: type of cipher required (active/encrypt/decrypt)
-      @type selector: integer one of OP_TYPES
+            @param selector: type of cipher required (active/encrypt/decrypt)
+            @type selector: integer one of OP_TYPES
 
-      @return: EVP.Cipher
-      """
+            @return: EVP.Cipher
+            """
             assert selector in self.OP_TYPES, 'Invalid selector :%s' % selector
             if selector == self.OP_ACTIVE and (len(self.ciphers.keys()) > 1 or
                                                not len(self.ciphers.keys())):
@@ -313,34 +313,34 @@ class AesKey(SymmetricKey):
 
         def decrypt(self, string):
             """
-      Return decrypted byte string
+            Return decrypted byte string
 
-      @param string: bytes to be decrypted.
-      @type string: string
+            @param string: bytes to be decrypted.
+            @type string: string
 
-      @return: plaintext string
-      @rtype: string
-      """
+            @return: plaintext string
+            @rtype: string
+            """
             return self.__Cipher(self.OP_DECRYPT).update(string)
 
         def encrypt(self, string):
             """
-      Return encrypted byte string
+            Return encrypted byte string
 
-      @param string: plaintext to be encrypted.
-      @type string: string
+            @param string: plaintext to be encrypted.
+            @type string: string
 
-      @return: raw byte encrypted string
-      @rtype: string
-      """
+            @return: raw byte encrypted string
+            @rtype: string
+            """
             return self.__Cipher(self.OP_ENCRYPT).update(string)
 
         def final(self, selector=OP_ACTIVE):
             """
-      Collect any remaining encrypted data i.e. non-block size conforming
+            Collect any remaining encrypted data i.e. non-block size conforming
 
-      @return: remaining encrypted data, if any
-      """
+            @return: remaining encrypted data, if any
+            """
             return self.__Cipher(selector).final()
 
     def __init__(self, key_string, hmac_key,
@@ -391,14 +391,14 @@ class AesKey(SymmetricKey):
     @staticmethod
     def Generate(size=keyinfo.AES.default_size):
         """
-    Return a newly generated AES key.
+        Return a newly generated AES key.
 
-    @param size: length of key in bits to generate
-    @type size: integer
+        @param size: length of key in bits to generate
+        @type size: integer
 
-    @return: an AES key
-    @rtype: L{AesKey}
-    """
+        @return: an AES key
+        @rtype: L{AesKey}
+        """
         key_bytes = util.RandBytes(size // 8)
         key_string = util.Base64WSEncode(key_bytes)
         hmac_key = HmacKey.Generate()  # use default HMAC-SHA1 key size
@@ -407,14 +407,14 @@ class AesKey(SymmetricKey):
     @staticmethod
     def Read(key):
         """
-    Reads an AES key from a JSON string representation of it.
+        Reads an AES key from a JSON string representation of it.
 
-    @param key: a JSON representation of an AES key
-    @type key: string
+        @param key: a JSON representation of an AES key
+        @type key: string
 
-    @return: an AES key
-    @rtype: L{AesKey}
-    """
+        @return: an AES key
+        @rtype: L{AesKey}
+        """
         aes = json.loads(key)
         hmac_val = aes['hmacKey']
         return AesKey(aes['aesKeyString'],
@@ -423,60 +423,60 @@ class AesKey(SymmetricKey):
 
     def _Pad(self, data):
         """
-    Returns the data padded using PKCS5.
+        Returns the data padded using PKCS5.
 
-    For a block size B and data with N bytes in the last block, PKCS5
-    pads the data with B-N bytes of the value B-N.
+        For a block size B and data with N bytes in the last block, PKCS5
+        pads the data with B-N bytes of the value B-N.
 
-    @param data: data to be padded
-    @type data: string
+        @param data: data to be padded
+        @type data: string
 
-    @return: PKCS5 padded string
-    @rtype: string
-    """
+        @return: PKCS5 padded string
+        @rtype: string
+        """
         pad = self.block_size - len(data) % self.block_size
         return data + util.RepeatByte(pad, pad)
 
     def _UnPad(self, padded):
         """
-    Returns the unpadded version of a data padded using PKCS5.
+        Returns the unpadded version of a data padded using PKCS5.
 
-    @param padded: string padded with PKCS5
-    @type padded: string
+        @param padded: string padded with PKCS5
+        @type padded: string
 
-    @return: original, unpadded string
-    @rtype: string
-    """
+        @return: original, unpadded string
+        @rtype: string
+        """
         pad = bytearray(padded)[-1]
         return padded[:-pad]
 
     def _NoPadBufferSize(self, buffer_size):
         """
-    Return a buffer size that does not require padding that is closest to the
-    requested buffer size. Minimum size is 1 block.
+        Return a buffer size that does not require padding that is closest to the
+        requested buffer size. Minimum size is 1 block.
 
-    Returns a multiple of the cipher block size so there is NO PADDING required
-    on any blocks of this size
+        Returns a multiple of the cipher block size so there is NO PADDING required
+        on any blocks of this size
 
-    @param buffer_size: requested buffer size
-    @type data: int
+        @param buffer_size: requested buffer size
+        @type data: int
 
-    @return: best buffer size
-    @rtype: int
-    """
+        @return: best buffer size
+        @rtype: int
+        """
         no_pad_size = self.block_size * (buffer_size // self.block_size)
         return max(no_pad_size, self.block_size)
 
     def EncryptIO(self, reader, writer):
         """
-    Return ciphertext byte string containing Header|IV|Ciph|Sig.
+        Return ciphertext byte string containing Header|IV|Ciph|Sig.
 
-    @param data: plaintext to be encrypted.
-    @type data: string
+        @param data: plaintext to be encrypted.
+        @type data: string
 
-    @return: raw byte string ciphertext formatted to have Header|IV|Ciph|Sig.
-    @rtype: string
-    """
+        @return: raw byte string ciphertext formatted to have Header|IV|Ciph|Sig.
+        @rtype: string
+        """
         mac = self.hmac_key.CreateStreamable()
 
         # Write and update mac for header
@@ -559,20 +559,20 @@ class AesKey(SymmetricKey):
 
     def __CreateCipher(self, key_bytes, iv_bytes, mode=AES.MODE_CBC):
         """
-    Factory function for creating cipher of specified type using the active
-    crypto library
+        Factory function for creating cipher of specified type using the active
+        crypto library
 
-    @param key_bytes: the key for this cipher
-    @type key: string
+        @param key_bytes: the key for this cipher
+        @type key: string
 
-    @param iv_bytes: the initialization vector for this cipher
-    @type iv_bytes: string
+        @param iv_bytes: the initialization vector for this cipher
+        @type iv_bytes: string
 
-    @param mode: the cipher mode
-    @type mode: integer (using AES values, e.g. AES.MODE_CBC)
+        @param mode: the cipher mode
+        @type mode: integer (using AES values, e.g. AES.MODE_CBC)
 
-    @return: the cipher object
-    """
+        @return: the cipher object
+        """
         # can we use M2Crypto and was it requested?
         if ACTIVE_CRYPT_LIB.lower() == 'm2crypto' and EVP:
             # yes, so do so
@@ -606,14 +606,14 @@ class HmacKey(SymmetricKey):
     @staticmethod
     def Generate(size=keyinfo.HMAC_SHA1.default_size):
         """
-    Return a newly generated HMAC-SHA1 key.
+        Return a newly generated HMAC-SHA1 key.
 
-    @param size: length of key in bits to generate
-    @type size: integer
+        @param size: length of key in bits to generate
+        @type size: integer
 
-    @return: an HMAC-SHA1 key
-    @rtype: L{HmacKey}
-    """
+        @return: an HMAC-SHA1 key
+        @rtype: L{HmacKey}
+        """
         key_bytes = util.RandBytes(size // 8)
         key_string = util.Base64WSEncode(key_bytes)
         return HmacKey(key_string, size)
@@ -621,57 +621,57 @@ class HmacKey(SymmetricKey):
     @staticmethod
     def Read(key):
         """
-    Reads an HMAC-SHA1 key from a JSON string representation of it.
+        Reads an HMAC-SHA1 key from a JSON string representation of it.
 
-    @param key: a JSON representation of an HMAC-SHA1 key
-    @type key: string
+        @param key: a JSON representation of an HMAC-SHA1 key
+        @type key: string
 
-    @return: an HMAC-SHA1 key
-    @rtype: L{HmacKey}
-    """
+        @return: an HMAC-SHA1 key
+        @rtype: L{HmacKey}
+        """
         mac = json.loads(key)
         return HmacKey(mac['hmacKeyString'], mac['size'])
 
     def Sign(self, msg):
         """
-    Return raw byte string of signature on the message.
+        Return raw byte string of signature on the message.
 
-    @param msg: message to be signed
-    @type msg: string
+        @param msg: message to be signed
+        @type msg: string
 
-    @return: raw byte string signature
-    @rtype: string
-    """
+        @return: raw byte string signature
+        @rtype: string
+        """
         return hmac.new(self.key_bytes, msg, sha1).digest()
 
     def Verify(self, msg, sig_bytes):
         """
-    Return True if the signature corresponds to the message.
+        Return True if the signature corresponds to the message.
 
-    @param msg: message to be signed
-    @type msg: string
+        @param msg: message to be signed
+        @type msg: string
 
-    @param sig_bytes: raw byte string of the signature
-    @type sig_bytes: string
+        @param sig_bytes: raw byte string of the signature
+        @type sig_bytes: string
 
-    @return: True if signature is valid for message. False otherwise.
-    @rtype: boolean
-    """
+        @return: True if signature is valid for message. False otherwise.
+        @rtype: boolean
+        """
         return self.VerifySignedData(self.Sign(msg), sig_bytes)
 
     def VerifySignedData(self, mac_bytes, sig_bytes):
         """
-    Return True if the signature corresponds to the signed message
+        Return True if the signature corresponds to the signed message
 
-    @param msg: message that has been signed
-    @type msg: string
+        @param msg: message that has been signed
+        @type msg: string
 
-    @param sig_bytes: raw byte string of the signature
-    @type sig_bytes: string
+        @param sig_bytes: raw byte string of the signature
+        @type sig_bytes: string
 
-    @return: True if signature is valid for message. False otherwise.
-    @rtype: boolean
-    """
+        @return: True if signature is valid for message. False otherwise.
+        @rtype: boolean
+        """
         return util.ConstantTimeCompare(sig_bytes, mac_bytes)
 
 
@@ -688,11 +688,11 @@ class HmacKeyStream(object):
 
     def Sign(self):
         """
-    Return raw byte string of signature on the streamed message.
+        Return raw byte string of signature on the streamed message.
 
-    @return: raw byte string signature
-    @rtype: string
-    """
+        @return: raw byte string signature
+        @rtype: string
+        """
         return self.hmac.digest()
 
 
@@ -737,14 +737,14 @@ class DsaPrivateKey(PrivateKey):
     @staticmethod
     def Generate(size=keyinfo.DSA_PRIV.default_size):
         """
-    Return a newly generated DSA private key.
+        Return a newly generated DSA private key.
 
-    @param size: length of key in bits to generate
-    @type size: integer
+        @param size: length of key in bits to generate
+        @type size: integer
 
-    @return: a DSA private key
-    @rtype: L{DsaPrivateKey}
-    """
+        @return: a DSA private key
+        @rtype: L{DsaPrivateKey}
+        """
         key = DSA.generate(size, util.RandBytes)
         params = {'x': util.BigIntToBytes(key.x)}
         pubkey = key.publickey()
@@ -760,14 +760,14 @@ class DsaPrivateKey(PrivateKey):
     @staticmethod
     def Read(key):
         """
-    Reads a DSA private key from a JSON string representation of it.
+        Reads a DSA private key from a JSON string representation of it.
 
-    @param key: a JSON representation of a DSA private key
-    @type key: string
+        @param key: a JSON representation of a DSA private key
+        @type key: string
 
-    @return: an DSA private key
-    @rtype: L{DsaPrivateKey}
-    """
+        @return: an DSA private key
+        @rtype: L{DsaPrivateKey}
+        """
         dsa = json.loads(key)
         pub = DsaPublicKey.Read(json.dumps(dsa['publicKey']))
         params = {'x': util.Base64WSDecode(dsa['x'])}
@@ -780,14 +780,14 @@ class DsaPrivateKey(PrivateKey):
 
     def Sign(self, msg):
         """
-    Return raw byte string of signature on the message.
+        Return raw byte string of signature on the message.
 
-    @param msg: message to be signed
-    @type msg: string
+        @param msg: message to be signed
+        @type msg: string
 
-    @return: byte string formatted as an ASN.1 sequnce of r and s
-    @rtype: string
-    """
+        @return: byte string formatted as an ASN.1 sequnce of r and s
+        @rtype: string
+        """
         # Need to chose a random k per-message, SystemRandom() is available
         # since Python 2.4.
         k = random.SystemRandom().randint(2, self.key.q - 1)
@@ -877,14 +877,14 @@ class RsaPrivateKey(PrivateKey):
     @staticmethod
     def Generate(size=keyinfo.RSA_PRIV.default_size):
         """
-    Return a newly generated RSA private key.
+        Return a newly generated RSA private key.
 
-    @param size: length of key in bits to generate
-    @type size: integer
+        @param size: length of key in bits to generate
+        @type size: integer
 
-    @return: a RSA private key
-    @rtype: L{RsaPrivateKey}
-    """
+        @return: a RSA private key
+        @rtype: L{RsaPrivateKey}
+        """
         key = RSA.generate(size, util.RandBytes)
         # NOTE: PyCrypto stores p < q, u = p^{-1} mod q
         # But OpenSSL and PKCS8 stores q < p, invq = q^{-1} mod p
@@ -908,14 +908,14 @@ class RsaPrivateKey(PrivateKey):
     @staticmethod
     def Read(key):
         """
-    Reads a RSA private key from a JSON string representation of it.
+        Reads a RSA private key from a JSON string representation of it.
 
-    @param key: a JSON representation of a RSA private key
-    @type key: string
+        @param key: a JSON representation of a RSA private key
+        @type key: string
 
-    @return: a RSA private key
-    @rtype: L{RsaPrivateKey}
-    """
+        @return: a RSA private key
+        @rtype: L{RsaPrivateKey}
+        """
         rsa = json.loads(key)
         pub = RsaPublicKey.Read(json.dumps(rsa['publicKey']))
         params = {
@@ -947,14 +947,14 @@ class RsaPrivateKey(PrivateKey):
 
     def Sign(self, msg):
         """
-    Return raw byte string of signature on the SHA-1 hash_id of the message.
+        Return raw byte string of signature on the SHA-1 hash_id of the message.
 
-    @param msg: message to be signed
-    @type msg: string
+        @param msg: message to be signed
+        @type msg: string
 
-    @return: string representation of long int signature over message
-    @rtype: string
-    """
+        @return: string representation of long int signature over message
+        @rtype: string
+        """
         emsa_encoded = util.MakeEmsaMessage(msg, self.size)
         bigint_bytes = util.TrimBytes(
             util.BigIntToBytes(self.key.sign(emsa_encoded, None)[0]))
@@ -995,14 +995,14 @@ class DsaPublicKey(PublicKey):
     @staticmethod
     def Read(key):
         """
-    Reads a DSA public key from a JSON string representation of it.
+        Reads a DSA public key from a JSON string representation of it.
 
-    @param key: a JSON representation of a DSA public key
-    @type key: string
+        @param key: a JSON representation of a DSA public key
+        @type key: string
 
-    @return: a DSA public key
-    @rtype: L{DsaPublicKey}
-    """
+        @return: a DSA public key
+        @rtype: L{DsaPublicKey}
+        """
 
         dsa = json.loads(key)
         params = {
@@ -1018,18 +1018,18 @@ class DsaPublicKey(PublicKey):
 
     def Verify(self, msg, sig):
         """
-    Return True if the signature corresponds to the message.
+        Return True if the signature corresponds to the message.
 
-    @param msg: message that has been signed
-    @type msg: string
+        @param msg: message that has been signed
+        @type msg: string
 
-    @param sig: raw byte string of the signature formatted as an ASN.1 sequence
-      of r and s
-    @type sig: string
+        @param sig: raw byte string of the signature formatted as an ASN.1 sequence
+          of r and s
+        @type sig: string
 
-    @return: True if signature is valid for message. False otherwise.
-    @rtype: boolean
-    """
+        @return: True if signature is valid for message. False otherwise.
+        @rtype: boolean
+        """
         try:
             (r, s) = util.ParseDsaSig(sig)
             return self.key.verify(util.Hash(msg), (r, s))
@@ -1092,14 +1092,14 @@ class RsaPublicKey(PublicKey):
     @staticmethod
     def Read(key):
         """
-    Reads a RSA public key from a JSON string representation of it.
+        Reads a RSA public key from a JSON string representation of it.
 
-    @param key: a JSON representation of a RSA public key
-    @type key: string
+        @param key: a JSON representation of a RSA public key
+        @type key: string
 
-    @return: a RSA public key
-    @rtype: L{RsaPublicKey}
-    """
+        @return: a RSA public key
+        @rtype: L{RsaPublicKey}
+        """
         rsa = json.loads(key)
         params = {
             'modulus': util.Base64WSDecode(rsa['modulus']),
@@ -1120,17 +1120,17 @@ class RsaPublicKey(PublicKey):
 
     def Verify(self, msg, sig):
         """
-    Return True if the signature corresponds to the message.
+        Return True if the signature corresponds to the message.
 
-    @param msg: message that has been signed
-    @type msg: string
+        @param msg: message that has been signed
+        @type msg: string
 
-    @param sig: string representation of long int signature
-    @type sig: string
+        @param sig: string representation of long int signature
+        @type sig: string
 
-    @return: True if signature is valid for the message hash_id. False otherwise.
-    @rtype: boolean
-    """
+        @return: True if signature is valid for the message hash_id. False otherwise.
+        @rtype: boolean
+        """
         try:
             return self.key.verify(util.MakeEmsaMessage(msg, self.size),
                                    (util.BytesToLong(sig), ))
@@ -1142,21 +1142,21 @@ class RsaPublicKey(PublicKey):
 class EncryptingStreamWriter(object):
 
     """
-  An encrypting stream capable of creating a ciphertext byte stream
-  containing Header|IV|Ciph|Sig.
-  """
+    An encrypting stream capable of creating a ciphertext byte stream
+    containing Header|IV|Ciph|Sig.
+    """
 
     def __init__(self, key, output_stream):
         """
-    Constructor
+        Constructor
 
-    @param key: Keyczar Key to perform the padding, verification, cipher
-    creation needed by this stream
-    @type key: Key
+        @param key: Keyczar Key to perform the padding, verification, cipher
+        creation needed by this stream
+        @type key: Key
 
-    @param output_stream: stream for encrypted output
-    @type output_stream: 'file-like' object
-    """
+        @param output_stream: stream for encrypted output
+        @type output_stream: 'file-like' object
+        """
         self.__key = key
         self.__output_stream = output_stream
         self.__data = b''
@@ -1172,11 +1172,11 @@ class EncryptingStreamWriter(object):
 
     def write(self, data):
         """
-    Write the data in encrypted form to the output stream
+        Write the data in encrypted form to the output stream
 
-    @param data: data to be encrypted.
-    @type data: string
-    """
+        @param data: data to be encrypted.
+        @type data: string
+        """
         self.__CheckOpen('write')
         self.__data += data
         encrypt_buffer_size = self.__key._NoPadBufferSize(len(self.__data))
@@ -1190,10 +1190,10 @@ class EncryptingStreamWriter(object):
 
     def flush(self):
         """
-    Flush this stream.
-    Writes all remaining encrypted data to the output stream.
-    Will also flush the associated output stream.
-    """
+        Flush this stream.
+        Writes all remaining encrypted data to the output stream.
+        Will also flush the associated output stream.
+        """
         self.__CheckOpen('flush')
         self.__WriteEncrypted(self.__data, pad=True)
         self.__output_stream.write(self.__hmac_stream.Sign())
@@ -1201,27 +1201,27 @@ class EncryptingStreamWriter(object):
 
     def close(self):
         """
-    Close this stream.
-    Discards any and all buffered data
-    Does *not* close the associated output stream.
-    """
+        Close this stream.
+        Discards any and all buffered data
+        Does *not* close the associated output stream.
+        """
         self.__CheckOpen('close')
         self.__closed = True
 
     def __WriteEncrypted(self, data, pad=False):
         """
-    Helper to write encrypted bytes to output stream.
-    Must *only* pad the last block as PKCS5 *always* pads, even when the data
-    length is a multiple of the block size - it adds block_size chars.
-    We cannot pad intermediate blocks as there is no guarantee that a streaming
-    read will receive the data in the same blocks as the writes were made.
+        Helper to write encrypted bytes to output stream.
+        Must *only* pad the last block as PKCS5 *always* pads, even when the data
+        length is a multiple of the block size - it adds block_size chars.
+        We cannot pad intermediate blocks as there is no guarantee that a streaming
+        read will receive the data in the same blocks as the writes were made.
 
-    @param data: data to be written.
-    @type data: string
+        @param data: data to be written.
+        @type data: string
 
-    @param pad: add padding to data
-    @type pad: boolean
-    """
+        @param pad: add padding to data
+        @type pad: boolean
+        """
         if pad:
             data = self.__key._Pad(data)
 
@@ -1239,26 +1239,26 @@ class EncryptingStreamWriter(object):
 class DecryptingStreamReader(object):
 
     """
-  A stream capable of decrypting a source ciphertext byte stream
-  containing Header|IV|Ciph|Sig into plain text.
-  """
+    A stream capable of decrypting a source ciphertext byte stream
+    containing Header|IV|Ciph|Sig into plain text.
+    """
 
     def __init__(self, key_set, input_stream,
                  buffer_size=util.DEFAULT_STREAM_BUFF_SIZE):
         """
-    Constructor
+        Constructor
 
-    @param key_set: Keyczar key set to source key specified in message header
-    @type key: Keyczar
+        @param key_set: Keyczar key set to source key specified in message header
+        @type key: Keyczar
 
-    @param input_stream: source of encrypted input
-    @type input_stream: 'file-like' object
+        @param input_stream: source of encrypted input
+        @type input_stream: 'file-like' object
 
-    @param buffer_size: Suggested buffer size for reading data (will be
-    adjusted to suit the underlying cipher).
-    Use -1 to read as much data as possible from the source stream
-    @type buffer_size: integer
-    """
+        @param buffer_size: Suggested buffer size for reading data (will be
+        adjusted to suit the underlying cipher).
+        Use -1 to read as much data as possible from the source stream
+        @type buffer_size: integer
+        """
         self.__key_set = key_set
         self.__input_stream = input_stream
         self.__buffer_size = buffer_size
@@ -1270,21 +1270,21 @@ class DecryptingStreamReader(object):
 
     def read(self, chars=-1):
         """
-    Decrypts data from the source stream and returns the resulting plaintext.
-    NOTE: the signature validation is performed on the final read if sufficient
-    data is available. Streaming => it isn't possible to validate up front as
-    done by Decrypt().
+        Decrypts data from the source stream and returns the resulting plaintext.
+        NOTE: the signature validation is performed on the final read if sufficient
+        data is available. Streaming => it isn't possible to validate up front as
+        done by Decrypt().
 
-    @param chars: indicates the number of characters to read from the stream.
-    read() will never return more than chars characters, but it might return
-    less, if there are not enough characters available.
-    @type chars: integer
+        @param chars: indicates the number of characters to read from the stream.
+        read() will never return more than chars characters, but it might return
+        less, if there are not enough characters available.
+        @type chars: integer
 
-    @raise ShortCiphertextError: if the ciphertext is too short to have IV & Sig
-    @raise InvalidSignatureError: if the signature doesn't correspond to payload
-    @raise KeyNotFoundError: if key specified in header doesn't exist
-    @raise ValueError: if stream closed
-    """
+        @raise ShortCiphertextError: if the ciphertext is too short to have IV & Sig
+        @raise InvalidSignatureError: if the signature doesn't correspond to payload
+        @raise KeyNotFoundError: if key specified in header doesn't exist
+        @raise ValueError: if stream closed
+        """
         self.__CheckOpen('read')
         is_data_avail = True
         if not self.__key:
@@ -1356,10 +1356,10 @@ class DecryptingStreamReader(object):
 
     def close(self):
         """
-    Close this stream.
-    Assumes all data has been read or is thrown away as no signature validation
-    is done until all the data is read.
-    """
+        Close this stream.
+        Assumes all data has been read or is thrown away as no signature validation
+        is done until all the data is read.
+        """
         self.__closed = True
 
     def __CheckOpen(self, operation):
@@ -1370,10 +1370,10 @@ class DecryptingStreamReader(object):
 
     def __ReadBytes(self, size, block=True):
         """
-    Helper to read bytes from the input stream. If requested will block until
-    required number of bytes is read or input data is exhausted.  Returns a
-    tuple of (the data bytes read, is more data available).
-    """
+        Helper to read bytes from the input stream. If requested will block until
+        required number of bytes is read or input data is exhausted.  Returns a
+        tuple of (the data bytes read, is more data available).
+        """
         need_more_data = True
         result = b''
         while need_more_data:
@@ -1390,12 +1390,12 @@ class DecryptingStreamReader(object):
 
     def __CreateKey(self):
         """
-    Helper to create the actual key from the Header
-    NOTE: The key determines what the optimal read buffer size will be. It is a
-    size that does not require any padding to allow allow encrypting without
-    using a stream anddecrypting with a stream
-    i.e. Encrypt() => DecryptingStreamReader()
-    """
+        Helper to create the actual key from the Header
+        NOTE: The key determines what the optimal read buffer size will be. It is a
+        size that does not require any padding to allow allow encrypting without
+        using a stream anddecrypting with a stream
+        i.e. Encrypt() => DecryptingStreamReader()
+        """
         is_data_avail = True
         if not self.__key:
             read_bytes, is_data_avail = self.__ReadBytes(
@@ -1423,8 +1423,8 @@ class DecryptingStreamReader(object):
 
     def __CreateCipher(self):
         """
-    Helper to create the cipher using the IV from the message
-    """
+        Helper to create the cipher using the IV from the message
+        """
         is_data_avail = True
         if not self.__cipher:
             reqd_block_size = self.__key.block_size

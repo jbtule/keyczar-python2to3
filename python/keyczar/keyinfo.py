@@ -36,14 +36,14 @@ class _NameId(object):
 class KeyType(_NameId):
 
     """
-  Encodes different key types and their properties:
-    - AES
-    - HMAC-SHA1
-    - DSA Private
-    - DSA Public
-    - RSA Private
-    - RSA Public
-  """
+    Encodes different key types and their properties:
+      - AES
+      - HMAC-SHA1
+      - DSA Private
+      - DSA Public
+      - RSA Private
+      - RSA Public
+    """
 
     sizes = property(lambda self: self.__sizes,
                      doc="""List of valid key sizes for this key type.""")
@@ -85,12 +85,12 @@ def GetType(name):
 class KeyStatus(_NameId):
 
     """
-  Encodes the different possible statuses of a key:
-    - Primary: can be used to encrypt and sign new data
-    - Active: can be used to decrypt or verify data signed previously
-    - Inactive: can do the same functions as an active key, but about
-      to be revoked
-  """
+    Encodes the different possible statuses of a key:
+      - Primary: can be used to encrypt and sign new data
+      - Active: can be used to decrypt or verify data signed previously
+      - Inactive: can do the same functions as an active key, but about
+        to be revoked
+    """
 
 
 PRIMARY = KeyStatus("PRIMARY", 0)
@@ -109,12 +109,12 @@ def GetStatus(value):
 class KeyPurpose(_NameId):
 
     """
-  Encodes the different possible purposes for which a key can be used:
-    - Decrypt and Encrypt
-    - Encrypt (only)
-    - Sign and Verify
-    - Verify (only)
-  """
+    Encodes the different possible purposes for which a key can be used:
+      - Decrypt and Encrypt
+      - Encrypt (only)
+      - Sign and Verify
+      - Verify (only)
+    """
 
 
 DECRYPT_AND_ENCRYPT = KeyPurpose("DECRYPT_AND_ENCRYPT", 0)
@@ -139,12 +139,12 @@ def GetPurpose(name):
 class CipherMode(_NameId):
 
     """
-  Encodes the different possible modes for a cipher:
-    - Cipher Block Chaining (CBC)
-    - Counter (CTR)
-    - Electronic Code Book (ECB)
-    - Cipher Block Chaining without IV (DET-CBC)
-  """
+    Encodes the different possible modes for a cipher:
+      - Cipher Block Chaining (CBC)
+      - Counter (CTR)
+      - Electronic Code Book (ECB)
+      - Cipher Block Chaining without IV (DET-CBC)
+    """
 
     def __init__(self, name, key_id, use_iv, output_size_fn):
         _NameId.__init__(self, name, key_id)

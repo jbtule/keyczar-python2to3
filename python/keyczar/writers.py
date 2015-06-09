@@ -28,11 +28,12 @@ from keyczar import util
 
 
 def CreateWriter(location):
-    """Factory function for Writers
+    """
+    Factory function for Writers
 
     @param location: where (file, uri, etc) the writer should write to
     @type location: string
-  """
+    """
     # make sure all writers are available
     util.ImportBackends()
     for sc in Writer.__subclasses__():
@@ -47,67 +48,67 @@ def CreateWriter(location):
 class Writer(object):
 
     """
-  Abstract class/interface providing supported methods for writing key sets.
-  """
+    Abstract class/interface providing supported methods for writing key sets.
+    """
 
     __metaclass__ = ABCMeta
 
     @abstractmethod
     def WriteMetadata(self, metadata, overwrite=True):
         """
-    Write the metadata for the key.
+        Write the metadata for the key.
 
-    @param metadata: metadata for key
-    @type: KeyMetadata
+        @param metadata: metadata for key
+        @type: KeyMetadata
 
-    @raise KeyczarError: if unable to write metadata (e.g. IOError)
-    """
+        @raise KeyczarError: if unable to write metadata (e.g. IOError)
+        """
         return
 
     @abstractmethod
     def WriteKey(self, key, version_number, encrypter=None):
         """
-    Write out the key at the given version.
+        Write out the key at the given version.
 
-    @param key: key value
-    @type: string
+        @param key: key value
+        @type: string
 
-    @param version_number: the version number of the key
-    @type version_number: integer
+        @param version_number: the version number of the key
+        @type version_number: integer
 
-    @param encrypter: existing Keyczar encrypter for key
-    @type: Keyczar.Crypter
+        @param encrypter: existing Keyczar encrypter for key
+        @type: Keyczar.Crypter
 
-    @raise KeyczarError: if unable to write key info (e.g. IOError)
-    """
+        @raise KeyczarError: if unable to write key info (e.g. IOError)
+        """
         return
 
     @abstractmethod
     def Remove(self, version_number):
         """
-    Remove the key for the given version.
+        Remove the key for the given version.
 
-    @param version_number: the version number of the key
-    @type version_number: integer
+        @param version_number: the version number of the key
+        @type version_number: integer
 
-    @raise KeyczarError: if unable to remove key info (e.g. IOError)
-    """
+        @raise KeyczarError: if unable to remove key info (e.g. IOError)
+        """
         return
 
     @abstractmethod
     def Close(self):
         """
-    Clean up this writer
+        Clean up this writer
 
-    @raise KeyczarError: if error during close
-    """
+        @raise KeyczarError: if error during close
+        """
         return
 
     @classmethod
     def CreateWriter(cls, location):
         """
-    Return an instance of this class if it handles the location
-    """
+        Return an instance of this class if it handles the location
+        """
         raise NotImplementedError(
             'CreateWriter() class method MUST be implemented for:%s' % cls)
 
@@ -122,8 +123,8 @@ class FileWriter(Writer):
 
     def WriteMetadata(self, metadata, overwrite=True):
         """
-    Write the metadata for the key.
-    """
+        Write the metadata for the key.
+        """
         fname = os.path.join(self.location, "meta")
         if not overwrite and os.path.exists(fname):
             raise errors.KeyczarError("File:%s already exists" % fname)
@@ -132,8 +133,8 @@ class FileWriter(Writer):
 
     def WriteKey(self, key, version_number, encrypter=None):
         """
-    Write out the key at the given version.
-    """
+        Write out the key at the given version.
+        """
         key = str(key)
         if encrypter:
             key = encrypter.Encrypt(key)  # encrypt key info before outputting
@@ -142,22 +143,22 @@ class FileWriter(Writer):
 
     def Remove(self, version_number):
         """
-    Remove the key for the given version.
-    """
+        Remove the key for the given version.
+        """
         os.remove(os.path.join(self.location, str(version_number)))
 
     def Close(self):
         """
-    Clean up this writer
-    """
+        Clean up this writer
+        """
         # no-op
         return
 
     @classmethod
     def CreateWriter(cls, location):
         """
-    Return an instance of this class if it handles the location
-    """
+        Return an instance of this class if it handles the location
+        """
         result = None
         if os.path.exists(location):
             result = FileWriter(location)
