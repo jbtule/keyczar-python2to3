@@ -32,16 +32,19 @@ import SCons.Errors
 import SCons.Util
 
 from SCons.Tool.MSCommon.common import debug, \
-                                       read_reg, \
-                                       normalize_env, \
-                                       get_output, \
-                                       parse_output
+    read_reg, \
+    normalize_env, \
+    get_output, \
+    parse_output
+
 
 class VisualStudio:
+
     """
     An abstract base class for trying to find installed versions of
     Visual Studio.
     """
+
     def __init__(self, version, **kw):
         self.version = version
         self.__dict__.update(kw)
@@ -194,7 +197,7 @@ class VisualStudio:
 SupportedVSList = [
     # Visual Studio 2010
     # TODO: find the settings, perhaps from someone with a CTP copy?
-    #VisualStudio('TBD',
+    # VisualStudio('TBD',
     #             hkey_root=r'TBD',
     #             common_tools_var='TBD',
     #             batch_file='TBD',
@@ -204,7 +207,6 @@ SupportedVSList = [
     #             executable_path=r'TBD',
     #             default_dirname='TBD',
     #),
-
     # Visual Studio 2008
     # The batch file we look for is in the VC directory,
     # so the devenv.com executable is up in ..\..\Common7\IDE.
@@ -217,9 +219,7 @@ SupportedVSList = [
                  batch_file_dir_env_relpath=r'..\..\VC',
                  executable_path=r'..\Common7\IDE\devenv.com',
                  default_dirname='Microsoft Visual Studio 9',
-                 supported_arch=['x86', 'amd64'],
-    ),
-
+                 supported_arch=['x86', 'amd64'], ),
     # Visual C++ 2008 Express Edition
     # The batch file we look for is in the VC directory,
     # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
@@ -232,9 +232,7 @@ SupportedVSList = [
                  batch_file_dir_env_relpath=r'..\..\VC',
                  executable_path=r'..\Common7\IDE\VCExpress.exe',
                  default_dirname='Microsoft Visual Studio 9',
-                 supported_arch=['x86'],
-    ),
-
+                 supported_arch=['x86'], ),
     # Visual Studio 2005
     # The batch file we look for is in the VC directory,
     # so the devenv.com executable is up in ..\..\Common7\IDE.
@@ -247,26 +245,23 @@ SupportedVSList = [
                  batch_file_dir_env_relpath=r'..\..\VC',
                  executable_path=r'..\Common7\IDE\devenv.com',
                  default_dirname='Microsoft Visual Studio 8',
-                 supported_arch=['x86', 'amd64'],
-    ),
-
+                 supported_arch=['x86', 'amd64'], ),
     # Visual C++ 2005 Express Edition
     # The batch file we look for is in the VC directory,
     # so the VCExpress.exe executable is up in ..\..\Common7\IDE.
-    VisualStudio('8.0Exp',
-                 hkey_root=r'Software\Microsoft\VCExpress\8.0',
-                 common_tools_var='VS80COMNTOOLS',
-                 batch_file='vcvarsall.bat',
-                 vc_product_dir_key=r'Setup\VC\ProductDir',
-                 batch_file_dir_reg_relpath=None,
-                 batch_file_dir_env_relpath=r'..\..\VC',
-                 # The batch file is in the VC directory, so
-                 # so the devenv.com executable is next door in ..\IDE.
-                 executable_path=r'..\Common7\IDE\VCExpress.exe',
-                 default_dirname='Microsoft Visual Studio 8',
-                 supported_arch=['x86'],
-    ),
-
+    VisualStudio(
+        '8.0Exp',
+        hkey_root=r'Software\Microsoft\VCExpress\8.0',
+        common_tools_var='VS80COMNTOOLS',
+        batch_file='vcvarsall.bat',
+        vc_product_dir_key=r'Setup\VC\ProductDir',
+        batch_file_dir_reg_relpath=None,
+        batch_file_dir_env_relpath=r'..\..\VC',
+        # The batch file is in the VC directory, so
+        # so the devenv.com executable is next door in ..\IDE.
+        executable_path=r'..\Common7\IDE\VCExpress.exe',
+        default_dirname='Microsoft Visual Studio 8',
+        supported_arch=['x86'], ),
     # Visual Studio .NET 2003
     # The batch file we look for is in the Common7\Tools directory,
     # so the devenv.com executable is next door in ..\IDE.
@@ -279,9 +274,7 @@ SupportedVSList = [
                  batch_file_dir_env_relpath=None,
                  executable_path=r'..\IDE\devenv.com',
                  default_dirname='Microsoft Visual Studio .NET',
-                 supported_arch=['x86'],
-    ),
-
+                 supported_arch=['x86'], ),
     # Visual Studio .NET
     # The batch file we look for is in the Common7\Tools directory,
     # so the devenv.com executable is next door in ..\IDE.
@@ -294,9 +287,7 @@ SupportedVSList = [
                  batch_file_dir_env_relpath=None,
                  executable_path=r'..\IDE\devenv.com',
                  default_dirname='Microsoft Visual Studio .NET',
-                 supported_arch=['x86'],
-    ),
-
+                 supported_arch=['x86'], ),
     # Visual Studio 6.0
     VisualStudio('6.0',
                  hkey_root=r'Software\Microsoft\VisualStudio\6.0',
@@ -307,14 +298,12 @@ SupportedVSList = [
                  batch_file_dir_env_relpath=None,
                  executable_path=r'Common\MSDev98\Bin\MSDEV.COM',
                  default_dirname='Microsoft Visual Studio',
-                 supported_arch=['x86'],
-    ),
+                 supported_arch=['x86'], ),
 ]
 
 SupportedVSMap = {}
 for vs in SupportedVSList:
     SupportedVSMap[vs.version] = vs
-
 
 # Finding installed versions of Visual Studio isn't cheap, because it
 # goes not only to the registry but also to the disk to sanity-check
@@ -324,6 +313,7 @@ for vs in SupportedVSList:
 
 InstalledVSList = None
 InstalledVSMap = None
+
 
 def get_installed_visual_studios():
     global InstalledVSList
@@ -339,6 +329,7 @@ def get_installed_visual_studios():
                 InstalledVSMap[vs.version] = vs
     return InstalledVSList
 
+
 def reset_installed_visual_studios():
     global InstalledVSList
     global InstalledVSMap
@@ -347,7 +338,6 @@ def reset_installed_visual_studios():
     for vs in SupportedVSList:
         vs.reset()
 
-
 # We may be asked to update multiple construction environments with
 # SDK information.  When doing this, we check on-disk for whether
 # the SDK has 'mfc' and 'atl' subdirectories.  Since going to disk
@@ -355,7 +345,7 @@ def reset_installed_visual_studios():
 
 #SDKEnvironmentUpdates = {}
 #
-#def set_sdk_by_directory(env, sdk_dir):
+# def set_sdk_by_directory(env, sdk_dir):
 #    global SDKEnvironmentUpdates
 #    try:
 #        env_tuple_list = SDKEnvironmentUpdates[sdk_dir]
@@ -380,8 +370,10 @@ def reset_installed_visual_studios():
 #    for variable, directory in env_tuple_list:
 #        env.PrependENVPath(variable, directory)
 
+
 def detect_msvs():
     return (len(get_installed_visual_studios()) > 0)
+
 
 def get_vs_by_version(msvs):
     if not SupportedVSMap.has_key(msvs):
@@ -395,10 +387,11 @@ def get_vs_by_version(msvs):
     # tests) on systems that don't, or won't ever, have it installed.
     # It might be worth resurrecting this, with some configurable
     # setting that the tests can use to bypass the check.
-    #if not vs:
+    # if not vs:
     #    msg = "Visual Studio version %s is not installed" % repr(msvs)
     #    raise SCons.Errors.UserError, msg
     return vs
+
 
 def get_default_version(env):
     """Returns the default version string to use for MSVS.
@@ -416,19 +409,20 @@ def get_default_version(env):
         # TODO(1.5):
         #versions = [vs.version for vs in get_installed_visual_studios()]
         versions = map(lambda vs: vs.version, get_installed_visual_studios())
-        env['MSVS'] = {'VERSIONS' : versions}
+        env['MSVS'] = {'VERSIONS': versions}
     else:
         versions = env['MSVS'].get('VERSIONS', [])
 
     if not env.has_key('MSVS_VERSION'):
         if versions:
-            env['MSVS_VERSION'] = versions[0] #use highest version by default
+            env['MSVS_VERSION'] = versions[0]  # use highest version by default
         else:
             env['MSVS_VERSION'] = SupportedVSList[0].version
 
     env['MSVS']['VERSION'] = env['MSVS_VERSION']
 
     return env['MSVS_VERSION']
+
 
 def get_default_arch(env):
     """Return the default arch to use for MSVS
@@ -451,6 +445,7 @@ def get_default_arch(env):
         raise SCons.Errors.UserError, fmt % (env['MSVS_VERSION'], arch)
 
     return arch
+
 
 def merge_default_version(env):
     version = get_default_version(env)
@@ -479,13 +474,14 @@ def merge_default_version(env):
         for k, v in vars.items():
             env.PrependENVPath(k, v, delete_existing=1)
 
+
 def query_versions():
     """Query the system to get available versions of VS. A version is
     considered when a batfile is found."""
     msvs_list = get_installed_visual_studios()
     # TODO(1.5)
     #versions = [ msvs.version for msvs in msvs_list ]
-    versions = map(lambda msvs:  msvs.version, msvs_list)
+    versions = map(lambda msvs: msvs.version, msvs_list)
     return versions
 
 # Local Variables:

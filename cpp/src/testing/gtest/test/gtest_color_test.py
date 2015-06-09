@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Verifies that Google Test correctly determines whether to use colors."""
 
 __author__ = 'wan@google.com (Zhanyong Wan)'
@@ -38,86 +37,85 @@ import os
 import sys
 import unittest
 
-
 COLOR_ENV_VAR = 'GTEST_COLOR'
 COLOR_FLAG = 'gtest_color'
-COMMAND = os.path.join(gtest_test_utils.GetBuildDir(),
-                       'gtest_color_test_')
+COMMAND = os.path.join(gtest_test_utils.GetBuildDir(), 'gtest_color_test_')
 
 
 def SetEnvVar(env_var, value):
-  """Sets the env variable to 'value'; unsets it when 'value' is None."""
+    """Sets the env variable to 'value'; unsets it when 'value' is None."""
 
-  if value is not None:
-    os.environ[env_var] = value
-  elif env_var in os.environ:
-    del os.environ[env_var]
+    if value is not None:
+        os.environ[env_var] = value
+    elif env_var in os.environ:
+        del os.environ[env_var]
 
 
 def UsesColor(term, color_env_var, color_flag):
-  """Runs gtest_color_test_ and returns its exit code."""
+    """Runs gtest_color_test_ and returns its exit code."""
 
-  SetEnvVar('TERM', term)
-  SetEnvVar(COLOR_ENV_VAR, color_env_var)
-  cmd = COMMAND
-  if color_flag is not None:
-    cmd += ' --%s=%s' % (COLOR_FLAG, color_flag)
-  return gtest_test_utils.GetExitStatus(os.system(cmd))
+    SetEnvVar('TERM', term)
+    SetEnvVar(COLOR_ENV_VAR, color_env_var)
+    cmd = COMMAND
+    if color_flag is not None:
+        cmd += ' --%s=%s' % (COLOR_FLAG, color_flag)
+    return gtest_test_utils.GetExitStatus(os.system(cmd))
 
 
 class GTestColorTest(unittest.TestCase):
-  def testNoEnvVarNoFlag(self):
-    """Tests the case when there's neither GTEST_COLOR nor --gtest_color."""
 
-    self.assert_(not UsesColor('dumb', None, None))
-    self.assert_(not UsesColor('emacs', None, None))
-    self.assert_(not UsesColor('xterm-mono', None, None))
-    self.assert_(not UsesColor('unknown', None, None))
-    self.assert_(not UsesColor(None, None, None))
-    self.assert_(UsesColor('cygwin', None, None))
-    self.assert_(UsesColor('xterm', None, None))
-    self.assert_(UsesColor('xterm-color', None, None))
+    def testNoEnvVarNoFlag(self):
+        """Tests the case when there's neither GTEST_COLOR nor --gtest_color."""
 
-  def testFlagOnly(self):
-    """Tests the case when there's --gtest_color but not GTEST_COLOR."""
+        self.assert_(not UsesColor('dumb', None, None))
+        self.assert_(not UsesColor('emacs', None, None))
+        self.assert_(not UsesColor('xterm-mono', None, None))
+        self.assert_(not UsesColor('unknown', None, None))
+        self.assert_(not UsesColor(None, None, None))
+        self.assert_(UsesColor('cygwin', None, None))
+        self.assert_(UsesColor('xterm', None, None))
+        self.assert_(UsesColor('xterm-color', None, None))
 
-    self.assert_(not UsesColor('dumb', None, 'no'))
-    self.assert_(not UsesColor('xterm-color', None, 'no'))
-    self.assert_(not UsesColor('emacs', None, 'auto'))
-    self.assert_(UsesColor('xterm', None, 'auto'))
-    self.assert_(UsesColor('dumb', None, 'yes'))
-    self.assert_(UsesColor('xterm', None, 'yes'))
+    def testFlagOnly(self):
+        """Tests the case when there's --gtest_color but not GTEST_COLOR."""
 
-  def testEnvVarOnly(self):
-    """Tests the case when there's GTEST_COLOR but not --gtest_color."""
+        self.assert_(not UsesColor('dumb', None, 'no'))
+        self.assert_(not UsesColor('xterm-color', None, 'no'))
+        self.assert_(not UsesColor('emacs', None, 'auto'))
+        self.assert_(UsesColor('xterm', None, 'auto'))
+        self.assert_(UsesColor('dumb', None, 'yes'))
+        self.assert_(UsesColor('xterm', None, 'yes'))
 
-    self.assert_(not UsesColor('dumb', 'no', None))
-    self.assert_(not UsesColor('xterm-color', 'no', None))
-    self.assert_(not UsesColor('dumb', 'auto', None))
-    self.assert_(UsesColor('xterm-color', 'auto', None))
-    self.assert_(UsesColor('dumb', 'yes', None))
-    self.assert_(UsesColor('xterm-color', 'yes', None))
+    def testEnvVarOnly(self):
+        """Tests the case when there's GTEST_COLOR but not --gtest_color."""
 
-  def testEnvVarAndFlag(self):
-    """Tests the case when there are both GTEST_COLOR and --gtest_color."""
+        self.assert_(not UsesColor('dumb', 'no', None))
+        self.assert_(not UsesColor('xterm-color', 'no', None))
+        self.assert_(not UsesColor('dumb', 'auto', None))
+        self.assert_(UsesColor('xterm-color', 'auto', None))
+        self.assert_(UsesColor('dumb', 'yes', None))
+        self.assert_(UsesColor('xterm-color', 'yes', None))
 
-    self.assert_(not UsesColor('xterm-color', 'no', 'no'))
-    self.assert_(UsesColor('dumb', 'no', 'yes'))
-    self.assert_(UsesColor('xterm-color', 'no', 'auto'))
+    def testEnvVarAndFlag(self):
+        """Tests the case when there are both GTEST_COLOR and --gtest_color."""
 
-  def testAliasesOfYesAndNo(self):
-    """Tests using aliases in specifying --gtest_color."""
+        self.assert_(not UsesColor('xterm-color', 'no', 'no'))
+        self.assert_(UsesColor('dumb', 'no', 'yes'))
+        self.assert_(UsesColor('xterm-color', 'no', 'auto'))
 
-    self.assert_(UsesColor('dumb', None, 'true'))
-    self.assert_(UsesColor('dumb', None, 'YES'))
-    self.assert_(UsesColor('dumb', None, 'T'))
-    self.assert_(UsesColor('dumb', None, '1'))
+    def testAliasesOfYesAndNo(self):
+        """Tests using aliases in specifying --gtest_color."""
 
-    self.assert_(not UsesColor('xterm', None, 'f'))
-    self.assert_(not UsesColor('xterm', None, 'false'))
-    self.assert_(not UsesColor('xterm', None, '0'))
-    self.assert_(not UsesColor('xterm', None, 'unknown'))
+        self.assert_(UsesColor('dumb', None, 'true'))
+        self.assert_(UsesColor('dumb', None, 'YES'))
+        self.assert_(UsesColor('dumb', None, 'T'))
+        self.assert_(UsesColor('dumb', None, '1'))
+
+        self.assert_(not UsesColor('xterm', None, 'f'))
+        self.assert_(not UsesColor('xterm', None, 'false'))
+        self.assert_(not UsesColor('xterm', None, '0'))
+        self.assert_(not UsesColor('xterm', None, 'unknown'))
 
 
 if __name__ == '__main__':
-  gtest_test_utils.Main()
+    gtest_test_utils.Main()

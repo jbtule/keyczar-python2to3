@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Component builders test for software construction tookit (LARGE test)."""
 
 import sys
@@ -35,26 +34,27 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(tools=['component_setup', 'seven_zip'])
-  env.PrependENVPath('PATH', env.File(sys.executable).dir.abspath)
-  env.Replace(SEVEN_ZIP='python $FAKE7Z',
-              FAKE7Z=env.File('fake7z.py').abspath)
+    env = Environment(tools=['component_setup', 'seven_zip'])
+    env.PrependENVPath('PATH', env.File(sys.executable).dir.abspath)
+    env.Replace(SEVEN_ZIP='python $FAKE7Z',
+                FAKE7Z=env.File('fake7z.py').abspath)
 
-  # Test extract
-  print 'Will extract:', env.Extract7zip('outdir/dummy_file', 'foodir/foo.7z')
+    # Test extract
+    print 'Will extract:', env.Extract7zip('outdir/dummy_file',
+                                           'foodir/foo.7z')
 
-  # Test archive
-  env.Compress7zip('comp.7z', ['bardir/bar1'])
-  env.Archive7zip('arch.7z', [env.Dir('bardir')])
+    # Test archive
+    env.Compress7zip('comp.7z', ['bardir/bar1'])
+    env.Archive7zip('arch.7z', [env.Dir('bardir')])
 
 
 foo7z_contents = """
@@ -85,7 +85,6 @@ if sys.argv[1] == 'l':
 
 """
 
-
 expect_stdout = r"""scons: Reading SConscript files ...
 Will extract: ['outdir\\apple', 'outdir\\cherry', 'outdir\\eggplant']
 scons: done reading SConscript files.
@@ -105,30 +104,32 @@ scons: done building targets.
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  if sys.platform not in ['win32', 'cygwin']:
-    test.skip_test('This test is only for windows.\n')
-    return
+    if sys.platform not in ['win32', 'cygwin']:
+        test.skip_test('This test is only for windows.\n')
+        return
 
-  base = 'test/'
-  test.subdir(base)
+    base = 'test/'
+    test.subdir(base)
 
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
 
-  test.subdir(base + 'foodir/')
-  test.write(base + 'foodir/foo.7z', foo7z_contents)
+    test.subdir(base + 'foodir/')
+    test.write(base + 'foodir/foo.7z', foo7z_contents)
 
-  test.subdir(base + 'bardir/')
+    test.subdir(base + 'bardir/')
 
-  test.write(base + 'bardir/bar1', 'Sample input file 1')
-  test.write(base + 'bardir/bar2', 'Sample input file 2')
-  test.write(base + 'fake7z.py', fake7z_contents)
+    test.write(base + 'bardir/bar1', 'Sample input file 1')
+    test.write(base + 'bardir/bar2', 'Sample input file 2')
+    test.write(base + 'fake7z.py', fake7z_contents)
 
-  test.run(chdir=base, options='.',
-           stdout=expect_stdout.replace('WORKDIR', test.workdir))
+    test.run(chdir=base,
+             options='.',
+             stdout=expect_stdout.replace('WORKDIR', test.workdir))
 
-  test.pass_test()
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

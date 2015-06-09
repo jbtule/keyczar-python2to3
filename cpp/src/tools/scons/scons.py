@@ -125,11 +125,9 @@ else:
         prefs.append(sys.prefix)
 
     temp = map(lambda x: os.path.join(x, 'lib'), prefs)
-    temp.extend(map(lambda x: os.path.join(x,
-                                           'lib',
+    temp.extend(map(lambda x: os.path.join(x, 'lib',
                                            'python' + sys.version[:3],
-                                           'site-packages'),
-                           prefs))
+                                           'site-packages'), prefs))
     prefs = temp
 
     # Add the parent directory of the current python's library to the

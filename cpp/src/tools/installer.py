@@ -19,6 +19,7 @@ LIBDIR = "libdir"
 INCLUDEDIR = "includedir"
 PYPACKAGE = "pypackage"
 
+
 def AddOptions(opts):
     """ Adds the installer options to the opts.  """
     opts.Add(PREFIX, "Directory of architecture independant files.", "/usr")
@@ -26,12 +27,16 @@ def AddOptions(opts):
              "${%s}" % PREFIX)
     opts.Add(BINDIR, "Directory of executables.", "${%s}/bin" % EPREFIX)
     opts.Add(LIBDIR, "Directory of libraries.", "${%s}/lib" % EPREFIX)
-    opts.Add(INCLUDEDIR, "Directory of header files.", "${%s}/include" % PREFIX)
+    opts.Add(INCLUDEDIR, "Directory of header files.", "${%s}/include" %
+             PREFIX)
     opts.Add(PYPACKAGE, "Directory of Python module.",
              distutils.sysconfig.get_python_lib())
 
+
 class Installer:
+
     """ A basic installer. """
+
     def __init__(self, env):
         """ Initialize the installer.
 
@@ -92,4 +97,3 @@ class Installer:
         self.Add(self._pypackage, dlib)
         self.Add(self._pypackage, os.path.join(self._env['LIB_DIR'],
                                                module_name + '.py'))
-

@@ -41,6 +41,7 @@ import SCons.Util
 
 from MSCommon import detect_msvs, merge_default_version
 
+
 def generate(env):
     """Add Builders and construction variables for lib to an Environment."""
     SCons.Tool.createStaticLibBuilder(env)
@@ -48,11 +49,12 @@ def generate(env):
     # Set-up ms tools paths for default version
     merge_default_version(env)
 
-    env['AR']          = 'lib'
-    env['ARFLAGS']     = SCons.Util.CLVar('/nologo')
-    env['ARCOM']       = "${TEMPFILE('$AR $ARFLAGS /OUT:$TARGET $SOURCES')}"
-    env['LIBPREFIX']   = ''
-    env['LIBSUFFIX']   = '.lib'
+    env['AR'] = 'lib'
+    env['ARFLAGS'] = SCons.Util.CLVar('/nologo')
+    env['ARCOM'] = "${TEMPFILE('$AR $ARFLAGS /OUT:$TARGET $SOURCES')}"
+    env['LIBPREFIX'] = ''
+    env['LIBSUFFIX'] = '.lib'
+
 
 def exists(env):
     return detect_msvs()

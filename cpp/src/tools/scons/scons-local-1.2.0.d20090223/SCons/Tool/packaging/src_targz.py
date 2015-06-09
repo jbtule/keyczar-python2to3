@@ -30,10 +30,12 @@ __revision__ = "src/engine/SCons/Tool/packaging/src_targz.py 4043 2009/02/23 09:
 
 from SCons.Tool.packaging import putintopackageroot
 
+
 def package(env, target, source, PACKAGEROOT, **kw):
     bld = env['BUILDERS']['Tar']
     bld.set_suffix('.tar.gz')
-    target, source = putintopackageroot(target, source, env, PACKAGEROOT, honor_install_location=0)
+    target, source = putintopackageroot(target, source, env, PACKAGEROOT,
+                                        honor_install_location=0)
     return bld(env, target, source, TARFLAGS='-zc')
 
 # Local Variables:

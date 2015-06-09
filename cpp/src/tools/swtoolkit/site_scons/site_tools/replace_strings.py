@@ -27,16 +27,14 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Search and replace builder for SCons."""
-
 
 import re
 import SCons.Script
 
 
 def ReplaceStrings(target, source, env):
-  """Replace Strings builder, does regex substitution on files.
+    """Replace Strings builder, does regex substitution on files.
 
   Args:
     target: A single target file node.
@@ -59,24 +57,24 @@ def ReplaceStrings(target, source, env):
     With 'in' having contents: Haaapy.
     Outputs: HCCCpy.
   """
-  # Load text.
-  fh = open(source[0].abspath, 'rb')
-  text = fh.read()
-  fh.close()
-  # Do replacements.
-  for r in env['REPLACE_STRINGS']:
-    text = re.sub(r[0], env.subst(r[1]), text)
-  # Write it out.
-  fh = open(target[0].abspath, 'wb')
-  fh.write(text)
-  fh.close()
+    # Load text.
+    fh = open(source[0].abspath, 'rb')
+    text = fh.read()
+    fh.close()
+    # Do replacements.
+    for r in env['REPLACE_STRINGS']:
+        text = re.sub(r[0], env.subst(r[1]), text)
+    # Write it out.
+    fh = open(target[0].abspath, 'wb')
+    fh.write(text)
+    fh.close()
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  # Add the builder
-  act = SCons.Script.Action(ReplaceStrings, varlist=['REPLACE_STRINGS'])
-  bld = SCons.Script.Builder(action=act, single_source=True)
-  env.Append(BUILDERS={'ReplaceStrings': bld})
+    # Add the builder
+    act = SCons.Script.Action(ReplaceStrings, varlist=['REPLACE_STRINGS'])
+    bld = SCons.Script.Builder(action=act, single_source=True)
+    env.Append(BUILDERS={'ReplaceStrings': bld})

@@ -34,11 +34,12 @@ __revision__ = "src/engine/SCons/Platform/sunos.py 4043 2009/02/23 09:06:45 scon
 
 import posix
 
+
 def generate(env):
     posix.generate(env)
     # Based on sunSparc 8:32bit
     # ARG_MAX=1048320 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 1045320
+    env['MAXLINELENGTH'] = 1045320
     env['PKGINFO'] = 'pkginfo'
     env['PKGCHK'] = '/usr/sbin/pkgchk'
     env['ENV']['PATH'] = env['ENV']['PATH'] + ':/opt/SUNWspro/bin:/usr/ccs/bin'

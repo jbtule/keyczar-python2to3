@@ -37,6 +37,7 @@ import SCons.Defaults
 from SCons.Scanner.Fortran import FortranScan
 from FortranCommon import add_all_to_env
 
+
 def generate(env):
     """Add Builders and construction variables for ifl to an Environment."""
     fscan = FortranScan("FORTRANPATH")
@@ -55,12 +56,20 @@ def generate(env):
 
     add_all_to_env(env)
 
-    env['FORTRAN']        = 'ifl'
-    env['SHFORTRAN']      = '$FORTRAN'
-    env['FORTRANCOM']     = '$FORTRAN $FORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['FORTRANPPCOM']   = '$FORTRAN $FORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['SHFORTRANCOM']   = '$SHFORTRAN $SHFORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
-    env['SHFORTRANPPCOM'] = '$SHFORTRAN $SHFORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
+    env['FORTRAN'] = 'ifl'
+    env['SHFORTRAN'] = '$FORTRAN'
+    env['FORTRANCOM'
+        ] = '$FORTRAN $FORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
+    env[
+        'FORTRANPPCOM'
+    ] = '$FORTRAN $FORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
+    env[
+        'SHFORTRANCOM'
+    ] = '$SHFORTRAN $SHFORTRANFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
+    env[
+        'SHFORTRANPPCOM'
+    ] = '$SHFORTRAN $SHFORTRANFLAGS $CPPFLAGS $_CPPDEFFLAGS $_FORTRANINCFLAGS /c $SOURCES /Fo$TARGET'
+
 
 def exists(env):
     return env.Detect('ifl')

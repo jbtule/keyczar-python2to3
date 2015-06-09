@@ -42,6 +42,7 @@ import SCons.Util
 
 compilers = ['gcc', 'cc']
 
+
 def generate(env):
     """Add Builders and construction variables for gcc to an Environment."""
     cc.generate(env)
@@ -53,22 +54,24 @@ def generate(env):
         env['SHCCFLAGS'] = SCons.Util.CLVar('$CCFLAGS -fPIC')
     # determine compiler version
     if env['CC']:
-        #pipe = SCons.Action._subproc(env, [env['CC'], '-dumpversion'],
+        # pipe = SCons.Action._subproc(env, [env['CC'], '-dumpversion'],
         pipe = SCons.Action._subproc(env, [env['CC'], '--version'],
-                                     stdin = 'devnull',
-                                     stderr = 'devnull',
-                                     stdout = subprocess.PIPE)
-        if pipe.wait() != 0: return
+                                     stdin='devnull',
+                                     stderr='devnull',
+                                     stdout=subprocess.PIPE)
+        if pipe.wait() != 0:
+            return
         # -dumpversion was added in GCC 3.0.  As long as we're supporting
         # GCC versions older than that, we should use --version and a
         # regular expression.
         #line = pipe.stdout.read().strip()
-        #if line:
+        # if line:
         #    env['CCVERSION'] = line
         line = pipe.stdout.readline()
         match = re.search(r'[0-9]+(\.[0-9]+)+', line)
         if match:
             env['CCVERSION'] = match.group(0)
+
 
 def exists(env):
     return env.Detect(compilers)

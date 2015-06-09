@@ -39,6 +39,7 @@ import os.path
 
 cplusplus = __import__('c++', globals(), locals(), [])
 
+
 # use the package installer tool lslpp to figure out where cppc and what
 # version of it is installed
 def get_cppc(env):
@@ -57,11 +58,13 @@ def get_cppc(env):
         version = None
         path = None
         for package in ['SPROcpl']:
-            cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo, package)
+            cmd = "%s -l %s 2>/dev/null | grep '^ *VERSION:'" % (pkginfo,
+                                                                 package)
             line = os.popen(cmd).readline()
             if line:
                 version = line.split()[-1]
-                cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (pkgchk, package)
+                cmd = "%s -l %s 2>/dev/null | grep '^Pathname:.*/bin/CC$' | grep -v '/SC[0-9]*\.[0-9]*/'" % (
+                    pkgchk, package)
                 line = os.popen(cmd).readline()
                 if line:
                     path = os.path.dirname(line.split()[-1])
@@ -75,6 +78,7 @@ def get_cppc(env):
 
     return (cppcPath, 'CC', 'CC', cppcVersion)
 
+
 def generate(env):
     """Add Builders and construction variables for SunPRO C++."""
     path, cxx, shcxx, version = get_cppc(env)
@@ -87,10 +91,11 @@ def generate(env):
     env['CXX'] = cxx
     env['SHCXX'] = shcxx
     env['CXXVERSION'] = version
-    env['SHCXXFLAGS']   = SCons.Util.CLVar('$CXXFLAGS -KPIC')
-    env['SHOBJPREFIX']  = 'so_'
-    env['SHOBJSUFFIX']  = '.o'
-    
+    env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS -KPIC')
+    env['SHOBJPREFIX'] = 'so_'
+    env['SHOBJSUFFIX'] = '.o'
+
+
 def exists(env):
     path, cxx, shcxx, version = get_cppc(env)
     if path and cxx:

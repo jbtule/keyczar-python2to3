@@ -27,15 +27,13 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Replicate tool for SCons."""
-
 
 import re
 
 
 def Replicate(env, target, source, **kw):
-  """Replicates (copies) source files/directories to the target directory.
+    """Replicates (copies) source files/directories to the target directory.
 
   Much like env.Install(), with the following differences:
      * If the source is a directory, recurses through it and calls
@@ -72,54 +70,55 @@ def Replicate(env, target, source, **kw):
   Returns:
     A list of the destination nodes from the calls to env.Install().
   """
-  replace_list = kw.get('REPLICATE_REPLACE', env.get('REPLICATE_REPLACE', []))
+    replace_list = kw.get('REPLICATE_REPLACE',
+                          env.get('REPLICATE_REPLACE', []))
 
-  dest_nodes = []
-  for target_entry in env.Flatten(target):
-    for source_entry in env.Flatten(source):
-      if type(source_entry) == str:
-        # Search for matches for each source entry
-        source_nodes = env.Glob(source_entry)
-      else:
-        # Source entry is already a file or directory node; no need to glob it
-        source_nodes = [source_entry]
-      for s in source_nodes:
-        target_name = env.Dir(target_entry).abspath + '/' + s.name
-        # We need to use the following incantation rather than s.isdir() in
-        # order to handle chained replicates (A -> B -> C). The isdir()
-        # function is not properly defined in all of the Node type classes in
-        # SCons. This change is particularly crucial if hardlinks are present,
-        # in which case using isdir() can cause files to be unintentionally
-        # deleted.
-        # TODO: Look into fixing the innards of SCons so this isn't needed.
-        if str(s.__class__) == 'SCons.Node.FS.Dir':
-          # Recursively copy all files in subdir.  Since glob('*') doesn't
-          # match dot files, also glob('.*').
-          dest_nodes += env.Replicate(
-              target_name, [s.abspath + '/*', s.abspath + '/.*'],
-              REPLICATE_REPLACE=replace_list)
-        else:
-          # Apply replacement strings, if any
-          for r in replace_list:
-            target_name = re.sub(r[0], r[1], target_name)
-          target = env.File(target_name)
-          if (target.has_builder()
-              and hasattr(target.get_builder(), 'name')
-              and target.get_builder().name == 'InstallBuilder'
-              and target.sources == [s]):
-            # Already installed that file, so pass through the destination node
-            # TODO: Is there a better way to determine if this is a duplicate
-            # call to install?
-            dest_nodes += [target]
-          else:
-            dest_nodes += env.InstallAs(target_name, s)
+    dest_nodes = []
+    for target_entry in env.Flatten(target):
+        for source_entry in env.Flatten(source):
+            if type(source_entry) == str:
+                # Search for matches for each source entry
+                source_nodes = env.Glob(source_entry)
+            else:
+                # Source entry is already a file or directory node; no need to glob it
+                source_nodes = [source_entry]
+            for s in source_nodes:
+                target_name = env.Dir(target_entry).abspath + '/' + s.name
+                # We need to use the following incantation rather than s.isdir() in
+                # order to handle chained replicates (A -> B -> C). The isdir()
+                # function is not properly defined in all of the Node type classes in
+                # SCons. This change is particularly crucial if hardlinks are present,
+                # in which case using isdir() can cause files to be unintentionally
+                # deleted.
+                # TODO: Look into fixing the innards of SCons so this isn't needed.
+                if str(s.__class__) == 'SCons.Node.FS.Dir':
+                    # Recursively copy all files in subdir.  Since glob('*') doesn't
+                    # match dot files, also glob('.*').
+                    dest_nodes += env.Replicate(
+                        target_name, [s.abspath + '/*', s.abspath + '/.*'],
+                        REPLICATE_REPLACE=replace_list)
+                else:
+                    # Apply replacement strings, if any
+                    for r in replace_list:
+                        target_name = re.sub(r[0], r[1], target_name)
+                    target = env.File(target_name)
+                    if (target.has_builder() and
+                            hasattr(target.get_builder(), 'name') and
+                            target.get_builder().name == 'InstallBuilder' and
+                            target.sources == [s]):
+                        # Already installed that file, so pass through the destination node
+                        # TODO: Is there a better way to determine if this is a duplicate
+                        # call to install?
+                        dest_nodes += [target]
+                    else:
+                        dest_nodes += env.InstallAs(target_name, s)
 
-  # Return list of destination nodes
-  return dest_nodes
+    # Return list of destination nodes
+    return dest_nodes
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  env.AddMethod(Replicate)
+    env.AddMethod(Replicate)

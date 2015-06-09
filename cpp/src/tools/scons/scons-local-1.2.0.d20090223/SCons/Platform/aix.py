@@ -37,6 +37,7 @@ import string
 
 import posix
 
+
 def get_xlc(env, xlc=None, xlc_r=None, packages=[]):
     # Use the AIX package installer tool lslpp to figure out where a
     # given xl* compiler is installed and what version it is.
@@ -58,10 +59,11 @@ def get_xlc(env, xlc=None, xlc_r=None, packages=[]):
             break
     return (xlcPath, xlc, xlc_r, xlcVersion)
 
+
 def generate(env):
     posix.generate(env)
-    #Based on AIX 5.2: ARG_MAX=24576 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 21576
+    # Based on AIX 5.2: ARG_MAX=24576 - 3000 for environment expansion
+    env['MAXLINELENGTH'] = 21576
 
 # Local Variables:
 # tab-width:4

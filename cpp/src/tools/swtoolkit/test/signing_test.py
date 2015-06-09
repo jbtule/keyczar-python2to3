@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for code signing.  This is a LARGE test."""
 
 import sys
@@ -35,41 +34,37 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(
-      tools=['component_setup', 'target_platform_windows', 'code_signing'],
-      BUILD_TYPE='sign',
-      BUILD_TYPE_DESCRIPTION='Signing build',
-  )
-  env.Append(
-      BUILD_GROUPS=['default'],
-      BUILD_COMPONENTS=['SConscript'],
-  )
-  BuildComponents([env])
+    env = Environment(
+        tools=['component_setup', 'target_platform_windows', 'code_signing'],
+        BUILD_TYPE='sign',
+        BUILD_TYPE_DESCRIPTION='Signing build', )
+    env.Append(BUILD_GROUPS=['default'], BUILD_COMPONENTS=['SConscript'], )
+    BuildComponents([env])
 
 
 def TestSConscript(scons_globals):
-  """Test SConscript file.
+    """Test SConscript file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  scons_globals['Import']('env')
-  env = scons_globals['env']
+    # Get globals from SCons
+    scons_globals['Import']('env')
+    env = scons_globals['env']
 
-  prog = env.Program('hello.exe', 'hello.c')
-  env.SignedBinary('hello_unsigned.exe', prog)
-  env.SignedBinary('hello_signed.exe', prog,
-                   CERTIFICATE_PATH='fake.pfx',
-                   CERTIFICATE_PASSWORD='obscure')
+    prog = env.Program('hello.exe', 'hello.c')
+    env.SignedBinary('hello_unsigned.exe', prog)
+    env.SignedBinary('hello_signed.exe', prog,
+                     CERTIFICATE_PATH='fake.pfx',
+                     CERTIFICATE_PASSWORD='obscure')
 
 
 hello_c_contents = """
@@ -82,55 +77,55 @@ int main() {
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  platforms_with_signing = ['win32', 'cygwin']
+    platforms_with_signing = ['win32', 'cygwin']
 
-  if sys.platform not in platforms_with_signing:
-    msg = 'Platform %s does not support signing; skipping test.\n'
-    test.skip_test(msg % repr(sys.platform))
-    return 0
+    if sys.platform not in platforms_with_signing:
+        msg = 'Platform %s does not support signing; skipping test.\n'
+        test.skip_test(msg % repr(sys.platform))
+        return 0
 
-  test.subdir('signing')
+    test.subdir('signing')
 
-  base = 'signing/'
-  base_out = base + 'scons-out/sign/obj/'
+    base = 'signing/'
+    base_out = base + 'scons-out/sign/obj/'
 
-  test.FakeWindowsPFX(base + 'fake.pfx')
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.WriteSConscript(base + 'SConscript', TestSConscript)
-  test.write(base + 'hello.c', hello_c_contents)
+    test.FakeWindowsPFX(base + 'fake.pfx')
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.WriteSConscript(base + 'SConscript', TestSConscript)
+    test.write(base + 'hello.c', hello_c_contents)
 
-  # Run SCons.
-  test.run(chdir=base)
-  # Check for test output.
-  test.must_exist(base_out + 'hello.exe')
-  test.must_exist(base_out + 'hello_unsigned.exe')
-  test.must_exist(base_out + 'hello_signed.exe')
-  # Test output must be runnable.
-  test.run(program=test.workpath(base_out + 'hello.exe'),
-           stdout='Hello, world!\n')
-  test.run(program=test.workpath(base_out + 'hello_signed.exe'),
-           stdout='Hello, world!\n')
-  test.run(program=test.workpath(base_out + 'hello_unsigned.exe'),
-           stdout='Hello, world!\n')
-  # By default signing is a pass thru, so these two should match.
-  if (test.read(base_out + 'hello.exe') !=
-      test.read(base_out + 'hello_unsigned.exe')):
-    test.fail_test()
-  # Signed version should not match.
-  if (test.read(base_out + 'hello.exe') ==
-      test.read(base_out + 'hello_signed.exe')):
-    test.fail_test()
+    # Run SCons.
+    test.run(chdir=base)
+    # Check for test output.
+    test.must_exist(base_out + 'hello.exe')
+    test.must_exist(base_out + 'hello_unsigned.exe')
+    test.must_exist(base_out + 'hello_signed.exe')
+    # Test output must be runnable.
+    test.run(program=test.workpath(base_out + 'hello.exe'),
+             stdout='Hello, world!\n')
+    test.run(program=test.workpath(base_out + 'hello_signed.exe'),
+             stdout='Hello, world!\n')
+    test.run(program=test.workpath(base_out + 'hello_unsigned.exe'),
+             stdout='Hello, world!\n')
+    # By default signing is a pass thru, so these two should match.
+    if (test.read(base_out + 'hello.exe') !=
+            test.read(base_out + 'hello_unsigned.exe')):
+        test.fail_test()
+    # Signed version should not match.
+    if (test.read(base_out + 'hello.exe') ==
+            test.read(base_out + 'hello_signed.exe')):
+        test.fail_test()
 
-  # Cover certificate with junk.
-  test.write(base + 'fake.pfx', 'blahblah!\n')
-  # Run SCons, expecting failure.
-  test.run(chdir=base, stderr=None, status=2)
-  test.fail_test(test.stderr().find('SignTool Error') == -1)
+    # Cover certificate with junk.
+    test.write(base + 'fake.pfx', 'blahblah!\n')
+    # Run SCons, expecting failure.
+    test.run(chdir=base, stderr=None, status=2)
+    test.fail_test(test.stderr().find('SignTool Error') == -1)
 
-  test.pass_test()
+    test.pass_test()
 
 
 if __name__ == '__main__':
-  main()
+    main()

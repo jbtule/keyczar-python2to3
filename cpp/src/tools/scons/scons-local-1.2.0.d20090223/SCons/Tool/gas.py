@@ -37,11 +37,13 @@ as_module = __import__('as', globals(), locals(), [])
 
 assemblers = ['as', 'gas']
 
+
 def generate(env):
     """Add Builders and construction variables for as to an Environment."""
     as_module.generate(env)
 
-    env['AS']        = env.Detect(assemblers) or 'as'
+    env['AS'] = env.Detect(assemblers) or 'as'
+
 
 def exists(env):
     return env.Detect(assemblers)

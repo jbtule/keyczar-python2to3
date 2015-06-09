@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """fuse_gtest_files.py v0.1.0
 Fuses Google Test source code into a .h file and a .cc file.
 
@@ -80,168 +79,169 @@ GTEST_ALL_CC_OUTPUT = 'gtest/gtest-all.cc'
 
 
 def GetGTestRootDir():
-  """Returns the absolute path to the Google Test root directory.
+    """Returns the absolute path to the Google Test root directory.
 
   We assume that this script is in a sub-directory of the Google Test root.
   """
 
-  my_path = sys.argv[0]  # Path to this script.
-  my_dir = os.path.dirname(my_path)
-  if not my_dir:
-    my_dir = '.'
+    my_path = sys.argv[0]  # Path to this script.
+    my_dir = os.path.dirname(my_path)
+    if not my_dir:
+        my_dir = '.'
 
-  return os.path.abspath(os.path.join(my_dir, '..'))
+    return os.path.abspath(os.path.join(my_dir, '..'))
 
 
 def ValidateGTestRootDir(gtest_root):
-  """Makes sure gtest_root points to a valid gtest root directory.
+    """Makes sure gtest_root points to a valid gtest root directory.
 
   The function aborts the program on failure.
   """
 
-  def VerifyFileExists(relative_path):
-    """Verifies that the given file exists; aborts on failure.
+    def VerifyFileExists(relative_path):
+        """Verifies that the given file exists; aborts on failure.
 
     relative_path is the file path relative to the gtest root.
     """
 
-    if not os.path.isfile(os.path.join(gtest_root, relative_path)):
-      print 'ERROR: Cannot find %s in directory %s.' % (relative_path,
-                                                        gtest_root)
-      print ('Please either specify a valid Google Test root directory '
-             'or omit it on the command line.')
-      sys.exit(1)
+        if not os.path.isfile(os.path.join(gtest_root, relative_path)):
+            print 'ERROR: Cannot find %s in directory %s.' % (relative_path,
+                                                              gtest_root)
+            print('Please either specify a valid Google Test root directory '
+                  'or omit it on the command line.')
+            sys.exit(1)
 
-  VerifyFileExists(GTEST_H_SEED)
-  VerifyFileExists(GTEST_ALL_CC_SEED)
+    VerifyFileExists(GTEST_H_SEED)
+    VerifyFileExists(GTEST_ALL_CC_SEED)
 
 
 def ValidateOutputDir(output_dir):
-  """Makes sure output_dir points to a valid output directory.
+    """Makes sure output_dir points to a valid output directory.
 
   The function aborts the program on failure.
   """
 
-  def VerifyOutputFile(relative_path):
-    """Verifies that the given output file path is valid.
+    def VerifyOutputFile(relative_path):
+        """Verifies that the given output file path is valid.
 
     relative_path is relative to the output_dir directory.
     """
 
-    # Makes sure the output file either doesn't exist or can be overwritten.
-    output_file = os.path.join(output_dir, relative_path)
-    if os.path.exists(output_file):
-      print ('%s already exists in directory %s - overwrite it? (y/N) ' %
-             (relative_path, output_dir))
-      answer = sys.stdin.readline().strip()
-      if answer not in ['y', 'Y']:
-        print 'ABORTED.'
-        sys.exit(1)
+        # Makes sure the output file either doesn't exist or can be overwritten.
+        output_file = os.path.join(output_dir, relative_path)
+        if os.path.exists(output_file):
+            print('%s already exists in directory %s - overwrite it? (y/N) ' %
+                  (relative_path, output_dir))
+            answer = sys.stdin.readline().strip()
+            if answer not in ['y', 'Y']:
+                print 'ABORTED.'
+                sys.exit(1)
 
-    # Makes sure the directory holding the output file exists; creates
-    # it and all its ancestors if necessary.
-    parent_directory = os.path.dirname(output_file)
-    if not os.path.isdir(parent_directory):
-      os.makedirs(parent_directory)
+        # Makes sure the directory holding the output file exists; creates
+        # it and all its ancestors if necessary.
+        parent_directory = os.path.dirname(output_file)
+        if not os.path.isdir(parent_directory):
+            os.makedirs(parent_directory)
 
-  VerifyOutputFile(GTEST_H_OUTPUT)
-  VerifyOutputFile(GTEST_ALL_CC_OUTPUT)
+    VerifyOutputFile(GTEST_H_OUTPUT)
+    VerifyOutputFile(GTEST_ALL_CC_OUTPUT)
 
 
 def FuseGTestH(gtest_root, output_dir):
-  """Scans folder gtest_root to generate gtest/gtest.h in output_dir."""
+    """Scans folder gtest_root to generate gtest/gtest.h in output_dir."""
 
-  output_file = file(os.path.join(output_dir, GTEST_H_OUTPUT), 'w')
-  processed_files = sets.Set()  # Holds all gtest headers we've processed.
+    output_file = file(os.path.join(output_dir, GTEST_H_OUTPUT), 'w')
+    processed_files = sets.Set()  # Holds all gtest headers we've processed.
 
-  def ProcessFile(gtest_header_path):
-    """Processes the given gtest header file."""
+    def ProcessFile(gtest_header_path):
+        """Processes the given gtest header file."""
 
-    # We don't process the same header twice.
-    if gtest_header_path in processed_files:
-      return
+        # We don't process the same header twice.
+        if gtest_header_path in processed_files:
+            return
 
-    processed_files.add(gtest_header_path)
+        processed_files.add(gtest_header_path)
 
-    # Reads each line in the given gtest header.
-    for line in file(os.path.join(gtest_root, gtest_header_path), 'r'):
-      m = INCLUDE_GTEST_FILE_REGEX.match(line)
-      if m:
-        # It's '#include <gtest/...>' - let's process it recursively.
-        ProcessFile('include/' + m.group(1))
-      else:
-        # Otherwise we copy the line unchanged to the output file.
-        output_file.write(line)
+        # Reads each line in the given gtest header.
+        for line in file(os.path.join(gtest_root, gtest_header_path), 'r'):
+            m = INCLUDE_GTEST_FILE_REGEX.match(line)
+            if m:
+                # It's '#include <gtest/...>' - let's process it recursively.
+                ProcessFile('include/' + m.group(1))
+            else:
+                # Otherwise we copy the line unchanged to the output file.
+                output_file.write(line)
 
-  ProcessFile(GTEST_H_SEED)
-  output_file.close()
+    ProcessFile(GTEST_H_SEED)
+    output_file.close()
 
 
 def FuseGTestAllCc(gtest_root, output_dir):
-  """Scans folder gtest_root to generate gtest/gtest-all.cc in output_dir."""
+    """Scans folder gtest_root to generate gtest/gtest-all.cc in output_dir."""
 
-  output_file = file(os.path.join(output_dir, GTEST_ALL_CC_OUTPUT), 'w')
-  processed_files = sets.Set()
+    output_file = file(os.path.join(output_dir, GTEST_ALL_CC_OUTPUT), 'w')
+    processed_files = sets.Set()
 
-  def ProcessFile(gtest_source_file):
-    """Processes the given gtest source file."""
+    def ProcessFile(gtest_source_file):
+        """Processes the given gtest source file."""
 
-    # We don't process the same #included file twice.
-    if gtest_source_file in processed_files:
-      return
+        # We don't process the same #included file twice.
+        if gtest_source_file in processed_files:
+            return
 
-    processed_files.add(gtest_source_file)
+        processed_files.add(gtest_source_file)
 
-    # Reads each line in the given gtest source file.
-    for line in file(os.path.join(gtest_root, gtest_source_file), 'r'):
-      m = INCLUDE_GTEST_FILE_REGEX.match(line)
-      if m:
-        if 'include/' + m.group(1) == GTEST_SPI_H_SEED:
-          # It's '#include <gtest/gtest-spi.h>'.  This file is not
-          # #included by <gtest/gtest.h>, so we need to process it.
-          ProcessFile(GTEST_SPI_H_SEED)
-        else:
-          # It's '#include <gtest/foo.h>' where foo is not gtest-spi.
-          # We treat it as '#include <gtest/gtest.h>', as all other
-          # gtest headers are being fused into gtest.h and cannot be
-          # #included directly.
+        # Reads each line in the given gtest source file.
+        for line in file(os.path.join(gtest_root, gtest_source_file), 'r'):
+            m = INCLUDE_GTEST_FILE_REGEX.match(line)
+            if m:
+                if 'include/' + m.group(1) == GTEST_SPI_H_SEED:
+                    # It's '#include <gtest/gtest-spi.h>'.  This file is not
+                    # #included by <gtest/gtest.h>, so we need to process it.
+                    ProcessFile(GTEST_SPI_H_SEED)
+                else:
+                    # It's '#include <gtest/foo.h>' where foo is not gtest-spi.
+                    # We treat it as '#include <gtest/gtest.h>', as all other
+                    # gtest headers are being fused into gtest.h and cannot be
+                    # #included directly.
 
-          # There is no need to #include <gtest/gtest.h> more than once.
-          if not GTEST_H_SEED in processed_files:
-            processed_files.add(GTEST_H_SEED)
-            output_file.write('#include <%s>\n' % (GTEST_H_OUTPUT,))
-      else:
-        m = INCLUDE_SRC_FILE_REGEX.match(line)
-        if m:
-          # It's '#include "src/foo"' - let's process it recursively.
-          ProcessFile(m.group(1))
-        else:
-          output_file.write(line)
+                    # There is no need to #include <gtest/gtest.h> more than once.
+                    if not GTEST_H_SEED in processed_files:
+                        processed_files.add(GTEST_H_SEED)
+                        output_file.write('#include <%s>\n' %
+                                          (GTEST_H_OUTPUT, ))
+            else:
+                m = INCLUDE_SRC_FILE_REGEX.match(line)
+                if m:
+                    # It's '#include "src/foo"' - let's process it recursively.
+                    ProcessFile(m.group(1))
+                else:
+                    output_file.write(line)
 
-  ProcessFile(GTEST_ALL_CC_SEED)
-  output_file.close()
+    ProcessFile(GTEST_ALL_CC_SEED)
+    output_file.close()
 
 
 def FuseGTest(gtest_root, output_dir):
-  ValidateGTestRootDir(gtest_root)
-  ValidateOutputDir(output_dir)
+    ValidateGTestRootDir(gtest_root)
+    ValidateOutputDir(output_dir)
 
-  FuseGTestH(gtest_root, output_dir)
-  FuseGTestAllCc(gtest_root, output_dir)
+    FuseGTestH(gtest_root, output_dir)
+    FuseGTestAllCc(gtest_root, output_dir)
 
 
 def main():
-  argc = len(sys.argv)
-  if argc == 2:
-    # fuse_gtest_files.py OUTPUT_DIR
-    FuseGTest(GetGTestRootDir(), sys.argv[1])
-  elif argc == 3:
-    # fuse_gtest_files.py GTEST_ROOT_DIR OUTPUT_DIR
-    FuseGTest(sys.argv[1], sys.argv[2])
-  else:
-    print __doc__
-    sys.exit(1)
+    argc = len(sys.argv)
+    if argc == 2:
+        # fuse_gtest_files.py OUTPUT_DIR
+        FuseGTest(GetGTestRootDir(), sys.argv[1])
+    elif argc == 3:
+        # fuse_gtest_files.py GTEST_ROOT_DIR OUTPUT_DIR
+        FuseGTest(sys.argv[1], sys.argv[2])
+    else:
+        print __doc__
+        sys.exit(1)
 
 
 if __name__ == '__main__':
-  main()
+    main()

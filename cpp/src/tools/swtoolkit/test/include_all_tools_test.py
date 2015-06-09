@@ -27,83 +27,82 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for including all tools.  These are SMALL tests."""
-
 
 import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(tools=['component_setup'])
+    env = Environment(tools=['component_setup'])
 
-  # TODO: SDL and NACL tools generate an error if not installed.  Block this
-  # error.
-  env['SDL_MODE'] = 'none'
-  env['NACL_SDK_VALIDATE'] = '0'
+    # TODO: SDL and NACL tools generate an error if not installed.  Block this
+    # error.
+    env['SDL_MODE'] = 'none'
+    env['NACL_SDK_VALIDATE'] = '0'
 
-  # Make sure that all tools can at least be included without failure on all
-  # platforms.
-  all_tools = [
-      'atlmfc_vc80',
-      'code_coverage',
-      'code_signing',
-      'collada_dom',
-      'command_output',
-      'component_bits',
-      'component_builders',
-      'component_setup',
-      'component_targets',
-      'component_targets_msvs',
-      'component_targets_xml',
-      'concat_source',
-      'defer',
-      'directx_9_0_c',
-      'directx_9_18_944_0_partial',
-      'distcc',
-      'environment_tools',
-      'gather_inputs',
-      'naclsdk',
-      'publish',
-      'replace_strings',
-      'replicate',
-      'sdl',
-      'seven_zip',
-      'target_debug',
-      'target_optimized',
-      'target_platform_linux',
-      'target_platform_mac',
-      'target_platform_windows',
-      'visual_studio_solution',
-      'windows_hard_link',
-  ]
-  for tool in all_tools:
-    if tool not in env['TOOLS']:
-      print 'Adding tool %s...' % tool
-      # Not all tools play well together (for example, you can only use one of
-      # the target_platform tools at a time), so put each in a separate
-      # sub-environment
-      env.Clone(tools=[tool])
+    # Make sure that all tools can at least be included without failure on all
+    # platforms.
+    all_tools = [
+        'atlmfc_vc80',
+        'code_coverage',
+        'code_signing',
+        'collada_dom',
+        'command_output',
+        'component_bits',
+        'component_builders',
+        'component_setup',
+        'component_targets',
+        'component_targets_msvs',
+        'component_targets_xml',
+        'concat_source',
+        'defer',
+        'directx_9_0_c',
+        'directx_9_18_944_0_partial',
+        'distcc',
+        'environment_tools',
+        'gather_inputs',
+        'naclsdk',
+        'publish',
+        'replace_strings',
+        'replicate',
+        'sdl',
+        'seven_zip',
+        'target_debug',
+        'target_optimized',
+        'target_platform_linux',
+        'target_platform_mac',
+        'target_platform_windows',
+        'visual_studio_solution',
+        'windows_hard_link',
+    ]
+    for tool in all_tools:
+        if tool not in env['TOOLS']:
+            print 'Adding tool %s...' % tool
+            # Not all tools play well together (for example, you can only use one of
+            # the target_platform tools at a time), so put each in a separate
+            # sub-environment
+            env.Clone(tools=[tool])
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  # Run tests
-  base = 'all_tools/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.run(chdir=base)
-  test.pass_test()
+    # Run tests
+    base = 'all_tools/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.run(chdir=base)
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

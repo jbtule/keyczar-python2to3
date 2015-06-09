@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Tests the --help flag of Google C++ Testing Framework.
 
 SYNOPSIS
@@ -44,13 +43,12 @@ import os
 import re
 import unittest
 
-
 IS_WINDOWS = os.name == 'nt'
 
 if IS_WINDOWS:
-  PROGRAM = 'gtest_help_test_.exe'
+    PROGRAM = 'gtest_help_test_.exe'
 else:
-  PROGRAM = 'gtest_help_test_'
+    PROGRAM = 'gtest_help_test_'
 
 PROGRAM_PATH = os.path.join(gtest_test_utils.GetBuildDir(), PROGRAM)
 FLAG_PREFIX = '--gtest_'
@@ -58,20 +56,15 @@ CATCH_EXCEPTIONS_FLAG = FLAG_PREFIX + 'catch_exceptions'
 
 # The help message must match this regex.
 HELP_REGEX = re.compile(
-    FLAG_PREFIX + r'list_tests.*' +
-    FLAG_PREFIX + r'filter=.*' +
-    FLAG_PREFIX + r'also_run_disabled_tests.*' +
-    FLAG_PREFIX + r'repeat=.*' +
-    FLAG_PREFIX + r'color=.*' +
-    FLAG_PREFIX + r'print_time.*' +
-    FLAG_PREFIX + r'output=.*' +
-    FLAG_PREFIX + r'break_on_failure.*' +
-    FLAG_PREFIX + r'throw_on_failure.*',
+    FLAG_PREFIX + r'list_tests.*' + FLAG_PREFIX + r'filter=.*' + FLAG_PREFIX +
+    r'also_run_disabled_tests.*' + FLAG_PREFIX + r'repeat=.*' + FLAG_PREFIX +
+    r'color=.*' + FLAG_PREFIX + r'print_time.*' + FLAG_PREFIX + r'output=.*' +
+    FLAG_PREFIX + r'break_on_failure.*' + FLAG_PREFIX + r'throw_on_failure.*',
     re.DOTALL)
 
 
 def RunWithFlag(flag):
-  """Runs gtest_help_test_ with the given flag.
+    """Runs gtest_help_test_ with the given flag.
 
   Returns:
     the exit code and the text output as a tuple.
@@ -79,49 +72,50 @@ def RunWithFlag(flag):
     flag: the command-line flag to pass to gtest_help_test_, or None.
   """
 
-  if flag is None:
-    command = [PROGRAM_PATH]
-  else:
-    command = [PROGRAM_PATH, flag]
-  child = gtest_test_utils.Subprocess(command)
-  return child.exit_code, child.output
+    if flag is None:
+        command = [PROGRAM_PATH]
+    else:
+        command = [PROGRAM_PATH, flag]
+    child = gtest_test_utils.Subprocess(command)
+    return child.exit_code, child.output
 
 
 class GTestHelpTest(unittest.TestCase):
-  """Tests the --help flag and its equivalent forms."""
 
-  def TestHelpFlag(self, flag):
-    """Verifies that the right message is printed and the tests are
+    """Tests the --help flag and its equivalent forms."""
+
+    def TestHelpFlag(self, flag):
+        """Verifies that the right message is printed and the tests are
     skipped when the given flag is specified."""
 
-    exit_code, output = RunWithFlag(flag)
-    self.assertEquals(0, exit_code)
-    self.assert_(HELP_REGEX.search(output), output)
-    if IS_WINDOWS:
-      self.assert_(CATCH_EXCEPTIONS_FLAG in output, output)
-    else:
-      self.assert_(CATCH_EXCEPTIONS_FLAG not in output, output)
+        exit_code, output = RunWithFlag(flag)
+        self.assertEquals(0, exit_code)
+        self.assert_(HELP_REGEX.search(output), output)
+        if IS_WINDOWS:
+            self.assert_(CATCH_EXCEPTIONS_FLAG in output, output)
+        else:
+            self.assert_(CATCH_EXCEPTIONS_FLAG not in output, output)
 
-  def testPrintsHelpWithFullFlag(self):
-    self.TestHelpFlag('--help')
+    def testPrintsHelpWithFullFlag(self):
+        self.TestHelpFlag('--help')
 
-  def testPrintsHelpWithShortFlag(self):
-    self.TestHelpFlag('-h')
+    def testPrintsHelpWithShortFlag(self):
+        self.TestHelpFlag('-h')
 
-  def testPrintsHelpWithQuestionFlag(self):
-    self.TestHelpFlag('-?')
+    def testPrintsHelpWithQuestionFlag(self):
+        self.TestHelpFlag('-?')
 
-  def testPrintsHelpWithWindowsStyleQuestionFlag(self):
-    self.TestHelpFlag('/?')
+    def testPrintsHelpWithWindowsStyleQuestionFlag(self):
+        self.TestHelpFlag('/?')
 
-  def testRunsTestsWithoutHelpFlag(self):
-    """Verifies that when no help flag is specified, the tests are run
+    def testRunsTestsWithoutHelpFlag(self):
+        """Verifies that when no help flag is specified, the tests are run
     and the help message is not printed."""
 
-    exit_code, output = RunWithFlag(None)
-    self.assert_(exit_code != 0)
-    self.assert_(not HELP_REGEX.search(output), output)
+        exit_code, output = RunWithFlag(None)
+        self.assert_(exit_code != 0)
+        self.assert_(not HELP_REGEX.search(output), output)
 
 
 if __name__ == '__main__':
-  gtest_test_utils.Main()
+    gtest_test_utils.Main()

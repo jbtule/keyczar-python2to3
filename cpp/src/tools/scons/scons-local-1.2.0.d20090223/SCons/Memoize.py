@@ -126,7 +126,9 @@ use_memoizer = None
 
 CounterList = []
 
+
 class Counter:
+
     """
     Base class for counting memoization hits and misses.
 
@@ -134,6 +136,7 @@ class Counter:
     the .name attribute that represents the name of the function
     being counted.
     """
+
     def __init__(self, method_name):
         """
         """
@@ -141,16 +144,20 @@ class Counter:
         self.hit = 0
         self.miss = 0
         CounterList.append(self)
+
     def display(self):
         fmt = "    %7d hits %7d misses    %s()"
         print fmt % (self.hit, self.miss, self.name)
+
     def __cmp__(self, other):
         try:
             return cmp(self.name, other.name)
         except AttributeError:
             return 0
 
+
 class CountValue(Counter):
+
     """
     A counter class for simple, atomic memoized values.
 
@@ -163,6 +170,7 @@ class CountValue(Counter):
     We then call the underlying_method method after counting whether
     its memoized value has already been set (a hit) or not (a miss).
     """
+
     def __call__(self, *args, **kw):
         obj = args[0]
         if obj._memo.has_key(self.method_name):
@@ -171,7 +179,9 @@ class CountValue(Counter):
             self.miss = self.miss + 1
         return apply(self.underlying_method, args, kw)
 
+
 class CountDict(Counter):
+
     """
     A counter class for memoized values stored in a dictionary, with
     keys based on the method's input arguments.
@@ -187,11 +197,13 @@ class CountDict(Counter):
     computed key value is already present in the memoization dictionary
     (a hit) or not (a miss).
     """
+
     def __init__(self, method_name, keymaker):
         """
         """
         Counter.__init__(self, method_name)
         self.keymaker = keymaker
+
     def __call__(self, *args, **kw):
         obj = args[0]
         try:
@@ -206,7 +218,9 @@ class CountDict(Counter):
                 self.miss = self.miss + 1
         return apply(self.underlying_method, args, kw)
 
+
 class Memoizer:
+
     """Object which performs caching of method calls for its 'primary'
     instance."""
 
@@ -215,14 +229,20 @@ class Memoizer:
 
 # Find out if we support metaclasses (Python 2.2 and later).
 
+
 class M:
+
     def __init__(cls, name, bases, cls_dict):
         cls.use_metaclass = 1
+
         def fake_method(self):
             pass
+
         new.instancemethod(fake_method, None, cls)
 
+
 try:
+
     class A:
         __metaclass__ = M
 
@@ -244,11 +264,13 @@ if not use_metaclass:
         pass
 
     try:
+
         class Memoized_Metaclass(type):
             # Just a place-holder so pre-metaclass Python versions don't
             # have to have special code for the Memoized classes.
             pass
     except TypeError:
+
         class Memoized_Metaclass:
             # A place-holder so pre-metaclass Python versions don't
             # have to have special code for the Memoized classes.
@@ -269,6 +291,7 @@ else:
             counter.display()
 
     class Memoized_Metaclass(type):
+
         def __init__(cls, name, bases, cls_dict):
             super(Memoized_Metaclass, cls).__init__(name, bases, cls_dict)
 

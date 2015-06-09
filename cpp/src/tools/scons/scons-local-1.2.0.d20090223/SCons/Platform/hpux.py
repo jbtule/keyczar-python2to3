@@ -34,10 +34,11 @@ __revision__ = "src/engine/SCons/Platform/hpux.py 4043 2009/02/23 09:06:45 scons
 
 import posix
 
+
 def generate(env):
     posix.generate(env)
-    #Based on HP-UX11i: ARG_MAX=2048000 - 3000 for environment expansion
-    env['MAXLINELENGTH']  = 2045000
+    # Based on HP-UX11i: ARG_MAX=2048000 - 3000 for environment expansion
+    env['MAXLINELENGTH'] = 2045000
 
 # Local Variables:
 # tab-width:4

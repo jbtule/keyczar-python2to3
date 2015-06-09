@@ -46,41 +46,47 @@ import SCons.Util
 # This is what we search for to find mingw:
 key_program = 'mingw32-gcc'
 
+
 def find(env):
     # First search in the SCons path and then the OS path:
     return env.WhereIs(key_program) or SCons.Util.WhereIs(key_program)
 
+
 def shlib_generator(target, source, env, for_signature):
-    cmd = SCons.Util.CLVar(['$SHLINK', '$SHLINKFLAGS']) 
+    cmd = SCons.Util.CLVar(['$SHLINK', '$SHLINKFLAGS'])
 
     dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-    if dll: cmd.extend(['-o', dll])
+    if dll:
+        cmd.extend(['-o', dll])
 
     cmd.extend(['$SOURCES', '$_LIBDIRFLAGS', '$_LIBFLAGS'])
 
     implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
-    if implib: cmd.append('-Wl,--out-implib,'+implib.get_string(for_signature))
+    if implib:
+        cmd.append('-Wl,--out-implib,' + implib.get_string(for_signature))
 
     def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     insert_def = env.subst("$WINDOWS_INSERT_DEF")
-    if not insert_def in ['', '0', 0] and def_target: \
-        cmd.append('-Wl,--output-def,'+def_target.get_string(for_signature))
+    if not insert_def in ['', '0', 0] and def_target:
+         \
+                                            cmd.append('-Wl,--output-def,' + def_target.get_string(for_signature))
 
     return [cmd]
+
 
 def shlib_emitter(target, source, env):
     dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
     no_import_lib = env.get('no_import_lib', 0)
 
     if not dll:
-        raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
-    
+        raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst(
+            "$SHLIBSUFFIX")
+
     if not no_import_lib and \
        not env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX'):
 
         # Append an import library to the list of targets.
-        target.append(env.ReplaceIxes(dll,  
-                                      'SHLIBPREFIX', 'SHLIBSUFFIX',
+        target.append(env.ReplaceIxes(dll, 'SHLIBPREFIX', 'SHLIBSUFFIX',
                                       'LIBPREFIX', 'LIBSUFFIX'))
 
     # Append a def file target if there isn't already a def file target
@@ -90,29 +96,30 @@ def shlib_emitter(target, source, env):
     def_source = env.FindIxes(source, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     def_target = env.FindIxes(target, 'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX')
     if not def_source and not def_target:
-        target.append(env.ReplaceIxes(dll,  
-                                      'SHLIBPREFIX', 'SHLIBSUFFIX',
+        target.append(env.ReplaceIxes(dll, 'SHLIBPREFIX', 'SHLIBSUFFIX',
                                       'WINDOWSDEFPREFIX', 'WINDOWSDEFSUFFIX'))
-    
+
     return (target, source)
-                         
+
 
 shlib_action = SCons.Action.Action(shlib_generator, generator=1)
 
 res_action = SCons.Action.Action('$RCCOM', '$RCCOMSTR')
 
-res_builder = SCons.Builder.Builder(action=res_action, suffix='.o',
-                                    source_scanner=SCons.Tool.SourceFileScanner)
+res_builder = SCons.Builder.Builder(
+    action=res_action,
+    suffix='.o',
+    source_scanner=SCons.Tool.SourceFileScanner)
 SCons.Tool.SourceFileScanner.add_scanner('.rc', SCons.Defaults.CScan)
+
 
 def generate(env):
     mingw = find(env)
     if mingw:
         dir = os.path.dirname(mingw)
-        env.PrependENVPath('PATH', dir )
-        
+        env.PrependENVPath('PATH', dir)
 
-    # Most of mingw is the same as gcc and friends...
+        # Most of mingw is the same as gcc and friends...
     gnu_tools = ['gcc', 'g++', 'gnulink', 'ar', 'gas', 'm4']
     for tool in gnu_tools:
         SCons.Tool.Tool(tool)(env)
@@ -123,31 +130,36 @@ def generate(env):
     env['CXX'] = 'g++'
     env['SHCXXFLAGS'] = SCons.Util.CLVar('$CXXFLAGS')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
-    env['SHLINKCOM']   = shlib_action
+    env['SHLINKCOM'] = shlib_action
     env['LDMODULECOM'] = shlib_action
-    env.Append(SHLIBEMITTER = [shlib_emitter])
+    env.Append(SHLIBEMITTER=[shlib_emitter])
     env['AS'] = 'as'
 
-    env['WIN32DEFPREFIX']        = ''
-    env['WIN32DEFSUFFIX']        = '.def'
-    env['WINDOWSDEFPREFIX']      = '${WIN32DEFPREFIX}'
-    env['WINDOWSDEFSUFFIX']      = '${WIN32DEFSUFFIX}'
+    env['WIN32DEFPREFIX'] = ''
+    env['WIN32DEFSUFFIX'] = '.def'
+    env['WINDOWSDEFPREFIX'] = '${WIN32DEFPREFIX}'
+    env['WINDOWSDEFSUFFIX'] = '${WIN32DEFSUFFIX}'
 
     env['SHOBJSUFFIX'] = '.o'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
 
     env['RC'] = 'windres'
     env['RCFLAGS'] = SCons.Util.CLVar('')
-    env['RCINCFLAGS'] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env[
+        'RCINCFLAGS'
+    ] = '$( ${_concat(RCINCPREFIX, CPPPATH, RCINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
     env['RCINCPREFIX'] = '--include-dir '
     env['RCINCSUFFIX'] = ''
-    env['RCCOM'] = '$RC $_CPPDEFFLAGS $RCINCFLAGS ${RCINCPREFIX} ${SOURCE.dir} $RCFLAGS -i $SOURCE -o $TARGET'
+    env[
+        'RCCOM'
+    ] = '$RC $_CPPDEFFLAGS $RCINCFLAGS ${RCINCPREFIX} ${SOURCE.dir} $RCFLAGS -i $SOURCE -o $TARGET'
     env['BUILDERS']['RES'] = res_builder
-    
+
     # Some setting from the platform also have to be overridden:
     env['OBJSUFFIX'] = '.o'
     env['LIBPREFIX'] = 'lib'
     env['LIBSUFFIX'] = '.a'
+
 
 def exists(env):
     return find(env)

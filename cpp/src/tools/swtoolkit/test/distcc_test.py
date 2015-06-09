@@ -27,9 +27,7 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for distcc.  These are SMALL tests."""
-
 
 import sys
 import unittest
@@ -37,31 +35,31 @@ import TestFramework
 
 
 class DistccTestBase(unittest.TestCase):
-  """Base class for distcc tests."""
 
-  def setUp(self):
-    """Per-test setup."""
-    self.env = self.root_env.Clone()
+    """Base class for distcc tests."""
 
-    # Hook env.Detect(); defaults to distcc present
-    self.old_detect = self.env.Detect
-    self.env.Detect = self.MockDetect
-    self.mock_detect_return = 1
+    def setUp(self):
+        """Per-test setup."""
+        self.env = self.root_env.Clone()
 
-    # Hook env.WhereIs(), so we get a consistent path for cc, c++
-    self.old_whereis = self.env.WhereIs
-    self.env.WhereIs = self.MockWhereIs
+        # Hook env.Detect(); defaults to distcc present
+        self.old_detect = self.env.Detect
+        self.env.Detect = self.MockDetect
+        self.mock_detect_return = 1
 
-    # Set up default values for CC, CXX, HOME, DISTCC_HOSTS
-    self.env.Replace(
-        CC='cc',
-        CXX='c++',
-        DISTCC_HOSTS='foo,bar',
-        HOME='home',
-    )
+        # Hook env.WhereIs(), so we get a consistent path for cc, c++
+        self.old_whereis = self.env.WhereIs
+        self.env.WhereIs = self.MockWhereIs
 
-  def MockDetect(self, filename):
-    """Mock of env.Detect().
+        # Set up default values for CC, CXX, HOME, DISTCC_HOSTS
+        self.env.Replace(
+            CC='cc',
+            CXX='c++',
+            DISTCC_HOSTS='foo,bar',
+            HOME='home', )
+
+    def MockDetect(self, filename):
+        """Mock of env.Detect().
 
     Args:
       filename: Program file to detect.
@@ -69,13 +67,13 @@ class DistccTestBase(unittest.TestCase):
     Returns:
       Mock value for 'distcc', else passthrough to env.Detect().
     """
-    if filename == 'distcc':
-      return self.mock_detect_return
-    else:
-      return self.old_detect(filename)
+        if filename == 'distcc':
+            return self.mock_detect_return
+        else:
+            return self.old_detect(filename)
 
-  def MockWhereIs(self, filename):
-    """Mock of env.WhereIs().
+    def MockWhereIs(self, filename):
+        """Mock of env.WhereIs().
 
     Args:
       filename: Program file to convert to full path.
@@ -83,133 +81,136 @@ class DistccTestBase(unittest.TestCase):
     Returns:
       Mock value for 'cc' and 'c++', else passthrough to env.WhereIs().
     """
-    if filename in ('cc', 'c++'):
-      return '/simulated/' + filename
-    else:
-      return self.old_whereis(filename)
+        if filename in ('cc', 'c++'):
+            return '/simulated/' + filename
+        else:
+            return self.old_whereis(filename)
 
 
 class DistccTestNoOption(DistccTestBase):
-  """Tests for distcc module when --distcc not specified on command line."""
 
-  def testOptionClear(self):
-    """Test --distcc option not on command line."""
-    env = self.env
+    """Tests for distcc module when --distcc not specified on command line."""
 
-    # IF distcc option is not set, do nothing
-    env.Tool('distcc')
-    self.assertEqual(env['CC'], 'cc')
-    self.assertEqual(env['CXX'], 'c++')
+    def testOptionClear(self):
+        """Test --distcc option not on command line."""
+        env = self.env
+
+        # IF distcc option is not set, do nothing
+        env.Tool('distcc')
+        self.assertEqual(env['CC'], 'cc')
+        self.assertEqual(env['CXX'], 'c++')
 
 
 class DistccTests(DistccTestBase):
-  """Tests for distcc module when --distcc is specified."""
 
-  def testNotPresent(self):
-    """Test distcc not present."""
-    env = self.env
+    """Tests for distcc module when --distcc is specified."""
 
-    # If distcc is not detected on the system, CC and CXX are not modified
-    self.mock_detect_return = 0
-    env.Tool('distcc')
-    self.assertEqual(env['CC'], 'cc')
-    self.assertEqual(env['CXX'], 'c++')
+    def testNotPresent(self):
+        """Test distcc not present."""
+        env = self.env
 
-  def testHOMENotSet(self):
-    """Test $HOME not set."""
-    env = self.env
+        # If distcc is not detected on the system, CC and CXX are not modified
+        self.mock_detect_return = 0
+        env.Tool('distcc')
+        self.assertEqual(env['CC'], 'cc')
+        self.assertEqual(env['CXX'], 'c++')
 
-    # IF $HOME is not set, do nothing
-    env['HOME'] = None
-    env.Tool('distcc')
-    self.assertEqual(env['CC'], 'cc')
-    self.assertEqual(env['CXX'], 'c++')
+    def testHOMENotSet(self):
+        """Test $HOME not set."""
+        env = self.env
 
-  def testHOSTSNotSet(self):
-    """Test $DISTCC_HOSTS not set."""
-    env = self.env
+        # IF $HOME is not set, do nothing
+        env['HOME'] = None
+        env.Tool('distcc')
+        self.assertEqual(env['CC'], 'cc')
+        self.assertEqual(env['CXX'], 'c++')
 
-    # IF $DISTCC_HOSTS is not set, do nothing
-    env['DISTCC_HOSTS'] = None
-    env.Tool('distcc')
-    self.assertEqual(env['CC'], 'cc')
-    self.assertEqual(env['CXX'], 'c++')
+    def testHOSTSNotSet(self):
+        """Test $DISTCC_HOSTS not set."""
+        env = self.env
 
-  def testUnknownCompilers(self):
-    """Test not modifying unknown compilers."""
-    env = self.env
+        # IF $DISTCC_HOSTS is not set, do nothing
+        env['DISTCC_HOSTS'] = None
+        env.Tool('distcc')
+        self.assertEqual(env['CC'], 'cc')
+        self.assertEqual(env['CXX'], 'c++')
 
-    # If C/C++ compilers are not in the known list, shouldn't modify them
-    env.Replace(CC='someothercc', CXX='someothercxx')
-    env.Tool('distcc')
-    self.assertEqual(env['CC'], 'someothercc')
-    self.assertEqual(env['CXX'], 'someothercxx')
+    def testUnknownCompilers(self):
+        """Test not modifying unknown compilers."""
+        env = self.env
 
-  def testNormal(self):
-    """Test normal invocation; compiler commands should be modified."""
-    env = self.env
+        # If C/C++ compilers are not in the known list, shouldn't modify them
+        env.Replace(CC='someothercc', CXX='someothercxx')
+        env.Tool('distcc')
+        self.assertEqual(env['CC'], 'someothercc')
+        self.assertEqual(env['CXX'], 'someothercxx')
 
-    env.Tool('distcc')
+    def testNormal(self):
+        """Test normal invocation; compiler commands should be modified."""
+        env = self.env
 
-    if sys.platform == 'darwin':
-      # Full path on darwin
-      self.assertEqual(env['CC'], '$DISTCC /simulated/cc')
-      self.assertEqual(env['CXX'], '$DISTCC /simulated/c++')
-    else:
-      # Relative path elsewhere
-      self.assertEqual(env['CC'], '$DISTCC cc')
-      self.assertEqual(env['CXX'], '$DISTCC c++')
+        env.Tool('distcc')
+
+        if sys.platform == 'darwin':
+            # Full path on darwin
+            self.assertEqual(env['CC'], '$DISTCC /simulated/cc')
+            self.assertEqual(env['CXX'], '$DISTCC /simulated/c++')
+        else:
+            # Relative path elsewhere
+            self.assertEqual(env['CC'], '$DISTCC cc')
+            self.assertEqual(env['CXX'], '$DISTCC c++')
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(tools=['component_setup'])
+    env = Environment(tools=['component_setup'])
 
-  # Run unit tests
-  TestFramework.RunUnitTests(DistccTests, root_env=env)
+    # Run unit tests
+    TestFramework.RunUnitTests(DistccTests, root_env=env)
 
 
 def TestSConstructNoOption(scons_globals):
-  """Test SConstruct file for default behavior when --distcc not specified.
+    """Test SConstruct file for default behavior when --distcc not specified.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(tools=['component_setup'])
+    env = Environment(tools=['component_setup'])
 
-  # Run unit tests
-  TestFramework.RunUnitTests(DistccTestNoOption, root_env=env)
+    # Run unit tests
+    TestFramework.RunUnitTests(DistccTestNoOption, root_env=env)
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  # Run tests where --distcc is not specified
-  base = 'distcc_off/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstructNoOption)
-  # Ignore stderr since unittest prints its output there
-  test.run(chdir=base, stderr=None)
+    # Run tests where --distcc is not specified
+    base = 'distcc_off/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstructNoOption)
+    # Ignore stderr since unittest prints its output there
+    test.run(chdir=base, stderr=None)
 
-  # Run tests where --distcc is specified
-  base = 'distcc/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.run(chdir=base, stderr=None, options='--distcc')
+    # Run tests where --distcc is specified
+    base = 'distcc/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.run(chdir=base, stderr=None, options='--distcc')
 
-  test.pass_test()
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

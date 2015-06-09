@@ -16,10 +16,12 @@
 
 import string
 
+
 class Set:
+
     """The set class. It can contain mutable objects."""
 
-    def __init__(self, seq = None):
+    def __init__(self, seq=None):
         """The constructor. It can take any object giving an iterator as an optional
         argument to populate the new set."""
         self.elems = []
@@ -31,7 +33,6 @@ class Set:
 
     def __str__(self):
         return "set([%s])" % string.join(map(str, self.elems), ", ")
-
 
     def copy(self):
         """Shallow copy of a set object."""
@@ -65,7 +66,8 @@ class Set:
         try:
             self.elems.remove(elem)
         except ValueError:
-            raise LookupError, "Object %s is not a member of the set." % str(elem)
+            raise LookupError, "Object %s is not a member of the set." % str(
+                elem)
 
     def discard(self, elem):
         """Remove an element from the set. Do nothing if elem is not in the set."""
@@ -77,11 +79,11 @@ class Set:
     def sort(self, func=cmp):
         self.elems.sort(func)
 
-    #Define an iterator for a set.
+    # Define an iterator for a set.
     def __iter__(self):
         return iter(self.elems)
 
-    #The basic binary operations with sets.
+    # The basic binary operations with sets.
     def __or__(self, other):
         """Union of two sets."""
         ret = self.copy()
@@ -114,9 +116,9 @@ class Set:
                 temp.elems.remove(elem)
             else:
                 ret.elems.append(elem)
-        #Add remaining elements.
+        # Add remaining elements.
         for elem in temp.elems:
-                ret.elems.append(elem)
+            ret.elems.append(elem)
         return ret
 
     def __mul__(self, other):
@@ -127,7 +129,7 @@ class Set:
             ret.elems.extend(x)
         return ret
 
-    #Some of the binary comparisons.
+    # Some of the binary comparisons.
     def __lt__(self, other):
         """Returns 1 if the lhs set is contained but not equal to the rhs set."""
         if len(self.elems) < len(other.elems):

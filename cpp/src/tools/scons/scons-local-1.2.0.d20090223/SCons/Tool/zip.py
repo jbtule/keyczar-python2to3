@@ -48,12 +48,14 @@ except ImportError:
 
 if internal_zip:
     zipcompression = zipfile.ZIP_DEFLATED
+
     def zip(target, source, env):
         def visit(arg, dirname, names):
             for name in names:
                 path = os.path.join(dirname, name)
                 if os.path.isfile(path):
                     arg.write(path)
+
         compression = env.get('ZIPCOMPRESSION', 0)
         zf = zipfile.ZipFile(str(target[0]), 'w', compression)
         for s in source:
@@ -66,14 +68,14 @@ else:
     zipcompression = 0
     zip = "$ZIP $ZIPFLAGS ${TARGET.abspath} $SOURCES"
 
-
 zipAction = SCons.Action.Action(zip, varlist=['ZIPCOMPRESSION'])
 
-ZipBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
-                                   source_factory = SCons.Node.FS.Entry,
-                                   source_scanner = SCons.Defaults.DirScanner,
-                                   suffix = '$ZIPSUFFIX',
-                                   multi = 1)
+ZipBuilder = SCons.Builder.Builder(
+    action=SCons.Action.Action('$ZIPCOM', '$ZIPCOMSTR'),
+    source_factory=SCons.Node.FS.Entry,
+    source_scanner=SCons.Defaults.DirScanner,
+    suffix='$ZIPSUFFIX',
+    multi=1)
 
 
 def generate(env):
@@ -84,11 +86,12 @@ def generate(env):
         bld = ZipBuilder
         env['BUILDERS']['Zip'] = bld
 
-    env['ZIP']        = 'zip'
-    env['ZIPFLAGS']   = SCons.Util.CLVar('')
-    env['ZIPCOM']     = zipAction
-    env['ZIPCOMPRESSION'] =  zipcompression
-    env['ZIPSUFFIX']  = '.zip'
+    env['ZIP'] = 'zip'
+    env['ZIPFLAGS'] = SCons.Util.CLVar('')
+    env['ZIPCOM'] = zipAction
+    env['ZIPCOMPRESSION'] = zipcompression
+    env['ZIPSUFFIX'] = '.zip'
+
 
 def exists(env):
     return internal_zip or env.Detect('zip')

@@ -23,4 +23,4 @@ KEY_HASH_SIZE = 4
 HEADER_SIZE = 1 + KEY_HASH_SIZE
 TIMEOUT_SIZE = 8
 DEFAULT_ENCODING = "utf-8"
-IS_PYTHON_3 = sys.version_info >= (3,)
+IS_PYTHON_3 = sys.version_info >= (3, )

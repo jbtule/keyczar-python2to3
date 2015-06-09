@@ -126,11 +126,9 @@ else:
         prefs.append(sys.prefix)
 
     temp = map(lambda x: os.path.join(x, 'lib'), prefs)
-    temp.extend(map(lambda x: os.path.join(x,
-                                           'lib',
+    temp.extend(map(lambda x: os.path.join(x, 'lib',
                                            'python' + sys.version[:3],
-                                           'site-packages'),
-                           prefs))
+                                           'site-packages'), prefs))
     prefs = temp
 
     # Add the parent directory of the current python's library to the
@@ -166,6 +164,7 @@ import whichdb
 
 import SCons.SConsign
 
+
 def my_whichdb(filename):
     if filename[-7:] == ".dblite":
         return "SCons.dblite"
@@ -177,26 +176,32 @@ def my_whichdb(filename):
         pass
     return _orig_whichdb(filename)
 
+
 _orig_whichdb = whichdb.whichdb
 whichdb.whichdb = my_whichdb
+
 
 def my_import(mname):
     if '.' in mname:
         i = string.rfind(mname, '.')
         parent = my_import(mname[:i])
-        fp, pathname, description = imp.find_module(mname[i+1:],
+        fp, pathname, description = imp.find_module(mname[i + 1:],
                                                     parent.__path__)
     else:
         fp, pathname, description = imp.find_module(mname)
     return imp.load_module(mname, fp, pathname, description)
 
+
 class Flagger:
     default_value = 1
+
     def __setitem__(self, item, value):
         self.__dict__[item] = value
         self.default_value = 0
+
     def __getitem__(self, item):
         return self.__dict__.get(item, self.default_value)
+
 
 Do_Call = None
 Print_Directories = []
@@ -205,12 +210,14 @@ Print_Flags = Flagger()
 Verbose = 0
 Readable = 0
 
+
 def default_mapper(entry, name):
     try:
-        val = eval("entry."+name)
+        val = eval("entry." + name)
     except:
         val = None
     return str(val)
+
 
 def map_action(entry, name):
     try:
@@ -219,6 +226,7 @@ def map_action(entry, name):
     except AttributeError:
         return None
     return '%s [%s]' % (bactsig, bact)
+
 
 def map_timestamp(entry, name):
     try:
@@ -229,6 +237,7 @@ def map_timestamp(entry, name):
         return "'" + time.ctime(timestamp) + "'"
     else:
         return str(timestamp)
+
 
 def map_bkids(entry, name):
     try:
@@ -243,15 +252,15 @@ def map_bkids(entry, name):
         return None
     return string.join(result, "\n        ")
 
+
 map_field = {
-    'action'    : map_action,
-    'timestamp' : map_timestamp,
-    'bkids'     : map_bkids,
+    'action': map_action,
+    'timestamp': map_timestamp,
+    'bkids': map_bkids,
 }
 
-map_name = {
-    'implicit'  : 'bkids',
-}
+map_name = {'implicit': 'bkids', }
+
 
 def field(name, entry, verbose=Verbose):
     if not Print_Flags[name]:
@@ -262,6 +271,7 @@ def field(name, entry, verbose=Verbose):
     if verbose:
         val = name + ": " + val
     return val
+
 
 def nodeinfo_raw(name, ninfo, prefix=""):
     # This just formats the dictionary, which we would normally use str()
@@ -279,6 +289,7 @@ def nodeinfo_raw(name, ninfo, prefix=""):
         name = repr(name)
     return name + ': {' + string.join(l, ', ') + '}'
 
+
 def nodeinfo_cooked(name, ninfo, prefix=""):
     try:
         field_list = ninfo.field_list
@@ -287,14 +298,16 @@ def nodeinfo_cooked(name, ninfo, prefix=""):
     f = lambda x, ni=ninfo, v=Verbose: field(x, ni, v)
     if '\n' in name:
         name = repr(name)
-    outlist = [name+':'] + filter(None, map(f, field_list))
+    outlist = [name + ':'] + filter(None, map(f, field_list))
     if Verbose:
         sep = '\n    ' + prefix
     else:
         sep = ' '
     return string.join(outlist, sep)
 
+
 nodeinfo_string = nodeinfo_cooked
+
 
 def printfield(name, entry, prefix=""):
     outlist = field("implicit", entry, 0)
@@ -309,13 +322,15 @@ def printfield(name, entry, prefix=""):
         else:
             print "        " + outact
 
+
 def printentries(entries, location):
     if Print_Entries:
         for name in Print_Entries:
             try:
                 entry = entries[name]
             except KeyError:
-                sys.stderr.write("sconsign: no entry `%s' in `%s'\n" % (name, location))
+                sys.stderr.write("sconsign: no entry `%s' in `%s'\n" %
+                                 (name, location))
             else:
                 try:
                     ninfo = entry.ninfo
@@ -337,7 +352,9 @@ def printentries(entries, location):
                 print nodeinfo_string(name, entry.ninfo)
             printfield(name, entry.binfo)
 
+
 class Do_SConsignDB:
+
     def __init__(self, dbm_name, dbm):
         self.dbm_name = dbm_name
         self.dbm = dbm
@@ -376,10 +393,12 @@ class Do_SConsignDB:
         except KeyboardInterrupt:
             raise
         except cPickle.UnpicklingError:
-            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s'\n" % (self.dbm_name, fname))
+            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s'\n" %
+                             (self.dbm_name, fname))
             return
         except Exception, e:
-            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s': %s\n" % (self.dbm_name, fname, e))
+            sys.stderr.write("sconsign: ignoring invalid `%s' file `%s': %s\n"
+                             % (self.dbm_name, fname, e))
             return
 
         if Print_Directories:
@@ -387,7 +406,8 @@ class Do_SConsignDB:
                 try:
                     val = db[dir]
                 except KeyError:
-                    sys.stderr.write("sconsign: no dir `%s' in `%s'\n" % (dir, args[0]))
+                    sys.stderr.write("sconsign: no dir `%s' in `%s'\n" %
+                                     (dir, args[0]))
                 else:
                     self.printentries(dir, val)
         else:
@@ -400,6 +420,7 @@ class Do_SConsignDB:
         print '=== ' + dir + ':'
         printentries(cPickle.loads(val), dir)
 
+
 def Do_SConsignDir(name):
     try:
         fp = open(name, 'rb')
@@ -411,10 +432,12 @@ def Do_SConsignDir(name):
     except KeyboardInterrupt:
         raise
     except cPickle.UnpicklingError:
-        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" % (name))
+        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s'\n" %
+                         (name))
         return
     except Exception, e:
-        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s': %s\n" % (name, e))
+        sys.stderr.write("sconsign: ignoring invalid .sconsign file `%s': %s\n"
+                         % (name, e))
         return
     printentries(sconsign.entries, args[0])
 
@@ -440,12 +463,9 @@ Options:
 """
 
 opts, args = getopt.getopt(sys.argv[1:], "acd:e:f:hirstv",
-                            ['act', 'action',
-                             'csig', 'dir=', 'entry=',
-                             'format=', 'help', 'implicit',
-                             'raw', 'readable',
-                             'size', 'timestamp', 'verbose'])
-
+                           ['act', 'action', 'csig', 'dir=', 'entry=',
+                            'format=', 'help', 'implicit', 'raw', 'readable',
+                            'size', 'timestamp', 'verbose'])
 
 for o, a in opts:
     if o in ('-a', '--act', '--action'):
@@ -457,8 +477,7 @@ for o, a in opts:
     elif o in ('-e', '--entry'):
         Print_Entries.append(a)
     elif o in ('-f', '--format'):
-        Module_Map = {'dblite'   : 'SCons.dblite',
-                      'sconsign' : None}
+        Module_Map = {'dblite': 'SCons.dblite', 'sconsign': None}
         dbm_name = Module_Map.get(a, a)
         if dbm_name:
             try:
@@ -475,7 +494,7 @@ for o, a in opts:
         sys.exit(0)
     elif o in ('-i', '--implicit'):
         Print_Flags['implicit'] = 1
-    elif o in ('--raw',):
+    elif o in ('--raw', ):
         nodeinfo_string = nodeinfo_raw
     elif o in ('-r', '--readable'):
         Readable = 1
@@ -493,7 +512,7 @@ else:
     for a in args:
         dbm_name = whichdb.whichdb(a)
         if dbm_name:
-            Map_Module = {'SCons.dblite' : 'dblite'}
+            Map_Module = {'SCons.dblite': 'dblite'}
             dbm = my_import(dbm_name)
             Do_SConsignDB(Map_Module.get(dbm_name, dbm_name), dbm)(a)
         else:

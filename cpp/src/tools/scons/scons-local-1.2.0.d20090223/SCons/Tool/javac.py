@@ -43,9 +43,11 @@ from SCons.Node.FS import _my_normcase
 from SCons.Tool.JavaCommon import parse_java_file
 import SCons.Util
 
+
 def classname(path):
     """Turn a string (path name) into a Java class name."""
     return string.replace(os.path.normpath(path), os.sep, '.')
+
 
 def emit_java_classes(target, source, env):
     """Create and return lists of source java files
@@ -63,7 +65,8 @@ def emit_java_classes(target, source, env):
     elif isinstance(s, SCons.Node.FS.Dir):
         sourcedir = s.rdir()
     else:
-        raise SCons.Errors.UserError("Java source must be File or Dir, not '%s'" % s.__class__)
+        raise SCons.Errors.UserError(
+            "Java source must be File or Dir, not '%s'" % s.__class__)
 
     slist = []
     js = _my_normcase(java_suffix)
@@ -74,6 +77,7 @@ def emit_java_classes(target, source, env):
             slist.append(entry)
         elif isinstance(entry, SCons.Node.FS.Dir):
             result = SCons.Util.OrderedDict()
+
             def visit(arg, dirname, names, fj=find_java, dirnode=entry.rdir()):
                 java_files = filter(fj, names)
                 # The on-disk entries come back in arbitrary order.  Sort
@@ -82,14 +86,15 @@ def emit_java_classes(target, source, env):
                 mydir = dirnode.Dir(dirname)
                 java_paths = map(lambda f, d=mydir: d.File(f), java_files)
                 for jp in java_paths:
-                     arg[jp] = True
+                    arg[jp] = True
 
             os.path.walk(entry.rdir().get_abspath(), visit, result)
             entry.walk(visit, result)
 
             slist.extend(result.keys())
         else:
-            raise SCons.Errors.UserError("Java source must be File or Dir, not '%s'" % entry.__class__)
+            raise SCons.Errors.UserError(
+                "Java source must be File or Dir, not '%s'" % entry.__class__)
 
     version = env.get('JAVAVERSION', '1.4')
     full_tlist = []
@@ -98,7 +103,8 @@ def emit_java_classes(target, source, env):
         source_file_based = True
         pkg_dir = None
         if not f.is_derived():
-            pkg_dir, classes = parse_java_file(f.rfile().get_abspath(), version)
+            pkg_dir, classes = parse_java_file(f.rfile().get_abspath(),
+                                               version)
             if classes:
                 source_file_based = False
                 if pkg_dir:
@@ -132,18 +138,22 @@ def emit_java_classes(target, source, env):
 
     return full_tlist, slist
 
+
 JavaAction = SCons.Action.Action('$JAVACCOM', '$JAVACCOMSTR')
 
-JavaBuilder = SCons.Builder.Builder(action = JavaAction,
-                    emitter = emit_java_classes,
-                    target_factory = SCons.Node.FS.Entry,
-                    source_factory = SCons.Node.FS.Entry)
+JavaBuilder = SCons.Builder.Builder(action=JavaAction,
+                                    emitter=emit_java_classes,
+                                    target_factory=SCons.Node.FS.Entry,
+                                    source_factory=SCons.Node.FS.Entry)
+
 
 class pathopt:
+
     """
     Callable object for generating javac-style path options from
     a construction variable (e.g. -classpath, -sourcepath).
     """
+
     def __init__(self, opt, var, default=None):
         self.opt = opt
         self.var = var
@@ -154,13 +164,14 @@ class pathopt:
         if path and not SCons.Util.is_List(path):
             path = [path]
         if self.default:
-            path = path + [ env[self.default] ]
+            path = path + [env[self.default]]
         if path:
             return [self.opt, string.join(path, os.pathsep)]
-            #return self.opt + " " + string.join(path, os.pathsep)
+            # return self.opt + " " + string.join(path, os.pathsep)
         else:
             return []
-            #return ""
+            # return ""
+
 
 def Java(env, target, source, *args, **kw):
     """
@@ -198,6 +209,7 @@ def Java(env, target, source, *args, **kw):
 
     return result
 
+
 def generate(env):
     """Add Builders and construction variables for javac to an Environment."""
     java_file = SCons.Tool.CreateJavaFileBuilder(env)
@@ -209,20 +221,26 @@ def generate(env):
 
     env.AddMethod(Java)
 
-    env['JAVAC']                    = 'javac'
-    env['JAVACFLAGS']               = SCons.Util.CLVar('')
-    env['JAVABOOTCLASSPATH']        = []
-    env['JAVACLASSPATH']            = []
-    env['JAVASOURCEPATH']           = []
-    env['_javapathopt']             = pathopt
-    env['_JAVABOOTCLASSPATH']       = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
-    env['_JAVACLASSPATH']           = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
-    env['_JAVASOURCEPATH']          = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
-    env['_JAVASOURCEPATHDEFAULT']   = '${TARGET.attributes.java_sourcedir}'
-    env['_JAVACCOM']                = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
-    env['JAVACCOM']                 = "${TEMPFILE('$_JAVACCOM')}"
-    env['JAVACLASSSUFFIX']          = '.class'
-    env['JAVASUFFIX']               = '.java'
+    env['JAVAC'] = 'javac'
+    env['JAVACFLAGS'] = SCons.Util.CLVar('')
+    env['JAVABOOTCLASSPATH'] = []
+    env['JAVACLASSPATH'] = []
+    env['JAVASOURCEPATH'] = []
+    env['_javapathopt'] = pathopt
+    env['_JAVABOOTCLASSPATH'
+        ] = '${_javapathopt("-bootclasspath", "JAVABOOTCLASSPATH")} '
+    env['_JAVACLASSPATH'] = '${_javapathopt("-classpath", "JAVACLASSPATH")} '
+    env[
+        '_JAVASOURCEPATH'
+    ] = '${_javapathopt("-sourcepath", "JAVASOURCEPATH", "_JAVASOURCEPATHDEFAULT")} '
+    env['_JAVASOURCEPATHDEFAULT'] = '${TARGET.attributes.java_sourcedir}'
+    env[
+        '_JAVACCOM'
+    ] = '$JAVAC $JAVACFLAGS $_JAVABOOTCLASSPATH $_JAVACLASSPATH -d ${TARGET.attributes.java_classdir} $_JAVASOURCEPATH $SOURCES'
+    env['JAVACCOM'] = "${TEMPFILE('$_JAVACCOM')}"
+    env['JAVACLASSSUFFIX'] = '.class'
+    env['JAVASUFFIX'] = '.java'
+
 
 def exists(env):
     return 1

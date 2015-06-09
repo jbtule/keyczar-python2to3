@@ -45,13 +45,18 @@ SCons.Warnings.warn(SCons.Warnings.DeprecatedWarning, msg)
 default_calc = None
 default_module = None
 
+
 class MD5Null(SCons.Util.Null):
+
     def __repr__(self):
         return "MD5Null()"
 
+
 class TimeStampNull(SCons.Util.Null):
+
     def __repr__(self):
         return "TimeStampNull()"
+
 
 MD5 = MD5Null()
 TimeStamp = TimeStampNull()

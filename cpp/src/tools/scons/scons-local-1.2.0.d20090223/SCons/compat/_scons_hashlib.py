@@ -36,6 +36,7 @@ __revision__ = "src/engine/SCons/compat/_scons_hashlib.py 4043 2009/02/23 09:06:
 import md5
 import string
 
+
 class md5obj:
 
     md5_module = md5
@@ -79,7 +80,9 @@ class md5obj:
                 r = r + h[(i >> 4) & 0xF] + h[i & 0xF]
             return r
 
+
 new = md5obj
+
 
 def md5(string=''):
     return md5obj('md5', string)

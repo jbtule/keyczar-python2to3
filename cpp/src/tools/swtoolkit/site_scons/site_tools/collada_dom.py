@@ -27,18 +27,16 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Collada DOM 1.3.0 tool for SCons."""
-
 
 import sys
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  env.Append(CCFLAGS=[
-      '-I$COLLADA_DIR/include',
-      '-I$COLLADA_DIR/include/1.4',
-  ])
+    env.Append(CCFLAGS=[
+        '-I$COLLADA_DIR/include',
+        '-I$COLLADA_DIR/include/1.4',
+    ])

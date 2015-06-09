@@ -35,7 +35,9 @@ import SCons.Warnings
 
 warned = False
 
+
 class _PathOptionClass:
+
     def warn(self):
         global warned
         if not warned:
@@ -66,6 +68,7 @@ class _PathOptionClass:
     def PathExists(self, *args, **kw):
         self.warn()
         return apply(SCons.Variables.PathVariable.PathExists, args, kw)
+
 
 PathOption = _PathOptionClass()
 

@@ -27,57 +27,54 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for replace_strings.  This is a MEDIUM test."""
 
 import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(
-      tools=['component_setup', 'replace_strings'],
-      HOST_PLATFORMS='*',
-      BUILD_TYPE='replace',
-      BUILD_TYPE_DESCRIPTION='Test build for replacement',
-  )
-  env.Append(
-      BUILD_GROUPS=['default'],
-      BUILD_COMPONENTS=['SConscript'],
-      REPLACE_STRINGS=[
-          ('an ugly', 'a poorly presented'),
-          ('ugly', 'poorly presented'),
-          ('[Bb]a+d', 'restricted'),
-          ('bug(s)?', '$BUGS_ARE_CALLED'),
-          ('cry', 'express my feelings publicly'),
-      ],
-  )
-  BuildComponents([env])
+    env = Environment(
+        tools=['component_setup', 'replace_strings'],
+        HOST_PLATFORMS='*',
+        BUILD_TYPE='replace',
+        BUILD_TYPE_DESCRIPTION='Test build for replacement', )
+    env.Append(
+        BUILD_GROUPS=['default'],
+        BUILD_COMPONENTS=['SConscript'],
+        REPLACE_STRINGS=[
+            ('an ugly', 'a poorly presented'),
+            ('ugly', 'poorly presented'),
+            ('[Bb]a+d', 'restricted'),
+            ('bug(s)?', '$BUGS_ARE_CALLED'),
+            ('cry', 'express my feelings publicly'),
+        ], )
+    BuildComponents([env])
 
 
 def TestSConscript1(scons_globals):
-  """Test SConscript file.
+    """Test SConscript file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  scons_globals['Import']('env')
-  env = scons_globals['env']
+    # Get globals from SCons
+    scons_globals['Import']('env')
+    env = scons_globals['env']
 
-  env['BUGS_ARE_CALLED'] = 'options I did not understand'
-  env.ReplaceStrings('filtered.txt', 'source.txt')
+    env['BUGS_ARE_CALLED'] = 'options I did not understand'
+    env.ReplaceStrings('filtered.txt', 'source.txt')
 
 
 def TestSConscript2(scons_globals):
-  """Test SConscript file with different value for environment variable.
+    """Test SConscript file with different value for environment variable.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
@@ -87,12 +84,12 @@ def TestSConscript2(scons_globals):
       2. A change in the contents of the variable changes the build signature,
          causing ReplaceStrings() to be run again.
   """
-  # Get globals from SCons
-  scons_globals['Import']('env')
-  env = scons_globals['env']
+    # Get globals from SCons
+    scons_globals['Import']('env')
+    env = scons_globals['env']
 
-  env['BUGS_ARE_CALLED'] = 'cattle'
-  env.ReplaceStrings('filtered.txt', 'source.txt')
+    env['BUGS_ARE_CALLED'] = 'cattle'
+    env.ReplaceStrings('filtered.txt', 'source.txt')
 
 
 source_txt_contents = """
@@ -121,35 +118,35 @@ restricted performance, restricted error handling, restricted documentation.
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  test.subdir('replace')
+    test.subdir('replace')
 
-  base = 'replace/'
-  base_out = base + 'scons-out/replace/obj/'
+    base = 'replace/'
+    base_out = base + 'scons-out/replace/obj/'
 
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.WriteSConscript(base + 'SConscript', TestSConscript1)
-  test.write(base + 'source.txt', source_txt_contents)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.WriteSConscript(base + 'SConscript', TestSConscript1)
+    test.write(base + 'source.txt', source_txt_contents)
 
-  # Run SCons.
-  test.run(chdir=base)
+    # Run SCons.
+    test.run(chdir=base)
 
-  # Check for test output.
-  test.must_exist(base_out + 'filtered.txt')
-  test.must_match(base_out + 'filtered.txt', filtered_txt_expected_contents1)
+    # Check for test output.
+    test.must_exist(base_out + 'filtered.txt')
+    test.must_match(base_out + 'filtered.txt', filtered_txt_expected_contents1)
 
-  # Write out a change in the SConscript.
-  test.WriteSConscript(base + 'SConscript', TestSConscript2)
+    # Write out a change in the SConscript.
+    test.WriteSConscript(base + 'SConscript', TestSConscript2)
 
-  # Run SCons.
-  test.run(chdir=base)
+    # Run SCons.
+    test.run(chdir=base)
 
-  # Check that things change.
-  test.must_match(base_out + 'filtered.txt', filtered_txt_expected_contents2)
+    # Check that things change.
+    test.must_match(base_out + 'filtered.txt', filtered_txt_expected_contents2)
 
-  test.pass_test()
+    test.pass_test()
 
 
 if __name__ == '__main__':
-  main()
+    main()

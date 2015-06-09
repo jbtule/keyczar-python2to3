@@ -41,16 +41,18 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_f77_to_env
 
 compilers = ['f77']
 
+
 def generate(env):
     add_all_to_env(env)
     add_f77_to_env(env)
 
     fcomp = env.Detect(compilers) or 'f77'
-    env['F77']  = fcomp
-    env['SHF77']  = fcomp
+    env['F77'] = fcomp
+    env['SHF77'] = fcomp
 
-    env['FORTRAN']  = fcomp
-    env['SHFORTRAN']  = fcomp
+    env['FORTRAN'] = fcomp
+    env['SHFORTRAN'] = fcomp
+
 
 def exists(env):
     return env.Detect(compilers)

@@ -40,11 +40,15 @@ import SCons.Tool.tex
 
 PDFLaTeXAction = None
 
-def PDFLaTeXAuxFunction(target = None, source= None, env=None):
-    result = SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+
+def PDFLaTeXAuxFunction(target=None, source=None, env=None):
+    result = SCons.Tool.tex.InternalLaTeXAuxAction(PDFLaTeXAction, target,
+                                                   source, env)
     return result
 
+
 PDFLaTeXAuxAction = None
+
 
 def generate(env):
     """Add Builders and construction variables for pdflatex to an Environment."""
@@ -54,8 +58,9 @@ def generate(env):
 
     global PDFLaTeXAuxAction
     if PDFLaTeXAuxAction is None:
-        PDFLaTeXAuxAction = SCons.Action.Action(PDFLaTeXAuxFunction,
-                              strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
+        PDFLaTeXAuxAction = SCons.Action.Action(
+            PDFLaTeXAuxFunction,
+            strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
 
     import pdf
     pdf.generate(env)
@@ -66,10 +71,12 @@ def generate(env):
     bld.add_emitter('.ltx', SCons.Tool.tex.tex_pdf_emitter)
     bld.add_emitter('.latex', SCons.Tool.tex.tex_pdf_emitter)
 
-    env['PDFLATEX']      = 'pdflatex'
+    env['PDFLATEX'] = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
-    env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
-    env['LATEXRETRIES']  = 3
+    env['PDFLATEXCOM'
+        ] = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
+    env['LATEXRETRIES'] = 3
+
 
 def exists(env):
     return env.Detect('pdflatex')

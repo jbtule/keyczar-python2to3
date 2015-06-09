@@ -7,6 +7,7 @@ import sys
 
 import keyczar
 
+
 def Encrypt(crypted_path, password):
     if not os.path.exists(crypted_path):
         return
@@ -22,6 +23,7 @@ def Encrypt(crypted_path, password):
 
     decrypted = crypter.Decrypt(ciphertext)
     assert decrypted == input
+
 
 if __name__ == '__main__':
     if (len(sys.argv) != 3):

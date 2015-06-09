@@ -46,54 +46,57 @@ import SCons.Util
 import SCons.Action
 import SCons.Defaults
 
+
 def get_cmd(source, env):
     tar_file_with_included_specfile = source
     if SCons.Util.is_List(source):
         tar_file_with_included_specfile = source[0]
-    return "%s %s %s"%(env['RPM'], env['RPMFLAGS'],
-                       tar_file_with_included_specfile.abspath )
+    return "%s %s %s" % (env['RPM'], env['RPMFLAGS'],
+                         tar_file_with_included_specfile.abspath)
+
 
 def build_rpm(target, source, env):
     # create a temporary rpm build root.
-    tmpdir = os.path.join( os.path.dirname( target[0].abspath ), 'rpmtemp' )
+    tmpdir = os.path.join(os.path.dirname(target[0].abspath), 'rpmtemp')
     if os.path.exists(tmpdir):
         shutil.rmtree(tmpdir)
 
     # now create the mandatory rpm directory structure.
     for d in ['RPMS', 'SRPMS', 'SPECS', 'BUILD']:
-        os.makedirs( os.path.join( tmpdir, d ) )
+        os.makedirs(os.path.join(tmpdir, d))
 
     # set the topdir as an rpmflag.
-    env.Prepend( RPMFLAGS = '--define \'_topdir %s\'' % tmpdir )
+    env.Prepend(RPMFLAGS='--define \'_topdir %s\'' % tmpdir)
 
     # now call rpmbuild to create the rpm package.
-    handle  = subprocess.Popen(get_cmd(source, env),
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.STDOUT,
-                               shell=True)
+    handle = subprocess.Popen(get_cmd(source, env),
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
+                              shell=True)
     output = handle.stdout.read()
     status = handle.wait()
 
     if status:
-        raise SCons.Errors.BuildError( node=target[0],
-                                       errstr=output,
-                                       filename=str(target[0]) )
+        raise SCons.Errors.BuildError(node=target[0],
+                                      errstr=output,
+                                      filename=str(target[0]))
     else:
         # XXX: assume that LC_ALL=c is set while running rpmbuild
-        output_files = re.compile( 'Wrote: (.*)' ).findall( output )
+        output_files = re.compile('Wrote: (.*)').findall(output)
 
-        for output, input in zip( output_files, target ):
+        for output, input in zip(output_files, target):
             rpm_output = os.path.basename(output)
-            expected   = os.path.basename(input.get_path())
+            expected = os.path.basename(input.get_path())
 
-            assert expected == rpm_output, "got %s but expected %s" % (rpm_output, expected)
-            shutil.copy( output, input.abspath )
-
+            assert expected == rpm_output, "got %s but expected %s" % (
+                rpm_output, expected)
+            shutil.copy(output, input.abspath)
 
     # cleanup before leaving.
     shutil.rmtree(tmpdir)
 
     return status
+
 
 def string_rpm(target, source, env):
     try:
@@ -101,12 +104,13 @@ def string_rpm(target, source, env):
     except KeyError:
         return get_cmd(source, env)
 
+
 rpmAction = SCons.Action.Action(build_rpm, string_rpm)
 
-RpmBuilder = SCons.Builder.Builder(action = SCons.Action.Action('$RPMCOM', '$RPMCOMSTR'),
-                                   source_scanner = SCons.Defaults.DirScanner,
-                                   suffix = '$RPMSUFFIX')
-
+RpmBuilder = SCons.Builder.Builder(
+    action=SCons.Action.Action('$RPMCOM', '$RPMCOMSTR'),
+    source_scanner=SCons.Defaults.DirScanner,
+    suffix='$RPMSUFFIX')
 
 
 def generate(env):
@@ -117,10 +121,11 @@ def generate(env):
         bld = RpmBuilder
         env['BUILDERS']['Rpm'] = bld
 
-    env.SetDefault(RPM          = 'LC_ALL=c rpmbuild')
-    env.SetDefault(RPMFLAGS     = SCons.Util.CLVar('-ta'))
-    env.SetDefault(RPMCOM       = rpmAction)
-    env.SetDefault(RPMSUFFIX    = '.rpm')
+    env.SetDefault(RPM='LC_ALL=c rpmbuild')
+    env.SetDefault(RPMFLAGS=SCons.Util.CLVar('-ta'))
+    env.SetDefault(RPMCOM=rpmAction)
+    env.SetDefault(RPMSUFFIX='.rpm')
+
 
 def exists(env):
     return env.Detect('rpmbuild')

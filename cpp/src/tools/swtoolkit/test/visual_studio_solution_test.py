@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Visual studio solution test (MEDIUM test)."""
 
 import sys
@@ -35,30 +34,29 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  base_env = Environment(tools=['component_setup'])
-  base_env.Append(BUILD_COMPONENTS=['SConscript'])
+    base_env = Environment(tools=['component_setup'])
+    base_env.Append(BUILD_COMPONENTS=['SConscript'])
 
-  windows_env = base_env.Clone(
-      tools=['target_platform_windows', 'visual_studio_solution'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Windows build',
-  )
-  windows_env.Append(BUILD_GROUPS=['default'])
+    windows_env = base_env.Clone(
+        tools=['target_platform_windows', 'visual_studio_solution'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Windows build', )
+    windows_env.Append(BUILD_GROUPS=['default'])
 
-  BuildComponents([windows_env])
+    BuildComponents([windows_env])
 
-  # Solution and target projects
-  s = windows_env.Solution('test_sln', [windows_env])
-  windows_env.Alias('solution', s)
+    # Solution and target projects
+    s = windows_env.Solution('test_sln', [windows_env])
+    windows_env.Alias('solution', s)
 
 
 sconscript_contents = """
@@ -91,30 +89,32 @@ Adding 'test_sln - dbg|Win32' to 'test_sln.sln'
 scons: done building targets.
 """
 
+
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  # Test only applies to Windows
-  if sys.platform not in ('win32', 'cygwin'):
-    test.skip_test('This test only applies to windows.\n')
-    return
+    # Test only applies to Windows
+    if sys.platform not in ('win32', 'cygwin'):
+        test.skip_test('This test only applies to windows.\n')
+        return
 
-  base = 'hello/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.write(base + 'SConscript', sconscript_contents)
-  test.write(base + 'hello.c', hello_c_contents)
-  test.write(base + 'foo.c', foo_c_contents)
-  test.subdir(base + 'bar')
-  test.write(base + 'bar/bar.cpp', foo_c_contents)
+    base = 'hello/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.write(base + 'SConscript', sconscript_contents)
+    test.write(base + 'hello.c', hello_c_contents)
+    test.write(base + 'foo.c', foo_c_contents)
+    test.subdir(base + 'bar')
+    test.write(base + 'bar/bar.cpp', foo_c_contents)
 
-  test.run(chdir=base, options='solution', stdout=expect_stdout)
+    test.run(chdir=base, options='solution', stdout=expect_stdout)
 
-  # Check that all solutions and projects were generated.
-  test.must_exist(base + 'test_sln.sln')
-  test.must_exist(base + 'test_sln.vcproj')
+    # Check that all solutions and projects were generated.
+    test.must_exist(base + 'test_sln.sln')
+    test.must_exist(base + 'test_sln.vcproj')
 
-  test.pass_test()
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

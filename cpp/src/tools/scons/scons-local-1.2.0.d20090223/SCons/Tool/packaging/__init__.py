@@ -34,10 +34,13 @@ from SCons.Errors import *
 from SCons.Util import is_List, make_path_relative
 from SCons.Warnings import warn, Warning
 
-import os, imp
+import os
+import imp
 import SCons.Defaults
 
-__all__ = [ 'src_targz', 'src_tarbz2', 'src_zip', 'tarbz2', 'targz', 'zip', 'rpm', 'msi', 'ipk' ]
+__all__ = ['src_targz', 'src_tarbz2', 'src_zip', 'tarbz2', 'targz', 'zip',
+           'rpm', 'msi', 'ipk']
+
 
 #
 # Utility and Builder function
@@ -49,10 +52,10 @@ def Tag(env, target, source, *more_tags, **kw_tags):
     TODO: FIXME
     """
     if not target:
-        target=source
-        first_tag=None
+        target = source
+        first_tag = None
     else:
-        first_tag=source
+        first_tag = source
 
     if first_tag:
         kw_tags[first_tag[0]] = ''
@@ -65,23 +68,24 @@ def Tag(env, target, source, *more_tags, **kw_tags):
         kw_tags[x] = ''
 
     if not SCons.Util.is_List(target):
-        target=[target]
+        target = [target]
     else:
         # hmm, sometimes the target list, is a list of a list
         # make sure it is flattened prior to processing.
         # TODO: perhaps some bug ?!?
-        target=env.Flatten(target)
+        target = env.Flatten(target)
 
     for t in target:
-        for (k,v) in kw_tags.items():
+        for (k, v) in kw_tags.items():
             # all file tags have to start with PACKAGING_, so we can later
             # differentiate between "normal" object attributes and the
             # packaging attributes. As the user should not be bothered with
             # that, the prefix will be added here if missing.
-            #if not k.startswith('PACKAGING_'):
+            # if not k.startswith('PACKAGING_'):
             if k[:10] != 'PACKAGING_':
-                k='PACKAGING_'+k
+                k = 'PACKAGING_' + k
             setattr(t, k, v)
+
 
 def Package(env, target=None, source=None, **kw):
     """ Entry point for the package tool.
@@ -90,15 +94,17 @@ def Package(env, target=None, source=None, **kw):
     if not source:
         source = env.FindInstalledFiles()
 
-    if len(source)==0:
+    if len(source) == 0:
         raise UserError, "No source for Package() given"
 
     # decide which types of packages shall be built. Can be defined through
     # four mechanisms: command line argument, keyword argument,
     # environment argument and default selection( zip or tar.gz ) in that
     # order.
-    try: kw['PACKAGETYPE']=env['PACKAGETYPE']
-    except KeyError: pass
+    try:
+        kw['PACKAGETYPE'] = env['PACKAGETYPE']
+    except KeyError:
+        pass
 
     if not kw.get('PACKAGETYPE'):
         from SCons.Script import GetOption
@@ -106,87 +112,90 @@ def Package(env, target=None, source=None, **kw):
 
     if kw['PACKAGETYPE'] == None:
         if env['BUILDERS'].has_key('Tar'):
-            kw['PACKAGETYPE']='targz'
+            kw['PACKAGETYPE'] = 'targz'
         elif env['BUILDERS'].has_key('Zip'):
-            kw['PACKAGETYPE']='zip'
+            kw['PACKAGETYPE'] = 'zip'
         else:
             raise UserError, "No type for Package() given"
 
-    PACKAGETYPE=kw['PACKAGETYPE']
+    PACKAGETYPE = kw['PACKAGETYPE']
     if not is_List(PACKAGETYPE):
-        PACKAGETYPE=string.split(PACKAGETYPE, ',')
+        PACKAGETYPE = string.split(PACKAGETYPE, ',')
 
     # load the needed packagers.
     def load_packager(type):
         try:
-            file,path,desc=imp.find_module(type, __path__)
+            file, path, desc = imp.find_module(type, __path__)
             return imp.load_module(type, file, path, desc)
         except ImportError, e:
-            raise EnvironmentError("packager %s not available: %s"%(type,str(e)))
+            raise EnvironmentError("packager %s not available: %s" %
+                                   (type, str(e)))
 
-    packagers=map(load_packager, PACKAGETYPE)
+    packagers = map(load_packager, PACKAGETYPE)
 
     # set up targets and the PACKAGEROOT
     try:
         # fill up the target list with a default target name until the PACKAGETYPE
         # list is of the same size as the target list.
-        if not target: target = []
+        if not target:
+            target = []
 
-        size_diff      = len(PACKAGETYPE)-len(target)
-        default_name   = "%(NAME)s-%(VERSION)s"
+        size_diff = len(PACKAGETYPE) - len(target)
+        default_name = "%(NAME)s-%(VERSION)s"
 
-        if size_diff>0:
-            default_target = default_name%kw
-            target.extend( [default_target]*size_diff )
+        if size_diff > 0:
+            default_target = default_name % kw
+            target.extend([default_target] * size_diff)
 
         if not kw.has_key('PACKAGEROOT'):
-            kw['PACKAGEROOT'] = default_name%kw
+            kw['PACKAGEROOT'] = default_name % kw
 
     except KeyError, e:
-        raise SCons.Errors.UserError( "Missing Packagetag '%s'"%e.args[0] )
+        raise SCons.Errors.UserError("Missing Packagetag '%s'" % e.args[0])
 
     # setup the source files
-    source=env.arg2nodes(source, env.fs.Entry)
+    source = env.arg2nodes(source, env.fs.Entry)
 
     # call the packager to setup the dependencies.
-    targets=[]
+    targets = []
     try:
         for packager in packagers:
-            t=[target.pop(0)]
-            t=apply(packager.package, [env,t,source], kw)
+            t = [target.pop(0)]
+            t = apply(packager.package, [env, t, source], kw)
             targets.extend(t)
 
-        assert( len(target) == 0 )
+        assert (len(target) == 0)
 
     except KeyError, e:
-        raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
-                                      % (e.args[0],packager.__name__) )
+        raise SCons.Errors.UserError("Missing Packagetag '%s' for %s packager"
+                                     % (e.args[0], packager.__name__))
     except TypeError, e:
         # this exception means that a needed argument for the packager is
         # missing. As our packagers get their "tags" as named function
         # arguments we need to find out which one is missing.
         from inspect import getargspec
-        args,varargs,varkw,defaults=getargspec(packager.package)
-        if defaults!=None:
-            args=args[:-len(defaults)] # throw away arguments with default values
+        args, varargs, varkw, defaults = getargspec(packager.package)
+        if defaults != None:
+            args = args[:-len(defaults)
+                        ]  # throw away arguments with default values
         args.remove('env')
         args.remove('target')
         args.remove('source')
         # now remove any args for which we have a value in kw.
         #args=[x for x in args if not kw.has_key(x)]
-        args=filter(lambda x, kw=kw: not kw.has_key(x), args)
+        args = filter(lambda x, kw=kw: not kw.has_key(x), args)
 
-        if len(args)==0:
-            raise # must be a different error, so reraise
-        elif len(args)==1:
-            raise SCons.Errors.UserError( "Missing Packagetag '%s' for %s packager"\
-                                          % (args[0],packager.__name__) )
+        if len(args) == 0:
+            raise  # must be a different error, so reraise
+        elif len(args) == 1:
+            raise SCons.Errors.UserError("Missing Packagetag '%s' for %s packager"
+                                         % (args[0], packager.__name__))
         else:
-            raise SCons.Errors.UserError( "Missing Packagetags '%s' for %s packager"\
-                                          % (", ".join(args),packager.__name__) )
+            raise SCons.Errors.UserError("Missing Packagetags '%s' for %s packager"
+                                         % (", ".join(args), packager.__name__))
 
-    target=env.arg2nodes(target, env.fs.Entry)
-    targets.extend(env.Alias( 'package', targets ))
+    target = env.arg2nodes(target, env.fs.Entry)
+    targets.extend(env.Alias('package', targets))
     return targets
 
 #
@@ -194,6 +203,7 @@ def Package(env, target=None, source=None, **kw):
 #
 
 added = None
+
 
 def generate(env):
     from SCons.Script import AddOption
@@ -214,32 +224,34 @@ def generate(env):
         env['BUILDERS']['Package'] = Package
         env['BUILDERS']['Tag'] = Tag
 
+
 def exists(env):
     return 1
+
 
 # XXX
 def options(opts):
     opts.AddVariables(
-        EnumVariable( 'PACKAGETYPE',
-                     'the type of package to create.',
-                     None, allowed_values=map( str, __all__ ),
-                     ignorecase=2
-                  )
-    )
+        EnumVariable('PACKAGETYPE', 'the type of package to create.', None,
+                     allowed_values=map(str, __all__),
+                     ignorecase=2))
 
 #
 # Internal utility functions
 #
 
+
 def copy_attr(f1, f2):
     """ copies the special packaging file attributes from f1 to f2.
     """
-    #pattrs = [x for x in dir(f1) if not hasattr(f2, x) and\
+    # pattrs = [x for x in dir(f1) if not hasattr(f2, x) and\
     #                                x.startswith('PACKAGING_')]
     copyit = lambda x, f2=f2: not hasattr(f2, x) and x[:10] == 'PACKAGING_'
     pattrs = filter(copyit, dir(f1))
     for attr in pattrs:
         setattr(f2, attr, getattr(f1, attr))
+
+
 def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
     """ Uses the CopyAs builder to copy all source files to the directory given
     in pkgroot.
@@ -254,28 +266,32 @@ def putintopackageroot(target, source, env, pkgroot, honor_install_location=1):
     All attributes of the source file will be copied to the new file.
     """
     # make sure the packageroot is a Dir object.
-    if SCons.Util.is_String(pkgroot):  pkgroot=env.Dir(pkgroot)
-    if not SCons.Util.is_List(source): source=[source]
+    if SCons.Util.is_String(pkgroot):
+        pkgroot = env.Dir(pkgroot)
+    if not SCons.Util.is_List(source):
+        source = [source]
 
     new_source = []
     for file in source:
-        if SCons.Util.is_String(file): file = env.File(file)
+        if SCons.Util.is_String(file):
+            file = env.File(file)
 
         if file.is_under(pkgroot):
             new_source.append(file)
         else:
             if hasattr(file, 'PACKAGING_INSTALL_LOCATION') and\
-                       honor_install_location:
-                new_name=make_path_relative(file.PACKAGING_INSTALL_LOCATION)
+                    honor_install_location:
+                new_name = make_path_relative(file.PACKAGING_INSTALL_LOCATION)
             else:
-                new_name=make_path_relative(file.get_path())
+                new_name = make_path_relative(file.get_path())
 
-            new_file=pkgroot.File(new_name)
-            new_file=env.CopyAs(new_file, file)[0]
+            new_file = pkgroot.File(new_name)
+            new_file = env.CopyAs(new_file, file)[0]
             copy_attr(file, new_file)
             new_source.append(new_file)
 
     return (target, new_source)
+
 
 def stripinstallbuilder(target, source, env):
     """ strips the install builder action from the source list and stores
@@ -285,17 +301,18 @@ def stripinstallbuilder(target, source, env):
 
     It also warns about files which have no install builder attached.
     """
+
     def has_no_install_location(file):
-        return not (file.has_builder() and\
-            hasattr(file.builder, 'name') and\
-            (file.builder.name=="InstallBuilder" or\
-             file.builder.name=="InstallAsBuilder"))
+        return not (file.has_builder() and
+                    hasattr(file.builder, 'name') and
+                    (file.builder.name == "InstallBuilder" or
+                     file.builder.name == "InstallAsBuilder"))
 
     if len(filter(has_no_install_location, source)):
         warn(Warning, "there are files to package which have no\
         InstallBuilder attached, this might lead to irreproducible packages")
 
-    n_source=[]
+    n_source = []
     for s in source:
         if has_no_install_location(s):
             n_source.append(s)

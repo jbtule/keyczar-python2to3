@@ -22,7 +22,6 @@
 #
 
 __revision__ = "src/engine/SCons/Tool/mssdk.py 4043 2009/02/23 09:06:45 scons"
-
 """engine.SCons.Tool.mssdk
 
 Tool-specific initialization for Microsoft SDKs, both Platform
@@ -34,9 +33,10 @@ selection method.
 """
 
 from SCons.Tool.MSCommon.sdk import detect_sdk, \
-                                    set_default_sdk, \
-                                    set_sdk_by_directory, \
-                                    set_sdk_by_version
+    set_default_sdk, \
+    set_sdk_by_directory, \
+    set_sdk_by_version
+
 
 def generate(env):
     """Add construction variables for an MS SDK to an Environment."""
@@ -51,8 +51,9 @@ def generate(env):
     if env.has_key('MSVS_VERSION'):
         set_default_sdk(env, env['MSVS_VERSION'])
 
-    #print "No MSVS_VERSION: this is likely to be a bug"
+    # print "No MSVS_VERSION: this is likely to be a bug"
     return
+
 
 def exists(env):
     return detect_sdk()

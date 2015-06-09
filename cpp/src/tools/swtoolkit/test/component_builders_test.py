@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Component builders test for software construction tookit (LARGE test)."""
 
 import TestFramework
@@ -36,67 +35,64 @@ import sys
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  base_env = Environment(tools=['component_setup'])
-  base_env.Append(BUILD_COMPONENTS=['SConscript'])
+    base_env = Environment(tools=['component_setup'])
+    base_env.Append(BUILD_COMPONENTS=['SConscript'])
 
-  windows_env = base_env.Clone(
-      tools=['target_platform_windows'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Windows build',
-  )
-  windows_env.Append(BUILD_GROUPS=['default'])
+    windows_env = base_env.Clone(
+        tools=['target_platform_windows'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Windows build', )
+    windows_env.Append(BUILD_GROUPS=['default'])
 
-  mac_env = base_env.Clone(
-      tools=['target_platform_mac'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Mac build',
-  )
-  mac_env.Append(BUILD_GROUPS=['default'])
+    mac_env = base_env.Clone(
+        tools=['target_platform_mac'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Mac build', )
+    mac_env.Append(BUILD_GROUPS=['default'])
 
-  linux_env = base_env.Clone(
-      tools=['target_platform_linux'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Linux build',
-  )
-  linux_env.Append(BUILD_GROUPS=['default'])
+    linux_env = base_env.Clone(
+        tools=['target_platform_linux'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Linux build', )
+    linux_env.Append(BUILD_GROUPS=['default'])
 
-  BuildComponents([windows_env, mac_env, linux_env])
+    BuildComponents([windows_env, mac_env, linux_env])
 
 
 def TestSConscript(scons_globals):
-  """Test SConscript file.
+    """Test SConscript file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  scons_globals['Import']('env')
-  env = scons_globals['env']
+    # Get globals from SCons
+    scons_globals['Import']('env')
+    env = scons_globals['env']
 
-  # Build an object
-  a_obj = env.ComponentObject('a.cpp')
+    # Build an object
+    a_obj = env.ComponentObject('a.cpp')
 
-  # Build a static library
-  env.ComponentLibrary('b', 'b.cpp', COMPONENT_STATIC=True)
+    # Build a static library
+    env.ComponentLibrary('b', 'b.cpp', COMPONENT_STATIC=True)
 
-  # Build a shared library
-  env.ComponentLibrary('g', 'g.cpp', COMPONENT_STATIC=False)
+    # Build a shared library
+    env.ComponentLibrary('g', 'g.cpp', COMPONENT_STATIC=False)
 
-  # Build a program
-  env.Append(LIBS=['b', 'g'])
-  env.ComponentProgram('d', ['d.cpp', a_obj])
+    # Build a program
+    env.Append(LIBS=['b', 'g'])
+    env.ComponentProgram('d', ['d.cpp', a_obj])
 
-  # Build a test program
-  env.ComponentTestProgram('e', ['e.cpp', a_obj])
+    # Build a test program
+    env.ComponentTestProgram('e', ['e.cpp', a_obj])
 
 
 abc_h_contents = """
@@ -171,44 +167,46 @@ int main(void) {
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  # TODO: get this to work on windows and linux under coverage.
-  if (os.environ.get('COVERAGE_HOOK') and
-      sys.platform in ['win32', 'cygwin', 'linux', 'linux2', 'posix']):
-    msg = 'Platform %s cannot run this test during coverage currently.\n'
-    test.skip_test(msg % repr(sys.platform))
-    return
+    # TODO: get this to work on windows and linux under coverage.
+    if (os.environ.get('COVERAGE_HOOK') and
+            sys.platform in ['win32', 'cygwin', 'linux', 'linux2', 'posix']):
+        msg = 'Platform %s cannot run this test during coverage currently.\n'
+        test.skip_test(msg % repr(sys.platform))
+        return
 
-  test.subdir('test')
+    test.subdir('test')
 
-  base = 'test/'
+    base = 'test/'
 
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.WriteSConscript(base + 'SConscript', TestSConscript)
-  test.write(base + 'abc.h', abc_h_contents)
-  test.write(base + 'a.cpp', a_cpp_contents)
-  test.write(base + 'b.cpp', b_cpp_contents)
-  test.write(base + 'g.cpp', g_cpp_contents)
-  test.write(base + 'd.cpp', d_cpp_contents)
-  test.write(base + 'e.cpp', e_cpp_contents)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.WriteSConscript(base + 'SConscript', TestSConscript)
+    test.write(base + 'abc.h', abc_h_contents)
+    test.write(base + 'a.cpp', a_cpp_contents)
+    test.write(base + 'b.cpp', b_cpp_contents)
+    test.write(base + 'g.cpp', g_cpp_contents)
+    test.write(base + 'd.cpp', d_cpp_contents)
+    test.write(base + 'e.cpp', e_cpp_contents)
 
-  test.run(chdir=base, options='d')
-  test.must_exist(base + 'scons-out/dbg/staging/d' + TestFramework.exe_suffix)
-  test.must_exist(base + 'scons-out/dbg/staging/%sg%s' % (
-      TestFramework.dll_prefix, TestFramework.dll_suffix))
-  test.run(program=test.workpath(base + 'scons-out/dbg/staging/d' +
-                                 TestFramework.exe_suffix),
-           stdout='TestD\nTestA\nTestB\nTestC\n')
+    test.run(chdir=base, options='d')
+    test.must_exist(
+        base + 'scons-out/dbg/staging/d' + TestFramework.exe_suffix)
+    test.must_exist(base + 'scons-out/dbg/staging/%sg%s' % (
+        TestFramework.dll_prefix, TestFramework.dll_suffix))
+    test.run(program=test.workpath(base + 'scons-out/dbg/staging/d' +
+                                   TestFramework.exe_suffix),
+             stdout='TestD\nTestA\nTestB\nTestC\n')
 
-  test.run(chdir=base, options='run_all_tests')
-  test.must_exist(base + 'scons-out/dbg/tests/e' + TestFramework.exe_suffix)
-  test.must_exist(base + 'scons-out/dbg/tests/%sg%s' % (
-      TestFramework.dll_prefix, TestFramework.dll_suffix))
-  test.must_match(base + 'scons-out/dbg/test_output/e.out.txt',
-                  'TestE\nTestA\nTestB\nTestC\n')
+    test.run(chdir=base, options='run_all_tests')
+    test.must_exist(base + 'scons-out/dbg/tests/e' + TestFramework.exe_suffix)
+    test.must_exist(base + 'scons-out/dbg/tests/%sg%s' % (
+        TestFramework.dll_prefix, TestFramework.dll_suffix))
+    test.must_match(base + 'scons-out/dbg/test_output/e.out.txt',
+                    'TestE\nTestA\nTestB\nTestC\n')
 
-  test.pass_test()
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

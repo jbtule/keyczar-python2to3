@@ -5,7 +5,7 @@ The targz SRC packager.
 
 #
 # Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -29,6 +29,7 @@ The targz SRC packager.
 __revision__ = "src/engine/SCons/Tool/packaging/targz.py 4043 2009/02/23 09:06:45 scons"
 
 from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
+
 
 def package(env, target, source, PACKAGEROOT, **kw):
     bld = env['BUILDERS']['Tar']

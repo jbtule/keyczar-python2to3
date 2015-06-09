@@ -38,9 +38,11 @@ import SCons.Tool.intelc
 # This has been completely superceded by intelc.py, which can
 # handle both Windows and Linux versions.
 
+
 def generate(*args, **kw):
     """Add Builders and construction variables for icl to an Environment."""
     return apply(SCons.Tool.intelc.generate, args, kw)
+
 
 def exists(*args, **kw):
     return apply(SCons.Tool.intelc.exists, args, kw)

@@ -41,17 +41,17 @@ import SCons.Warnings
 from BoolVariable import BoolVariable  # okay
 from EnumVariable import EnumVariable  # okay
 from ListVariable import ListVariable  # naja
-from PackageVariable import PackageVariable # naja
-from PathVariable import PathVariable # okay
+from PackageVariable import PackageVariable  # naja
+from PathVariable import PathVariable  # okay
 
 
 class Variables:
-    instance=None
-
+    instance = None
     """
     Holds all the options, updates the environment with the variables,
     and renders the help text.
     """
+
     def __init__(self, files=[], args={}, is_global=1):
         """
         files - [optional] List of option configuration files to load
@@ -62,7 +62,7 @@ class Variables:
         self.args = args
         if not SCons.Util.is_List(files):
             if files:
-                files = [ files ]
+                files = [files]
             else:
                 files = []
         self.files = files
@@ -70,12 +70,16 @@ class Variables:
 
         # create the singleton instance
         if is_global:
-            self=Variables.instance
+            self = Variables.instance
 
             if not Variables.instance:
-                Variables.instance=self
+                Variables.instance = self
 
-    def _do_add(self, key, help="", default=None, validator=None, converter=None):
+    def _do_add(self, key,
+                help="",
+                default=None,
+                validator=None,
+                converter=None):
         class Variable:
             pass
 
@@ -84,11 +88,11 @@ class Variables:
         # if we get a list or a tuple, we take the first element as the
         # option key and store the remaining in aliases.
         if SCons.Util.is_List(key) or SCons.Util.is_Tuple(key):
-          option.key     = key[0]
-          option.aliases = key[1:]
+            option.key = key[0]
+            option.aliases = key[1:]
         else:
-          option.key     = key
-          option.aliases = [ key ]
+            option.key = key
+            option.aliases = [key]
         option.help = help
         option.default = default
         option.validator = validator
@@ -102,7 +106,11 @@ class Variables:
         """
         return map(lambda o: o.key, self.options)
 
-    def Add(self, key, help="", default=None, validator=None, converter=None, **kw):
+    def Add(self, key,
+            help="",
+            default=None,
+            validator=None,
+            converter=None, **kw):
         """
         Add an option.
 
@@ -121,7 +129,8 @@ class Variables:
 
         if not SCons.Util.is_String(key) or \
            not SCons.Environment.is_valid_construction_var(key):
-            raise SCons.Errors.UserError, "Illegal Variables.Add() key `%s'" % str(key)
+            raise SCons.Errors.UserError, "Illegal Variables.Add() key `%s'" % str(
+                key)
 
         self._do_add(key, help, default, validator, converter)
 
@@ -142,7 +151,6 @@ class Variables:
         """
         for o in optlist:
             apply(self._do_add, o)
-
 
     def Update(self, env, args=None):
         """
@@ -179,7 +187,7 @@ class Variables:
         for arg, value in args.items():
             added = False
             for option in self.options:
-                if arg in option.aliases + [ option.key ]:
+                if arg in option.aliases + [option.key]:
                     values[option.key] = value
                     added = True
             if not added:
@@ -196,20 +204,21 @@ class Variables:
         # Call the convert functions:
         for option in self.options:
             if option.converter and values.has_key(option.key):
-                value = env.subst('${%s}'%option.key)
+                value = env.subst('${%s}' % option.key)
                 try:
                     try:
                         env[option.key] = option.converter(value)
                     except TypeError:
                         env[option.key] = option.converter(value, env)
                 except ValueError, x:
-                    raise SCons.Errors.UserError, 'Error converting option: %s\n%s'%(option.key, x)
-
+                    raise SCons.Errors.UserError, 'Error converting option: %s\n%s' % (
+                        option.key, x)
 
         # Finally validate the values:
         for option in self.options:
             if option.validator and values.has_key(option.key):
-                option.validator(option.key, env.subst('${%s}'%option.key), env)
+                option.validator(option.key, env.subst('${%s}' % option.key),
+                                 env)
 
     def UnknownVariables(self):
         """
@@ -253,11 +262,13 @@ class Variables:
                         else:
                             value = prepare()
 
-                        defaultVal = env.subst(SCons.Util.to_String(option.default))
+                        defaultVal = env.subst(
+                            SCons.Util.to_String(option.default))
                         if option.converter:
                             defaultVal = option.converter(defaultVal)
 
-                        if str(env.subst('${%s}' % option.key)) != str(defaultVal):
+                        if str(env.subst('${%s}' %
+                                         option.key)) != str(defaultVal):
                             fh.write('%s = %s\n' % (option.key, repr(value)))
                     except KeyError:
                         pass
@@ -265,7 +276,8 @@ class Variables:
                 fh.close()
 
         except IOError, x:
-            raise SCons.Errors.UserError, 'Error writing options to file: %s\n%s' % (filename, x)
+            raise SCons.Errors.UserError, 'Error writing options to file: %s\n%s' % (
+                filename, x)
 
     def GenerateHelpText(self, env, sort=None):
         """
@@ -277,7 +289,7 @@ class Variables:
 
         if sort:
             options = self.options[:]
-            options.sort(lambda x,y,func=sort: func(x.key,y.key))
+            options.sort(lambda x, y, func=sort: func(x.key, y.key))
         else:
             options = self.options
 
@@ -286,18 +298,21 @@ class Variables:
                 actual = env.subst('${%s}' % opt.key)
             else:
                 actual = None
-            return self.FormatVariableHelpText(env, opt.key, opt.help, opt.default, actual, opt.aliases)
+            return self.FormatVariableHelpText(
+                env, opt.key, opt.help, opt.default, actual, opt.aliases)
+
         lines = filter(None, map(format, options))
 
         return string.join(lines, '')
 
-    format  = '\n%s: %s\n    default: %s\n    actual: %s\n'
+    format = '\n%s: %s\n    default: %s\n    actual: %s\n'
     format_ = '\n%s: %s\n    default: %s\n    actual: %s\n    aliases: %s\n'
 
-    def FormatVariableHelpText(self, env, key, help, default, actual, aliases=[]):
+    def FormatVariableHelpText(self, env, key, help, default, actual,
+                               aliases=[]):
         # Don't display the key name itself as an alias.
         aliases = filter(lambda a, k=key: a != k, aliases)
-        if len(aliases)==0:
+        if len(aliases) == 0:
             return self.format % (key, help, default, actual)
         else:
             return self.format_ % (key, help, default, actual, aliases)

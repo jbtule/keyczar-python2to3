@@ -9,11 +9,12 @@ import keyczar
 
 PLAINTEXT = 'Secret message'
 
+
 def RunCommands(keyset_type, keyset_password, rsa_path, rsa_pub_path):
     kt = keyczar.KeyczarTool(keyset_type)
     # Creates a RSA key set for encryption
-    kt.CmdCreate(rsa_path, keyczar.KeyPurpose.DECRYPT_AND_ENCRYPT,
-                 "MyRSATest", keyczar.KeyczarTool.RSA)
+    kt.CmdCreate(rsa_path, keyczar.KeyPurpose.DECRYPT_AND_ENCRYPT, "MyRSATest",
+                 keyczar.KeyczarTool.RSA)
     # Adds a first key
     kt.CmdAddKey(rsa_path, keyczar.KeyStatus.ACTIVE, 0,
                  keyczar.KeyczarTool.PBE, keyset_password)
@@ -26,6 +27,7 @@ def RunCommands(keyset_type, keyset_password, rsa_path, rsa_pub_path):
     kt.CmdPubKey(rsa_path, rsa_pub_path, keyczar.KeyczarTool.PBE,
                  keyset_password)
 
+
 def EncryptMessage(rsa_pub_path):
     encrypter = keyczar.Encrypter.Read(rsa_pub_path)
     ciphertext = encrypter.Encrypt(PLAINTEXT)
@@ -33,11 +35,13 @@ def EncryptMessage(rsa_pub_path):
     print 'Ciphertext (base64w):', ciphertext
     return ciphertext
 
+
 def DecryptMessage(keyset_type, keyset_password, rsa_path, ciphertext):
     reader = keyczar.KeysetPBEJSONFileReader(rsa_path, keyset_password)
     crypter = keyczar.Crypter.Read(reader)
     plaintext = crypter.Decrypt(ciphertext)
     return plaintext
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
@@ -62,4 +66,3 @@ if __name__ == '__main__':
                                ciphertext)
 
     assert PLAINTEXT == plaintext, 'mismatch plaintext / decrypted plaintext'
-

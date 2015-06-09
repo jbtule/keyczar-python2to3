@@ -56,16 +56,18 @@ for dir in dirs:
         ccLinker = linker
         break
 
+
 def generate(env):
     """
     Add Builders and construction variables for Visual Age linker to
     an Environment.
     """
     link.generate(env)
-    
-    env['LINKFLAGS']   = SCons.Util.CLVar('-Wl,+s -Wl,+vnocompatwarnings')
+
+    env['LINKFLAGS'] = SCons.Util.CLVar('-Wl,+s -Wl,+vnocompatwarnings')
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -b')
     env['SHLIBSUFFIX'] = '.sl'
+
 
 def exists(env):
     return ccLinker

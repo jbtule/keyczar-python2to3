@@ -27,9 +27,7 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Integration test for usage_log.  These are MEDIUM tests."""
-
 
 import TestFramework
 
@@ -37,40 +35,37 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  base_env = Environment(tools=['component_setup'])
-  base_env.Append(BUILD_COMPONENTS=['SConscript'])
+    base_env = Environment(tools=['component_setup'])
+    base_env.Append(BUILD_COMPONENTS=['SConscript'])
 
-  windows_env = base_env.Clone(
-      tools=['target_platform_windows'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Windows build',
-  )
-  windows_env.Append(BUILD_GROUPS=['default'])
+    windows_env = base_env.Clone(
+        tools=['target_platform_windows'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Windows build', )
+    windows_env.Append(BUILD_GROUPS=['default'])
 
-  mac_env = base_env.Clone(
-      tools=['target_platform_mac'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Mac build',
-  )
-  mac_env.Append(BUILD_GROUPS=['default'])
+    mac_env = base_env.Clone(
+        tools=['target_platform_mac'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Mac build', )
+    mac_env.Append(BUILD_GROUPS=['default'])
 
-  linux_env = base_env.Clone(
-      tools=['target_platform_linux'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Linux build',
-  )
-  linux_env.Append(BUILD_GROUPS=['default'])
+    linux_env = base_env.Clone(
+        tools=['target_platform_linux'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Linux build', )
+    linux_env.Append(BUILD_GROUPS=['default'])
 
-  BuildComponents([windows_env, mac_env, linux_env])
+    BuildComponents([windows_env, mac_env, linux_env])
 
 
 sconscript_contents = """
@@ -78,7 +73,6 @@ Import('env')
 
 env.Command('$MAIN_DIR/marker', [], Touch('$TARGET'))
 """
-
 
 expect_stdout = """scons: Reading SConscript files ...
 scons: done reading SConscript files.
@@ -91,16 +85,18 @@ Done writing log.
 
 
 def main():
-  test = TestFramework.TestFramework()
-  base = 'usage_log_int/'
-  test.subdir(base)
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.write(base + 'SConscript', sconscript_contents)
-  test.run(chdir=base, options='--usage-log=log.xml marker',
-           stdout=expect_stdout)
+    test = TestFramework.TestFramework()
+    base = 'usage_log_int/'
+    test.subdir(base)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.write(base + 'SConscript', sconscript_contents)
+    test.run(chdir=base,
+             options='--usage-log=log.xml marker',
+             stdout=expect_stdout)
 
-  test.must_exist(base + 'log.xml')
-  test.pass_test()
+    test.must_exist(base + 'log.xml')
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

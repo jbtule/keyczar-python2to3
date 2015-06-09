@@ -71,6 +71,7 @@ except NameError:
             if not element:
                 return False
         return True
+
     __builtin__.all = all
     all = all
 
@@ -86,6 +87,7 @@ except NameError:
             if element:
                 return True
         return False
+
     __builtin__.any = any
     any = any
 
@@ -101,6 +103,7 @@ except NameError:
         worth the trouble.
         """
         return not not value
+
     __builtin__.bool = bool
     bool = bool
 
@@ -117,6 +120,7 @@ except NameError:
             d[k] = v
         d.update(kwargs)
         return d
+
     __builtin__.dict = dict
 
 try:
@@ -160,11 +164,10 @@ except NameError:
         for i in xrange(min(map(len, lists))):
             result.append(tuple(map(lambda l, i=i: l[i], lists)))
         return result
+
     __builtin__.zip = zip
 
-
-
-#if sys.version_info[:3] in ((2, 2, 0), (2, 2, 1)):
+# if sys.version_info[:3] in ((2, 2, 0), (2, 2, 1)):
 #    def lstrip(s, c=string.whitespace):
 #        while s and s[0] in c:
 #            s = s[1:]

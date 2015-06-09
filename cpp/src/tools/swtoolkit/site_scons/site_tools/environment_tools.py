@@ -27,23 +27,20 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Set up tools for environments for for software construction toolkit.
 
 This module is a SCons tool which should be include in all environments.  It
 will automatically be included by the component_setup tool.
 """
 
-
 import os
 import SCons
-
 
 #------------------------------------------------------------------------------
 
 
 def FilterOut(self, **kw):
-  """Removes values from existing construction variables in an Environment.
+    """Removes values from existing construction variables in an Environment.
 
   The values to remove should be a list.  For example:
 
@@ -54,29 +51,29 @@ def FilterOut(self, **kw):
     kw: (Any other named arguments are values to remove).
   """
 
-  kw = SCons.Environment.copy_non_reserved_keywords(kw)
-  for key, val in kw.items():
-    envval = self.get(key, None)
-    if envval is None:
-      # No existing variable in the environment, so nothing to delete.
-      continue
+    kw = SCons.Environment.copy_non_reserved_keywords(kw)
+    for key, val in kw.items():
+        envval = self.get(key, None)
+        if envval is None:
+            # No existing variable in the environment, so nothing to delete.
+            continue
 
-    for vremove in val:
-      # Use while not if, so we can handle duplicates.
-      while vremove in envval:
-        envval.remove(vremove)
+        for vremove in val:
+            # Use while not if, so we can handle duplicates.
+            while vremove in envval:
+                envval.remove(vremove)
 
-    self[key] = envval
+        self[key] = envval
 
-    # TODO: SCons.Environment.Append() has much more logic to deal with various
-    # types of values.  We should handle all those cases in here too.  (If
-    # variable is a dict, etc.)
+        # TODO: SCons.Environment.Append() has much more logic to deal with various
+        # types of values.  We should handle all those cases in here too.  (If
+        # variable is a dict, etc.)
 
-#------------------------------------------------------------------------------
+        #------------------------------------------------------------------------------
 
 
 def Overlap(self, values1, values2):
-  """Checks for overlap between the values.
+    """Checks for overlap between the values.
 
   Args:
     self: Environment to use for variable substitution.
@@ -90,15 +87,15 @@ def Overlap(self, values1, values2):
   Converts the values to a set of plain strings via self.SubstList2() before
   comparison, so SCons $ variables are evaluated.
   """
-  set1 = set(self.SubstList2(values1))
-  set2 = set(self.SubstList2(values2))
-  return list(set1.intersection(set2))
+    set1 = set(self.SubstList2(values1))
+    set2 = set(self.SubstList2(values2))
+    return list(set1.intersection(set2))
 
 #------------------------------------------------------------------------------
 
 
 def ApplySConscript(self, sconscript_file):
-  """Applies a SConscript to the current environment.
+    """Applies a SConscript to the current environment.
 
   Args:
     self: Environment to modify.
@@ -131,13 +128,13 @@ def ApplySConscript(self, sconscript_file):
   If you need to export multiple variables to the called SConscript, or return
   variables from it, use the existing SConscript() function.
   """
-  return self.SConscript(sconscript_file, exports={'env': self})
+    return self.SConscript(sconscript_file, exports={'env': self})
 
 #------------------------------------------------------------------------------
 
 
 def BuildSConscript(self, sconscript_file):
-  """Builds a SConscript based on the current environment.
+    """Builds a SConscript based on the current environment.
 
   Args:
     self: Environment to clone and pass to the called SConscript.
@@ -176,25 +173,25 @@ def BuildSConscript(self, sconscript_file):
   If you need to export multiple variables to the called SConscript, or return
   variables from it, use the existing SConscript() function.
   """
-  # Need to look for the source node, since by default SCons will look for the
-  # entry in the variant_dir, which won't exist (and thus won't be a directory
-  # or a file).  This isn't a problem in BuildComponents(), since the variant
-  # dir is only set inside its call to SConscript().
-  if self.Entry(sconscript_file).srcnode().isdir():
-    # Building a subdirectory, so look for build.scons or SConscript
-    script_file = sconscript_file + '/build.scons'
-    if not self.File(script_file).srcnode().exists():
-      script_file = sconscript_file + '/SConscript'
-  else:
-    script_file = sconscript_file
+    # Need to look for the source node, since by default SCons will look for the
+    # entry in the variant_dir, which won't exist (and thus won't be a directory
+    # or a file).  This isn't a problem in BuildComponents(), since the variant
+    # dir is only set inside its call to SConscript().
+    if self.Entry(sconscript_file).srcnode().isdir():
+        # Building a subdirectory, so look for build.scons or SConscript
+        script_file = sconscript_file + '/build.scons'
+        if not self.File(script_file).srcnode().exists():
+            script_file = sconscript_file + '/SConscript'
+    else:
+        script_file = sconscript_file
 
-  self.SConscript(script_file, exports={'env': self.Clone()})
+    self.SConscript(script_file, exports={'env': self.Clone()})
 
 #------------------------------------------------------------------------------
 
 
 def SubstList2(self, *args):
-  """Replacement subst_list designed for flags/parameters, not command lines.
+    """Replacement subst_list designed for flags/parameters, not command lines.
 
   Args:
     self: Environment context.
@@ -222,14 +219,13 @@ def SubstList2(self, *args):
     for x in env['MYPARAMS']:
   which will throw an exception if MYPARAMS isn't defined.
   """
-  return map(str, self.Flatten(self.subst_list(args)))
-
+    return map(str, self.Flatten(self.subst_list(args)))
 
 #------------------------------------------------------------------------------
 
 
 def RelativePath(self, source, target, sep=os.sep, source_is_file=False):
-  """Calculates the relative path from source to target.
+    """Calculates the relative path from source to target.
 
   Args:
     self: Environment context.
@@ -243,42 +239,41 @@ def RelativePath(self, source, target, sep=os.sep, source_is_file=False):
   Returns:
     The relative path from source to target.
   """
-  # Split source and target into list of directories
-  source = self.Entry(str(source))
-  if source_is_file:
-    source = source.dir
-  source = source.abspath.split(os.sep)
-  target = self.Entry(str(target)).abspath.split(os.sep)
-
-  # Handle source and target identical
-  if source == target:
+    # Split source and target into list of directories
+    source = self.Entry(str(source))
     if source_is_file:
-      return source[-1]         # Bare filename
-    else:
-      return '.'                # Directory pointing to itself
+        source = source.dir
+    source = source.abspath.split(os.sep)
+    target = self.Entry(str(target)).abspath.split(os.sep)
 
-  # TODO: Handle UNC paths and drive letters (fine if they're the same, but if
-  # they're different, there IS no relative path)
+    # Handle source and target identical
+    if source == target:
+        if source_is_file:
+            return source[-1]  # Bare filename
+        else:
+            return '.'  # Directory pointing to itself
 
-  # Remove common elements
-  while source and target and source[0] == target[0]:
-    source.pop(0)
-    target.pop(0)
-  # Join the remaining elements
-  return sep.join(['..'] * len(source) + target)
+    # TODO: Handle UNC paths and drive letters (fine if they're the same, but if
+    # they're different, there IS no relative path)
 
+    # Remove common elements
+    while source and target and source[0] == target[0]:
+        source.pop(0)
+        target.pop(0)
+    # Join the remaining elements
+    return sep.join(['..'] * len(source) + target)
 
 #------------------------------------------------------------------------------
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  # Add methods to environment
-  env.AddMethod(ApplySConscript)
-  env.AddMethod(BuildSConscript)
-  env.AddMethod(FilterOut)
-  env.AddMethod(Overlap)
-  env.AddMethod(RelativePath)
-  env.AddMethod(SubstList2)
+    # Add methods to environment
+    env.AddMethod(ApplySConscript)
+    env.AddMethod(BuildSConscript)
+    env.AddMethod(FilterOut)
+    env.AddMethod(Overlap)
+    env.AddMethod(RelativePath)
+    env.AddMethod(SubstList2)

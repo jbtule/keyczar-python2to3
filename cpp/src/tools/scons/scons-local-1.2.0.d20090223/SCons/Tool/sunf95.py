@@ -39,20 +39,22 @@ from FortranCommon import add_all_to_env
 
 compilers = ['sunf95', 'f95']
 
+
 def generate(env):
     """Add Builders and construction variables for sunf95 to an
     Environment."""
     add_all_to_env(env)
 
     fcomp = env.Detect(compilers) or 'f95'
-    env['FORTRAN']  = fcomp
-    env['F95']      = fcomp
+    env['FORTRAN'] = fcomp
+    env['F95'] = fcomp
 
-    env['SHFORTRAN']  = '$FORTRAN'
-    env['SHF95']      = '$F95'
+    env['SHFORTRAN'] = '$FORTRAN'
+    env['SHF95'] = '$F95'
 
     env['SHFORTRANFLAGS'] = SCons.Util.CLVar('$FORTRANFLAGS -KPIC')
     env['SHF95FLAGS'] = SCons.Util.CLVar('$F95FLAGS -KPIC')
+
 
 def exists(env):
     return env.Detect(compilers)

@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for code signing from the signing store.  This is a MEDIUM test."""
 
 import sys
@@ -35,81 +34,77 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  env = Environment(
-      tools=['component_setup', 'target_platform_windows', 'code_signing'],
-      BUILD_TYPE='sign',
-      BUILD_TYPE_DESCRIPTION='Signing build',
-  )
-  env.Append(
-      BUILD_GROUPS=['default'],
-      BUILD_COMPONENTS=['SConscript'],
-  )
-  BuildComponents([env])
+    env = Environment(
+        tools=['component_setup', 'target_platform_windows', 'code_signing'],
+        BUILD_TYPE='sign',
+        BUILD_TYPE_DESCRIPTION='Signing build', )
+    env.Append(BUILD_GROUPS=['default'], BUILD_COMPONENTS=['SConscript'], )
+    BuildComponents([env])
 
 
 def TestSConscript(scons_globals):
-  """Test SConscript file.
+    """Test SConscript file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
-  # Get globals from SCons
-  scons_globals['Import']('env')
-  env = scons_globals['env']
+    # Get globals from SCons
+    scons_globals['Import']('env')
+    env = scons_globals['env']
 
-  # Replace default signing tool with a command to echo the signing command
-  # line to the target.
-  env['SIGNTOOL'] = 'echo >"$TARGET" signtool'
+    # Replace default signing tool with a command to echo the signing command
+    # line to the target.
+    env['SIGNTOOL'] = 'echo >"$TARGET" signtool'
 
-  env.SignedBinary('hello_signed.exe', 'hello_unsigned.exe')
-  env.SignedBinary('hello_signed2.exe', 'hello_unsigned.exe',
-                   CERTIFICATE_STORE='other store')
+    env.SignedBinary('hello_signed.exe', 'hello_unsigned.exe')
+    env.SignedBinary('hello_signed2.exe', 'hello_unsigned.exe',
+                     CERTIFICATE_STORE='other store')
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  platforms_with_signing = ['win32', 'cygwin']
+    platforms_with_signing = ['win32', 'cygwin']
 
-  if sys.platform not in platforms_with_signing:
-    msg = 'Platform %s does not support signing; skipping test.\n'
-    test.skip_test(msg % repr(sys.platform))
-    return 0
+    if sys.platform not in platforms_with_signing:
+        msg = 'Platform %s does not support signing; skipping test.\n'
+        test.skip_test(msg % repr(sys.platform))
+        return 0
 
-  test.subdir('signing')
+    test.subdir('signing')
 
-  base = 'signing/'
-  base_out = base + 'scons-out/sign/obj/'
+    base = 'signing/'
+    base_out = base + 'scons-out/sign/obj/'
 
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.WriteSConscript(base + 'SConscript', TestSConscript)
-  test.write(base + 'hello_unsigned.exe', 'This is a fake exe.')
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.WriteSConscript(base + 'SConscript', TestSConscript)
+    test.write(base + 'hello_unsigned.exe', 'This is a fake exe.')
 
-  # Run SCons.
-  test.run(chdir=base, arguments=['--certificate-name=my cert'])
+    # Run SCons.
+    test.run(chdir=base, arguments=['--certificate-name=my cert'])
 
-  # Check signing from default store.
-  expected_cmd = (' signtool sign /s "my" /n "my cert"'
-                  ' /t "http://timestamp.verisign.com/scripts/timestamp.dll"'
-                  ' "scons-out\sign\obj\hello_signed.exe"\n')
-  test.must_match(base_out + 'hello_signed.exe', expected_cmd)
+    # Check signing from default store.
+    expected_cmd = (' signtool sign /s "my" /n "my cert"'
+                    ' /t "http://timestamp.verisign.com/scripts/timestamp.dll"'
+                    ' "scons-out\sign\obj\hello_signed.exe"\n')
+    test.must_match(base_out + 'hello_signed.exe', expected_cmd)
 
-  # Check signing from alternate store.
-  expected_cmd = (' signtool sign /s "other store" /n "my cert"'
-                  ' /t "http://timestamp.verisign.com/scripts/timestamp.dll"'
-                  ' "scons-out\sign\obj\hello_signed2.exe"\n')
-  test.must_match(base_out + 'hello_signed2.exe', expected_cmd)
+    # Check signing from alternate store.
+    expected_cmd = (' signtool sign /s "other store" /n "my cert"'
+                    ' /t "http://timestamp.verisign.com/scripts/timestamp.dll"'
+                    ' "scons-out\sign\obj\hello_signed2.exe"\n')
+    test.must_match(base_out + 'hello_signed2.exe', expected_cmd)
 
-  test.pass_test()
+    test.pass_test()
 
 
 if __name__ == '__main__':
-  main()
+    main()

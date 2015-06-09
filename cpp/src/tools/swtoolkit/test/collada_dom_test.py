@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for atlmfc_vc80.  These are MEDIUM tests."""
 
 import sys
@@ -35,33 +34,34 @@ import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
-  env = Environment(tools=['component_setup'])
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
+    env = Environment(tools=['component_setup'])
 
-  # Make sure including the tool doesn't cause a failure on any platform
-  # Run hermetically
-  env1 = env.Clone(COLLADA_DIR = '.')
-  env1.Tool('collada_dom')
-  # Run non-hermetically
-  env2 = env.Clone(COLLADA_DIR = None)
-  env2.Tool('collada_dom')
+    # Make sure including the tool doesn't cause a failure on any platform
+    # Run hermetically
+    env1 = env.Clone(COLLADA_DIR='.')
+    env1.Tool('collada_dom')
+    # Run non-hermetically
+    env2 = env.Clone(COLLADA_DIR=None)
+    env2.Tool('collada_dom')
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  base = 'test'
-  test.subdir(base)
-  test.WriteSConscript(base + '/SConstruct', TestSConstruct)
-  test.run(chdir=base)
-  test.pass_test()
+    base = 'test'
+    test.subdir(base)
+    test.WriteSConscript(base + '/SConstruct', TestSConstruct)
+    test.run(chdir=base)
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

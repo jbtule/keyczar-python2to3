@@ -50,12 +50,13 @@ def generate(env):
     env['LIBLINKSUFFIX'] = '.lib'
 
     env['LINK'] = 'mwld'
-    env['LINKCOM'] = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LINKCOM'
+        ] = '$LINK $LINKFLAGS -o $TARGET $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
     env['SHLINK'] = '$LINK'
     env['SHLINKFLAGS'] = '$LINKFLAGS'
-    env['SHLINKCOM']   = shlib_action
-    env['SHLIBEMITTER']= shlib_emitter
+    env['SHLINKCOM'] = shlib_action
+    env['SHLIBEMITTER'] = shlib_emitter
 
 
 def exists(env):
@@ -67,13 +68,16 @@ def shlib_generator(target, source, env, for_signature):
     cmd = ['$SHLINK', '$SHLINKFLAGS', '-shared']
 
     no_import_lib = env.get('no_import_lib', 0)
-    if no_import_lib: cmd.extend('-noimplib')
+    if no_import_lib:
+        cmd.extend('-noimplib')
 
     dll = env.FindIxes(target, 'SHLIBPREFIX', 'SHLIBSUFFIX')
-    if dll: cmd.extend(['-o', dll])
+    if dll:
+        cmd.extend(['-o', dll])
 
     implib = env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX')
-    if implib: cmd.extend(['-implib', implib.get_string(for_signature)])
+    if implib:
+        cmd.extend(['-implib', implib.get_string(for_signature)])
 
     cmd.extend(['$SOURCES', '$_LIBDIRFLAGS', '$_LIBFLAGS'])
 
@@ -85,14 +89,14 @@ def shlib_emitter(target, source, env):
     no_import_lib = env.get('no_import_lib', 0)
 
     if not dll:
-        raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst("$SHLIBSUFFIX")
+        raise SCons.Errors.UserError, "A shared library should have exactly one target with the suffix: %s" % env.subst(
+            "$SHLIBSUFFIX")
 
     if not no_import_lib and \
        not env.FindIxes(target, 'LIBPREFIX', 'LIBSUFFIX'):
 
         # Append an import library to the list of targets.
-        target.append(env.ReplaceIxes(dll,
-                                      'SHLIBPREFIX', 'SHLIBSUFFIX',
+        target.append(env.ReplaceIxes(dll, 'SHLIBPREFIX', 'SHLIBSUFFIX',
                                       'LIBPREFIX', 'LIBSUFFIX'))
 
     return target, source

@@ -27,16 +27,14 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Input gathering tool for SCons."""
-
 
 import re
 import SCons.Script
 
 
 def GatherInputs(env, target, groups=['.*'], exclude_pattern=None):
-  """Find all (non-generated) input files used for a target.
+    """Find all (non-generated) input files used for a target.
 
   Args:
     target: a target node to find source files for
@@ -53,69 +51,70 @@ def GatherInputs(env, target, groups=['.*'], exclude_pattern=None):
        [['bob.c', 'jim.c'], ['bob.h', 'jim.h']]
   """
 
-  # Compile exclude pattern if any
-  if exclude_pattern:
-    exclude_pattern = re.compile(exclude_pattern)
+    # Compile exclude pattern if any
+    if exclude_pattern:
+        exclude_pattern = re.compile(exclude_pattern)
 
-  def _FindSources(ptrns, tgt, all):
-    """Internal Recursive function to find all pattern matches."""
-    # Recursively process lists
-    if SCons.Util.is_List(tgt):
-      for t in tgt:
-        _FindSources(ptrns, t, all)
-    else:
-      # Get key to use for tracking whether we've seen this node
-      target_abspath = None
-      if hasattr(tgt, 'abspath'):
-        # Use target's absolute path as the key
-        target_abspath = tgt.abspath
-        target_key = target_abspath
-      else:
-        # Hope node's representation is unique enough (the default repr
-        # contains a pointer to the target as a string).  This works for
-        # Alias() nodes.
-        target_key = repr(tgt)
+    def _FindSources(ptrns, tgt, all):
+        """Internal Recursive function to find all pattern matches."""
+        # Recursively process lists
+        if SCons.Util.is_List(tgt):
+            for t in tgt:
+                _FindSources(ptrns, t, all)
+        else:
+            # Get key to use for tracking whether we've seen this node
+            target_abspath = None
+            if hasattr(tgt, 'abspath'):
+                # Use target's absolute path as the key
+                target_abspath = tgt.abspath
+                target_key = target_abspath
+            else:
+                # Hope node's representation is unique enough (the default repr
+                # contains a pointer to the target as a string).  This works for
+                # Alias() nodes.
+                target_key = repr(tgt)
 
-      # Skip if we have been here before
-      if target_key in all: return
-      # Note that we have been here
-      all[target_key] = True
-      # Skip ones that match an exclude pattern, if we have one.
-      if (exclude_pattern and target_abspath
-          and exclude_pattern.match(target_abspath)):
-        return
+            # Skip if we have been here before
+            if target_key in all:
+                return
+            # Note that we have been here
+            all[target_key] = True
+            # Skip ones that match an exclude pattern, if we have one.
+            if (exclude_pattern and target_abspath and
+                    exclude_pattern.match(target_abspath)):
+                return
 
-      # Handle non-leaf nodes recursively
-      lst = tgt.children(scan=1)
-      if lst:
-        _FindSources(ptrns, lst, all)
-        return
+            # Handle non-leaf nodes recursively
+            lst = tgt.children(scan=1)
+            if lst:
+                _FindSources(ptrns, lst, all)
+                return
 
-      # Get real file (backed by repositories).
-      rfile = tgt.rfile()
-      rfile_is_file = rfile.isfile()
-      # See who it matches
-      for pattern, lst in ptrns.items():
-        # Add files to the list for the first pattern that matches (implicitly,
-        # don't add directories).
-        if rfile_is_file and pattern.match(rfile.path):
-          lst.append(rfile.abspath)
-          break
+            # Get real file (backed by repositories).
+            rfile = tgt.rfile()
+            rfile_is_file = rfile.isfile()
+            # See who it matches
+            for pattern, lst in ptrns.items():
+                # Add files to the list for the first pattern that matches (implicitly,
+                # don't add directories).
+                if rfile_is_file and pattern.match(rfile.path):
+                    lst.append(rfile.abspath)
+                    break
 
-  # Prepare a group for each pattern.
-  patterns = {}
-  for g in groups:
-    patterns[re.compile(g, re.IGNORECASE)] = []
+    # Prepare a group for each pattern.
+    patterns = {}
+    for g in groups:
+        patterns[re.compile(g, re.IGNORECASE)] = []
 
-  # Do the search.
-  _FindSources(patterns, target, {})
+    # Do the search.
+    _FindSources(patterns, target, {})
 
-  return patterns.values()
+    return patterns.values()
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  # Add a method to gather all inputs needed by a target.
-  env.AddMethod(GatherInputs, 'GatherInputs')
+    # Add a method to gather all inputs needed by a target.
+    env.AddMethod(GatherInputs, 'GatherInputs')

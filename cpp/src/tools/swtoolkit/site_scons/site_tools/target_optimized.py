@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Build tool setup for optimized environments.
 
 This module is a SCons tool which setups environments for optimized builds.
@@ -37,14 +36,13 @@ It is used as follows:
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  # Add in general options.
-  env['TARGET_DEBUG'] = False
+    # Add in general options.
+    env['TARGET_DEBUG'] = False
 
-  env.Append(
-      CPPDEFINES=['NDEBUG'] + env.get('CPPDEFINES_OPTIMIZED', []),
-      CCFLAGS=env.get('CCFLAGS_OPTIMIZED', []),
-      LINKFLAGS=env.get('LINKFLAGS_OPTIMIZED', []),
-  )
+    env.Append(
+        CPPDEFINES=['NDEBUG'] + env.get('CPPDEFINES_OPTIMIZED', []),
+        CCFLAGS=env.get('CCFLAGS_OPTIMIZED', []),
+        LINKFLAGS=env.get('LINKFLAGS_OPTIMIZED', []), )

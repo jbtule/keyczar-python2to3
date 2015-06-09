@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Tests the text output of Google C++ Testing Framework.
 
 SYNOPSIS
@@ -47,18 +46,17 @@ import sys
 import unittest
 import gtest_test_utils
 
-
 # The flag for generating the golden file
 GENGOLDEN_FLAG = '--gengolden'
 
 IS_WINDOWS = os.name == 'nt'
 
 if IS_WINDOWS:
-  PROGRAM = r'..\build.dbg8\gtest_output_test_.exe'
-  GOLDEN_NAME = 'gtest_output_test_golden_win.txt'
+    PROGRAM = r'..\build.dbg8\gtest_output_test_.exe'
+    GOLDEN_NAME = 'gtest_output_test_golden_win.txt'
 else:
-  PROGRAM = 'gtest_output_test_'
-  GOLDEN_NAME = 'gtest_output_test_golden_lin.txt'
+    PROGRAM = 'gtest_output_test_'
+    GOLDEN_NAME = 'gtest_output_test_golden_lin.txt'
 
 PROGRAM_PATH = os.path.join(gtest_test_utils.GetBuildDir(), PROGRAM)
 
@@ -71,23 +69,23 @@ COMMAND_WITH_TIME = ({}, PROGRAM_PATH + ' --gtest_print_time '
 COMMAND_WITH_DISABLED = ({}, PROGRAM_PATH + ' --gtest_also_run_disabled_tests '
                          '--gtest_internal_skip_environment_and_ad_hoc_tests '
                          '--gtest_filter="*DISABLED_*"')
-COMMAND_WITH_SHARDING = ({'GTEST_SHARD_INDEX': '1', 'GTEST_TOTAL_SHARDS': '2'},
-                         PROGRAM_PATH +
-                         ' --gtest_internal_skip_environment_and_ad_hoc_tests '
-                         ' --gtest_filter="PassingTest.*"')
+COMMAND_WITH_SHARDING = (
+    {'GTEST_SHARD_INDEX': '1',
+     'GTEST_TOTAL_SHARDS': '2'},
+    PROGRAM_PATH + ' --gtest_internal_skip_environment_and_ad_hoc_tests '
+    ' --gtest_filter="PassingTest.*"')
 
-GOLDEN_PATH = os.path.join(gtest_test_utils.GetSourceDir(),
-                           GOLDEN_NAME)
+GOLDEN_PATH = os.path.join(gtest_test_utils.GetSourceDir(), GOLDEN_NAME)
 
 
 def ToUnixLineEnding(s):
-  """Changes all Windows/Mac line endings in s to UNIX line endings."""
+    """Changes all Windows/Mac line endings in s to UNIX line endings."""
 
-  return s.replace('\r\n', '\n').replace('\r', '\n')
+    return s.replace('\r\n', '\n').replace('\r', '\n')
 
 
 def RemoveLocations(output):
-  """Removes all file location info from a Google Test program's output.
+    """Removes all file location info from a Google Test program's output.
 
   Args:
        output:  the output of a Google Test program.
@@ -99,49 +97,49 @@ def RemoveLocations(output):
        'FILE_NAME:#: '.
   """
 
-  return re.sub(r'.*[/\\](.+)(\:\d+|\(\d+\))\: ', r'\1:#: ', output)
+    return re.sub(r'.*[/\\](.+)(\:\d+|\(\d+\))\: ', r'\1:#: ', output)
 
 
 def RemoveStackTraces(output):
-  """Removes all stack traces from a Google Test program's output."""
+    """Removes all stack traces from a Google Test program's output."""
 
-  # *? means "find the shortest string that matches".
-  return re.sub(r'Stack trace:(.|\n)*?\n\n',
-                'Stack trace: (omitted)\n\n', output)
+    # *? means "find the shortest string that matches".
+    return re.sub(r'Stack trace:(.|\n)*?\n\n', 'Stack trace: (omitted)\n\n',
+                  output)
 
 
 def RemoveTime(output):
-  """Removes all time information from a Google Test program's output."""
+    """Removes all time information from a Google Test program's output."""
 
-  return re.sub(r'\(\d+ ms', '(? ms', output)
+    return re.sub(r'\(\d+ ms', '(? ms', output)
 
 
 def RemoveTestCounts(output):
-  """Removes test counts from a Google Test program's output."""
+    """Removes test counts from a Google Test program's output."""
 
-  output = re.sub(r'\d+ tests from \d+ test cases',
-                  '? tests from ? test cases', output)
-  return re.sub(r'\d+ tests\.', '? tests.', output)
+    output = re.sub(r'\d+ tests from \d+ test cases',
+                    '? tests from ? test cases', output)
+    return re.sub(r'\d+ tests\.', '? tests.', output)
 
 
 def RemoveDeathTests(output):
-  """Removes death test information from a Google Test program's output."""
+    """Removes death test information from a Google Test program's output."""
 
-  return re.sub(r'\n.*DeathTest.*', '', output)
+    return re.sub(r'\n.*DeathTest.*', '', output)
 
 
 def NormalizeOutput(output):
-  """Normalizes output (the output of gtest_output_test_.exe)."""
+    """Normalizes output (the output of gtest_output_test_.exe)."""
 
-  output = ToUnixLineEnding(output)
-  output = RemoveLocations(output)
-  output = RemoveStackTraces(output)
-  output = RemoveTime(output)
-  return output
+    output = ToUnixLineEnding(output)
+    output = RemoveLocations(output)
+    output = RemoveStackTraces(output)
+    output = RemoveTime(output)
+    return output
 
 
 def IterShellCommandOutput(env_cmd, stdin_string=None):
-  """Runs a command in a sub-process, and iterates the lines in its STDOUT.
+    """Runs a command in a sub-process, and iterates the lines in its STDOUT.
 
   Args:
 
@@ -153,34 +151,34 @@ def IterShellCommandOutput(env_cmd, stdin_string=None):
                        from the parent process.
   """
 
-  # Spawns cmd in a sub-process, and gets its standard I/O file objects.
-  # Set and save the environment properly.
-  old_env_vars = dict(os.environ)
-  os.environ.update(env_cmd[0])
-  stdin_file, stdout_file = os.popen2(env_cmd[1], 'b')
-  os.environ.clear()
-  os.environ.update(old_env_vars)
+    # Spawns cmd in a sub-process, and gets its standard I/O file objects.
+    # Set and save the environment properly.
+    old_env_vars = dict(os.environ)
+    os.environ.update(env_cmd[0])
+    stdin_file, stdout_file = os.popen2(env_cmd[1], 'b')
+    os.environ.clear()
+    os.environ.update(old_env_vars)
 
-  # If the caller didn't specify a string for STDIN, gets it from the
-  # parent process.
-  if stdin_string is None:
-    stdin_string = sys.stdin.read()
+    # If the caller didn't specify a string for STDIN, gets it from the
+    # parent process.
+    if stdin_string is None:
+        stdin_string = sys.stdin.read()
 
-  # Feeds the STDIN string to the sub-process.
-  stdin_file.write(stdin_string)
-  stdin_file.close()
+    # Feeds the STDIN string to the sub-process.
+    stdin_file.write(stdin_string)
+    stdin_file.close()
 
-  while True:
-    line = stdout_file.readline()
-    if not line:  # EOF
-      stdout_file.close()
-      break
+    while True:
+        line = stdout_file.readline()
+        if not line:  # EOF
+            stdout_file.close()
+            break
 
-    yield line
+        yield line
 
 
 def GetShellCommandOutput(env_cmd, stdin_string=None):
-  """Runs a command in a sub-process, and returns its STDOUT in a string.
+    """Runs a command in a sub-process, and returns its STDOUT in a string.
 
   Args:
 
@@ -192,12 +190,12 @@ def GetShellCommandOutput(env_cmd, stdin_string=None):
                        from the parent process.
   """
 
-  lines = list(IterShellCommandOutput(env_cmd, stdin_string))
-  return string.join(lines, '')
+    lines = list(IterShellCommandOutput(env_cmd, stdin_string))
+    return string.join(lines, '')
 
 
 def GetCommandOutput(env_cmd):
-  """Runs a command and returns its output with all file location
+    """Runs a command and returns its output with all file location
   info stripped off.
 
   Args:
@@ -206,39 +204,39 @@ def GetCommandOutput(env_cmd):
               the command and any flags.
   """
 
-  # Disables exception pop-ups on Windows.
-  os.environ['GTEST_CATCH_EXCEPTIONS'] = '1'
-  return NormalizeOutput(GetShellCommandOutput(env_cmd, ''))
+    # Disables exception pop-ups on Windows.
+    os.environ['GTEST_CATCH_EXCEPTIONS'] = '1'
+    return NormalizeOutput(GetShellCommandOutput(env_cmd, ''))
 
 
 def GetOutputOfAllCommands():
-  """Returns concatenated output from several representative commands."""
+    """Returns concatenated output from several representative commands."""
 
-  return (GetCommandOutput(COMMAND_WITH_COLOR) +
-          GetCommandOutput(COMMAND_WITH_TIME) +
-          GetCommandOutput(COMMAND_WITH_DISABLED) +
-          GetCommandOutput(COMMAND_WITH_SHARDING))
+    return (GetCommandOutput(COMMAND_WITH_COLOR) +
+            GetCommandOutput(COMMAND_WITH_TIME) +
+            GetCommandOutput(COMMAND_WITH_DISABLED) +
+            GetCommandOutput(COMMAND_WITH_SHARDING))
 
 
 class GTestOutputTest(unittest.TestCase):
-  def testOutput(self):
-    output = GetOutputOfAllCommands()
-    golden_file = open(GOLDEN_PATH, 'rb')
-    golden = golden_file.read()
-    golden_file.close()
 
-    # We want the test to pass regardless of death tests being
-    # supported or not.
-    self.assert_(output == golden or
-                 RemoveTestCounts(output) ==
-                 RemoveTestCounts(RemoveDeathTests(golden)))
+    def testOutput(self):
+        output = GetOutputOfAllCommands()
+        golden_file = open(GOLDEN_PATH, 'rb')
+        golden = golden_file.read()
+        golden_file.close()
+
+        # We want the test to pass regardless of death tests being
+        # supported or not.
+        self.assert_(output == golden or RemoveTestCounts(output) ==
+                     RemoveTestCounts(RemoveDeathTests(golden)))
 
 
 if __name__ == '__main__':
-  if sys.argv[1:] == [GENGOLDEN_FLAG]:
-    output = GetOutputOfAllCommands()
-    golden_file = open(GOLDEN_PATH, 'wb')
-    golden_file.write(output)
-    golden_file.close()
-  else:
-    gtest_test_utils.Main()
+    if sys.argv[1:] == [GENGOLDEN_FLAG]:
+        output = GetOutputOfAllCommands()
+        golden_file = open(GOLDEN_PATH, 'wb')
+        golden_file.write(output)
+        golden_file.close()
+    else:
+        gtest_test_utils.Main()
