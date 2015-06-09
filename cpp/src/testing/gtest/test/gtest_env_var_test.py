@@ -56,8 +56,8 @@ if IS_LINUX:
 
 def AssertEq(expected, actual):
     if expected != actual:
-        print 'Expected: %s' % (expected, )
-        print '  Actual: %s' % (actual, )
+        print('Expected: %s' % (expected, ))
+        print('  Actual: %s' % (actual, ))
         raise AssertionError
 
 
@@ -117,7 +117,7 @@ if IS_WINDOWS:
     def main():
         for build_dir in BUILD_DIRS:
             command = build_dir + COMMAND
-            print 'Testing with %s . . .' % (command, )
+            print('Testing with %s . . .' % (command, ))
             TestEnvVarAffectsFlag(command)
         return 0
 

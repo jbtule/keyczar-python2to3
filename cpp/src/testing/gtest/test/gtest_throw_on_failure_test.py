@@ -68,7 +68,7 @@ def SetEnvVar(env_var, value):
 def Run(command):
     """Runs a command; returns True/False if its exit code is/isn't 0."""
 
-    print 'Running "%s". . .' % ' '.join(command)
+    print('Running "%s". . .' % ' '.join(command))
     return gtest_test_utils.Subprocess(command).exit_code == 0
 
 

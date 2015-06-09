@@ -24,7 +24,7 @@ import re
 
 # Read the command line argument (the output directory for Version.h)
 if (len(sys.argv) < 3):
-    print "Usage: /usr/bin/python versiongenerate.py input_dir output_dir"
+    print("Usage: /usr/bin/python versiongenerate.py input_dir output_dir")
     sys.exit(1)
 else:
     input_dir = sys.argv[1]

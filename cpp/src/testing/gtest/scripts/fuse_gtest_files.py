@@ -105,8 +105,8 @@ def ValidateGTestRootDir(gtest_root):
     """
 
         if not os.path.isfile(os.path.join(gtest_root, relative_path)):
-            print 'ERROR: Cannot find %s in directory %s.' % (relative_path,
-                                                              gtest_root)
+            print('ERROR: Cannot find %s in directory %s.' % (relative_path,
+                                                              gtest_root))
             print('Please either specify a valid Google Test root directory '
                   'or omit it on the command line.')
             sys.exit(1)
@@ -134,7 +134,7 @@ def ValidateOutputDir(output_dir):
                   (relative_path, output_dir))
             answer = sys.stdin.readline().strip()
             if answer not in ['y', 'Y']:
-                print 'ABORTED.'
+                print('ABORTED.')
                 sys.exit(1)
 
         # Makes sure the directory holding the output file exists; creates
@@ -239,7 +239,7 @@ def main():
         # fuse_gtest_files.py GTEST_ROOT_DIR OUTPUT_DIR
         FuseGTest(sys.argv[1], sys.argv[2])
     else:
-        print __doc__
+        print(__doc__)
         sys.exit(1)
 
 

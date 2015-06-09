@@ -20,8 +20,8 @@ def Encrypt(crypted_path, crypter_path):
     crypter = keyczar.Crypter.Read(reader)
     ciphertext = crypter.Encrypt(input)
 
-    print 'plaintext:', input
-    print 'ciphertext:', ciphertext
+    print('plaintext:', input)
+    print('ciphertext:', ciphertext)
 
     decrypted = crypter.Decrypt(ciphertext)
     assert decrypted == input
@@ -29,9 +29,7 @@ def Encrypt(crypted_path, crypter_path):
 
 if __name__ == '__main__':
     if (len(sys.argv) != 3):
-        print >> sys.stderr, "Provide two valids key sets paths as arguments:"
-        print >> sys.stderr, sys.argv[
-            0
-        ], "encrypted_json_keyset_path crypter_keyset_path"
+        print("Provide two valids key sets paths as arguments:", file=sys.stderr)
+        print(sys.argv[0], "encrypted_json_keyset_path crypter_keyset_path", file=sys.stderr)
         sys.exit(1)
     Encrypt(sys.argv[1], sys.argv[2])

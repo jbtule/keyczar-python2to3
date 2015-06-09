@@ -61,8 +61,8 @@ def Assert(condition):
 
 def AssertEq(expected, actual):
     if expected != actual:
-        print 'Expected: %s' % (expected, )
-        print '  Actual: %s' % (actual, )
+        print('Expected: %s' % (expected, ))
+        print('  Actual: %s' % (actual, ))
         raise AssertionError
 
 
@@ -81,7 +81,7 @@ if IS_WINDOWS:
     def main():
         for build_dir in BUILD_DIRS:
             command = build_dir + COMMAND
-            print 'Testing with %s . . .' % (command, )
+            print('Testing with %s . . .' % (command, ))
             TestExitCodeAndOutput(command)
         return 0
 

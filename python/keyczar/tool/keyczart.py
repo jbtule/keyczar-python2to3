@@ -211,9 +211,9 @@ def _CreateCrypter(location):
 
 
 def GenKeySet(loc):
-    print "Generating private key sets..."
+    print("Generating private key sets...")
     for (name, purpose, form, asymmetric, crypter) in KEYSETS:
-        print "."
+        print(".")
         dir_path = os.path.join(loc, name)
         if crypter:
             crypter = _CreateCrypter(os.path.join(loc, crypter))
@@ -226,13 +226,13 @@ def GenKeySet(loc):
         UseKey(form, dir_path, os.path.join(dir_path, "2.out"), crypter,
                msg="This is some test data")
 
-    print "Exporting public key sets..."
+    print("Exporting public key sets...")
     for name in ('dsa', 'rsa-sign'):
-        print "."
+        print(".")
         dir_path = os.path.join(loc, name)
         dest = os.path.join(loc, name + '.public')
         PubKey(dir_path, dest)
-    print "Done!"
+    print("Done!")
 
 
 def Clean(directory):
@@ -273,7 +273,7 @@ def UseKey(purpose, loc, dest,
                                                          "%Y-%m-%dT%H:%M:%SZ")
                 answer = keyczar.TimeoutSigner(reader).Sign(msg, expire_date)
             else:
-                print "Needs UTC time as extra parameter for timeout expiration"
+                print("Needs UTC time as extra parameter for timeout expiration")
         elif purpose == "sign-attached":
             hidden = ""
             if len(param) > 0:
@@ -301,7 +301,7 @@ def UseKey(purpose, loc, dest,
 
 
 def Usage():
-    print '''Usage: "keyczart command flags"
+    print('''Usage: "keyczart command flags"
   Commands: create addkey pubkey promote demote revoke
 Flags: location name size status purpose destination version asymmetric crypter
 Command Usage:
@@ -337,7 +337,7 @@ revoke --location=/path/to/keys --version=versionNumber
   promote command. WARNING: The key will be destroyed.
 
 Optional flags are in [brackets]. The notation (a|b|c) means "a", "b", and "c"
-are the valid choices'''
+are the valid choices''')
 
 
 def CreateGenericKeyczar(loc, crypter=None):
@@ -389,7 +389,7 @@ def main(argv):
                     [flag, val] = arg.split("=")
                     flags[GetFlag(flag)] = val
                 except ValueError:
-                    print "Flags incorrectly formatted"
+                    print("Flags incorrectly formatted")
                     Usage()
             else:
                 other.append(arg)
@@ -398,7 +398,7 @@ def main(argv):
             size = int(flags.get(SIZE, -1))
             # -1 if non-existent
         except ValueError:
-            print "Size and version flags require an integer"
+            print("Size and version flags require an integer")
             Usage()
 
         loc = flags.get(LOCATION)  # all commands need location

@@ -108,9 +108,9 @@ def useKey(loc, dest, crypter, data="This is some test data"):
     os.system(cmd + ' usekey "' + data + '"' + args)
 
 # generate private key sets
-print "Generating private key sets and golden outputs..."
+print("Generating private key sets and golden outputs...")
 for (loc, purpose, asymmetric, crypter) in keyFiles:
-    print "."
+    print(".")
     cleanUp(loc)
     create(name="test", loc=loc, purpose=purpose, asymmetric=asymmetric)
     addKey(loc=loc, status="primary", crypter=crypter)
@@ -119,10 +119,10 @@ for (loc, purpose, asymmetric, crypter) in keyFiles:
     useKey(loc=loc, dest=loc + "2.out", crypter=crypter)
 
 # export public key sets
-print "Exporting public key sets..."
+print("Exporting public key sets...")
 for (loc, dest) in pubKeyFiles:
-    print "."
+    print(".")
     cleanUp(dest)
     pubKey(loc, dest)
 
-print "Done!"
+print("Done!")

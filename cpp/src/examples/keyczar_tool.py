@@ -31,8 +31,8 @@ def RunCommands(keyset_type, keyset_password, rsa_path, rsa_pub_path):
 def EncryptMessage(rsa_pub_path):
     encrypter = keyczar.Encrypter.Read(rsa_pub_path)
     ciphertext = encrypter.Encrypt(PLAINTEXT)
-    print 'Plaintext:', PLAINTEXT
-    print 'Ciphertext (base64w):', ciphertext
+    print('Plaintext:', PLAINTEXT)
+    print('Ciphertext (base64w):', ciphertext)
     return ciphertext
 
 
@@ -45,13 +45,13 @@ def DecryptMessage(keyset_type, keyset_password, rsa_path, ciphertext):
 
 if __name__ == '__main__':
     if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
-        print >> sys.stderr, "Provide an empty temp directory as argument."
+        print("Provide an empty temp directory as argument.", file=sys.stderr)
         sys.exit(1)
 
     rsa_path = os.path.join(sys.argv[1], 'rsa')
     rsa_pub_path = os.path.join(sys.argv[1], 'rsa_pub')
     if os.path.isdir(rsa_path) or os.path.isdir(rsa_pub_path):
-        print >> sys.stderr, 'Error:', sys.argv[1], 'is not empty.'
+        print('Error:', sys.argv[1], 'is not empty.', file=sys.stderr)
         sys.exit(1)
     os.mkdir(rsa_path)
     os.mkdir(rsa_pub_path)
