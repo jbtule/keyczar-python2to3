@@ -1,6 +1,6 @@
 [submodule "python/test-data"]
 	path = python/test-data
-	url = https://code.google.com/r/jtuley-keyczar-testdata
+	url = https://github.com/jbtule/keyczar-testdata.git 
 
 
 #[submodule "cpp/src/keyczar/test-data"]
