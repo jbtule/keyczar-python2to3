@@ -44,6 +44,7 @@ cplusplus = __import__('c++', globals(), locals(), [])
 
 issued_mixed_link_warning = False
 
+
 def smart_link(source, target, env, for_signature):
     has_cplusplus = cplusplus.iscplusplus(source)
     has_fortran = isfortran(env, source)
@@ -51,8 +52,8 @@ def smart_link(source, target, env, for_signature):
         global issued_mixed_link_warning
         if not issued_mixed_link_warning:
             msg = "Using $CXX to link Fortran and C++ code together.\n\t" + \
-              "This may generate a buggy executable if the '%s'\n\t" + \
-              "compiler does not know how to deal with Fortran runtimes."
+                "This may generate a buggy executable if the '%s'\n\t" + \
+                "compiler does not know how to deal with Fortran runtimes."
             SCons.Warnings.warn(SCons.Warnings.FortranCxxMixWarning,
                                 msg % env.subst('$CXX'))
             issued_mixed_link_warning = True
@@ -63,31 +64,37 @@ def smart_link(source, target, env, for_signature):
         return '$CXX'
     return '$CC'
 
+
 def shlib_emitter(target, source, env):
     for tgt in target:
         tgt.attributes.shared = 1
     return (target, source)
+
 
 def generate(env):
     """Add Builders and construction variables for gnulink to an Environment."""
     SCons.Tool.createSharedLibBuilder(env)
     SCons.Tool.createProgBuilder(env)
 
-    env['SHLINK']      = '$LINK'
+    env['SHLINK'] = '$LINK'
     env['SHLINKFLAGS'] = SCons.Util.CLVar('$LINKFLAGS -shared')
-    env['SHLINKCOM']   = '$SHLINK -o $TARGET $SHLINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['SHLINKCOM'
+        ] = '$SHLINK -o $TARGET $SHLINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
     # don't set up the emitter, cause AppendUnique will generate a list
     # starting with None :-(
-    env.Append(SHLIBEMITTER = [shlib_emitter])
-    env['SMARTLINK']   = smart_link
-    env['LINK']        = "$SMARTLINK"
-    env['LINKFLAGS']   = SCons.Util.CLVar('')
-    env['LINKCOM']     = '$LINK -o $TARGET $LINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-    env['LIBDIRPREFIX']='-L'
-    env['LIBDIRSUFFIX']=''
-    env['_LIBFLAGS']='${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
-    env['LIBLINKPREFIX']='-l'
-    env['LIBLINKSUFFIX']=''
+    env.Append(SHLIBEMITTER=[shlib_emitter])
+    env['SMARTLINK'] = smart_link
+    env['LINK'] = "$SMARTLINK"
+    env['LINKFLAGS'] = SCons.Util.CLVar('')
+    env['LINKCOM'
+        ] = '$LINK -o $TARGET $LINKFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
+    env['LIBDIRPREFIX'] = '-L'
+    env['LIBDIRSUFFIX'] = ''
+    env[
+        '_LIBFLAGS'
+    ] = '${_stripixes(LIBLINKPREFIX, LIBS, LIBLINKSUFFIX, LIBPREFIXES, LIBSUFFIXES, __env__)}'
+    env['LIBLINKPREFIX'] = '-l'
+    env['LIBLINKSUFFIX'] = ''
 
     if env['PLATFORM'] == 'hpux':
         env['SHLIBSUFFIX'] = '.sl'
@@ -102,11 +109,12 @@ def generate(env):
     # don't set up the emitter, cause AppendUnique will generate a list
     # starting with None :-(
     env.Append(LDMODULEEMITTER='$SHLIBEMITTER')
-    env['LDMODULEPREFIX'] = '$SHLIBPREFIX' 
-    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX' 
+    env['LDMODULEPREFIX'] = '$SHLIBPREFIX'
+    env['LDMODULESUFFIX'] = '$SHLIBSUFFIX'
     env['LDMODULEFLAGS'] = '$SHLINKFLAGS'
-    env['LDMODULECOM'] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
-
+    env[
+        'LDMODULECOM'
+    ] = '$LDMODULE -o $TARGET $LDMODULEFLAGS $SOURCES $_LIBDIRFLAGS $_LIBFLAGS'
 
 
 def exists(env):

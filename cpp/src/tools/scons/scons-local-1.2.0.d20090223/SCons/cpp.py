@@ -50,26 +50,20 @@ import string
 cpp_lines_dict = {
     # Fetch the rest of a #if/#elif/#ifdef/#ifndef as one argument,
     # separated from the keyword by white space.
-    ('if', 'elif', 'ifdef', 'ifndef',)
-                        : '\s+(.+)',
-
+    ('if', 'elif', 'ifdef', 'ifndef', ): '\s+(.+)',
     # Fetch the rest of a #import/#include/#include_next line as one
     # argument, with white space optional.
-    ('import', 'include', 'include_next',)
-                        : '\s*(.+)',
-
+    ('import', 'include', 'include_next', ): '\s*(.+)',
     # We don't care what comes after a #else or #endif line.
-    ('else', 'endif',)  : '',
-
+    ('else', 'endif', ): '',
     # Fetch three arguments from a #define line:
     #   1) The #defined keyword.
     #   2) The optional parentheses and arguments (if it's a function-like
     #      macro, '' if it's not).
     #   3) The expansion value.
-    ('define',)         : '\s+([_A-Za-z][_A-Za-z0-9_]+)(\([^)]*\))?\s*(.*)',
-
+    ('define', ): '\s+([_A-Za-z][_A-Za-z0-9_]+)(\([^)]*\))?\s*(.*)',
     # Fetch the #undefed keyword from a #undef line.
-    ('undef',)          : '\s+([_A-Za-z][A-Za-z0-9_]+)',
+    ('undef', ): '\s+([_A-Za-z][A-Za-z0-9_]+)',
 }
 
 # Create a table that maps each individual C preprocessor directive to
@@ -88,11 +82,8 @@ del op_list
 # preprocessor directives.  These are the same as the directives
 # themselves *except* that we must use a negative lookahead assertion
 # when matching "if" so it doesn't match the "if" in "ifdef."
-override = {
-    'if'                        : 'if(?!def)',
-}
+override = {'if': 'if(?!def)', }
 l = map(lambda x, o=override: o.get(x, x), Table.keys())
-
 
 # Turn the list of expressions into one big honkin' regular expression
 # that will match all the preprocessor lines at once.  This will return
@@ -104,9 +95,6 @@ e = '^\s*#\s*(' + string.join(l, '|') + ')(.*)$'
 # And last but not least, compile the expression.
 CPP_Expression = re.compile(e, re.M)
 
-
-
-
 #
 # Second "subsystem" of regular expressions that we set up:
 #
@@ -117,13 +105,13 @@ CPP_Expression = re.compile(e, re.M)
 # A dictionary that maps the C representation of Boolean operators
 # to their Python equivalents.
 CPP_to_Python_Ops_Dict = {
-    '!'         : ' not ',
-    '!='        : ' != ',
-    '&&'        : ' and ',
-    '||'        : ' or ',
-    '?'         : ' and ',
-    ':'         : ' or ',
-    '\r'        : '',
+    '!': ' not ',
+    '!=': ' != ',
+    '&&': ' and ',
+    '||': ' or ',
+    '?': ' and ',
+    ':': ' or ',
+    '\r': '',
 }
 
 CPP_to_Python_Ops_Sub = lambda m, d=CPP_to_Python_Ops_Dict: d[m.group(0)]
@@ -147,18 +135,19 @@ CPP_to_Python_Ops_Expression = re.compile(expr)
 # A separate list of expressions to be evaluated and substituted
 # sequentially, not all at once.
 CPP_to_Python_Eval_List = [
-    ['defined\s+(\w+)',         '__dict__.has_key("\\1")'],
-    ['defined\s*\((\w+)\)',     '__dict__.has_key("\\1")'],
-    ['/\*.*\*/',                ''],
-    ['/\*.*',                   ''],
-    ['//.*',                    ''],
-    ['(0x[0-9A-Fa-f]*)[UL]+',   '\\1L'],
+    ['defined\s+(\w+)', '__dict__.has_key("\\1")'],
+    ['defined\s*\((\w+)\)', '__dict__.has_key("\\1")'],
+    ['/\*.*\*/', ''],
+    ['/\*.*', ''],
+    ['//.*', ''],
+    ['(0x[0-9A-Fa-f]*)[UL]+', '\\1L'],
 ]
 
 # Replace the string representations of the regular expressions in the
 # list with compiled versions.
 for l in CPP_to_Python_Eval_List:
     l[0] = re.compile(l[0])
+
 
 # Wrap up all of the above into a handy function.
 def CPP_to_Python(s):
@@ -172,17 +161,17 @@ def CPP_to_Python(s):
     return s
 
 
-
 del expr
 del l
 del override
 
 
-
 class FunctionEvaluator:
+
     """
     Handles delayed evaluation of a #define function call.
     """
+
     def __init__(self, name, args, expansion):
         """
         Squirrels away the arguments and expansion value of a #define
@@ -198,6 +187,7 @@ class FunctionEvaluator:
             # later versions throw AttributeError.
             pass
         self.expansion = expansion
+
     def __call__(self, *values):
         """
         Evaluates the expansion of a #define macro function called
@@ -222,8 +212,6 @@ class FunctionEvaluator:
 
         return eval(statement, globals(), locals)
 
-
-
 # Find line continuations.
 line_continuations = re.compile('\\\\\r?\n')
 
@@ -237,19 +225,20 @@ function_name = re.compile('(\S+)\(([^)]*)\)')
 function_arg_separator = re.compile(',\s*')
 
 
-
 class PreProcessor:
+
     """
     The main workhorse class for handling C pre-processing.
     """
+
     def __init__(self, current=os.curdir, cpppath=(), dict={}, all=0):
         global Table
 
         cpppath = tuple(cpppath)
 
         self.searchpath = {
-            '"' :       (current,) + cpppath,
-            '<' :       cpppath + (current,),
+            '"': (current, ) + cpppath,
+            '<': cpppath + (current, ),
         }
 
         # Initialize our C preprocessor namespace for tracking the
@@ -261,7 +250,7 @@ class PreProcessor:
         self.cpp_namespace['__dict__'] = self.cpp_namespace
 
         if all:
-           self.do_include = self.all_include
+            self.do_include = self.all_include
 
         # For efficiency, a dispatch table maps each C preprocessor
         # directive (#if, #define, etc.) to the method that should be
@@ -270,9 +259,7 @@ class PreProcessor:
         # stack and changing what method gets called for each relevant
         # directive we might see next at this level (#else, #elif).
         # #endif will simply pop the stack.
-        d = {
-            'scons_current_file'    : self.scons_current_file
-        }
+        d = {'scons_current_file': self.scons_current_file}
         for op in Table.keys():
             d[op] = getattr(self, 'do_' + op)
         self.default_table = d
@@ -292,9 +279,8 @@ class PreProcessor:
         global CPP_Expression, Table
         contents = line_continuations.sub('', contents)
         cpp_tuples = CPP_Expression.findall(contents)
-        return  map(lambda m, t=Table:
-                           (m[0],) + t[m[0]].match(m[1]).groups(),
-                    cpp_tuples)
+        return map(lambda m, t=Table: (m[0], ) + t[m[0]].match(m[1]).groups(),
+                   cpp_tuples)
 
     def __call__(self, file):
         """
@@ -321,7 +307,7 @@ class PreProcessor:
             t = self.tuples.pop(0)
             # Uncomment to see the list of tuples being processed (e.g.,
             # to validate the CPP lines are being translated correctly).
-            #print t
+            # print t
             self.dispatch_table[t[0]](t)
         return self.finalize_result(fname)
 
@@ -340,8 +326,10 @@ class PreProcessor:
         Pops the previous dispatch table off the stack and makes it the
         current one.
         """
-        try: self.dispatch_table = self.stack.pop()
-        except IndexError: pass
+        try:
+            self.dispatch_table = self.stack.pop()
+        except IndexError:
+            pass
 
     # Utility methods.
 
@@ -364,8 +352,10 @@ class PreProcessor:
         track #define values.
         """
         t = CPP_to_Python(string.join(t[1:]))
-        try: return eval(t, self.cpp_namespace)
-        except (NameError, TypeError): return 0
+        try:
+            return eval(t, self.cpp_namespace)
+        except (NameError, TypeError):
+            return 0
 
     def initialize_result(self, fname):
         self.result = [fname]
@@ -405,8 +395,8 @@ class PreProcessor:
         """
         d = self.dispatch_table
         d['import'] = self.do_import
-        d['include'] =  self.do_include
-        d['include_next'] =  self.do_include
+        d['include'] = self.do_include
+        d['include_next'] = self.do_include
 
     def stop_handling_includes(self, t=None):
         """
@@ -419,8 +409,8 @@ class PreProcessor:
         """
         d = self.dispatch_table
         d['import'] = self.do_nothing
-        d['include'] =  self.do_nothing
-        d['include_next'] =  self.do_nothing
+        d['include'] = self.do_nothing
+        d['include_next'] = self.do_nothing
 
     # Default methods for handling all of the preprocessor directives.
     # (Note that what actually gets called for a given directive at any
@@ -501,8 +491,10 @@ class PreProcessor:
         """
         Default handling of a #undef line.
         """
-        try: del self.cpp_namespace[t[1]]
-        except KeyError: pass
+        try:
+            del self.cpp_namespace[t[1]]
+        except KeyError:
+            pass
 
     def do_import(self, t):
         """
@@ -518,11 +510,11 @@ class PreProcessor:
         t = self.resolve_include(t)
         include_file = self.find_include_file(t)
         if include_file:
-            #print "include_file =", include_file
+            # print "include_file =", include_file
             self.result.append(include_file)
             contents = self.read_file(include_file)
             new_tuples = [('scons_current_file', include_file)] + \
-                         self.tupleize(contents) + \
+                self.tupleize(contents) + \
                          [('scons_current_file', self.current_file)]
             self.tuples[:] = new_tuples + self.tuples
 
@@ -555,7 +547,7 @@ class PreProcessor:
         """
         s = t[1]
         while not s[0] in '<"':
-            #print "s =", s
+            # print "s =", s
             try:
                 s = self.cpp_namespace[s]
             except KeyError:
@@ -573,7 +565,9 @@ class PreProcessor:
         """
         self.result.append(self.resolve_include(t))
 
+
 class DumbPreProcessor(PreProcessor):
+
     """A preprocessor that ignores all #if/#elif/#else/#endif directives
     and just reports back *all* of the #include files (like the classic
     SCons scanner did).
@@ -583,11 +577,13 @@ class DumbPreProcessor(PreProcessor):
     an example of how the main PreProcessor class can be sub-classed
     to tailor its behavior.
     """
+
     def __init__(self, *args, **kw):
-        apply(PreProcessor.__init__, (self,)+args, kw)
+        apply(PreProcessor.__init__, (self, ) + args, kw)
         d = self.default_table
         for func in ['if', 'elif', 'else', 'endif', 'ifdef', 'ifndef']:
             d[func] = d[func] = self.do_nothing
+
 
 del __revision__
 

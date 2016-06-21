@@ -52,7 +52,7 @@ __revision__ = "src/engine/SCons/Variables/ListVariable.py 4043 2009/02/23 09:06
 # Know Bug: This should behave like a Set-Type, but does not really,
 # since elements can occur twice.
 
-__all__ = ['ListVariable',]
+__all__ = ['ListVariable', ]
 
 import string
 import UserList
@@ -61,6 +61,7 @@ import SCons.Util
 
 
 class _ListVariable(UserList.UserList):
+
     def __init__(self, initlist=[], allowedElems=[]):
         UserList.UserList.__init__(self, filter(None, initlist))
         self.allowedElems = allowedElems[:]
@@ -68,16 +69,22 @@ class _ListVariable(UserList.UserList):
 
     def __cmp__(self, other):
         raise NotImplementedError
+
     def __eq__(self, other):
         raise NotImplementedError
+
     def __ge__(self, other):
         raise NotImplementedError
+
     def __gt__(self, other):
         raise NotImplementedError
+
     def __le__(self, other):
         raise NotImplementedError
+
     def __lt__(self, other):
         raise NotImplementedError
+
     def __str__(self):
         if len(self) == 0:
             return 'none'
@@ -86,8 +93,10 @@ class _ListVariable(UserList.UserList):
             return 'all'
         else:
             return string.join(self, ',')
+
     def prepare_to_store(self):
         return self.__str__()
+
 
 def _converter(val, allowedElems, mapdict):
     """
@@ -105,12 +114,11 @@ def _converter(val, allowedElems, mapdict):
                              string.join(notAllowed, ','))
     return _ListVariable(val, allowedElems)
 
-
-## def _validator(key, val, env):
-##     """
-##     """
-##     # todo: write validater for pgk list
-##     return 1
+# def _validator(key, val, env):
+# """
+# """
+# todo: write validater for pgk list
+# return 1
 
 
 def ListVariable(key, help, default, names, map={}):
@@ -128,8 +136,7 @@ def ListVariable(key, help, default, names, map={}):
     help = string.join(
         (help, '(all|none|comma-separated list of names)', names_str),
         '\n    ')
-    return (key, help, default,
-            None, #_validator,
+    return (key, help, default, None,  # _validator,
             lambda val, elems=names, m=map: _converter(val, elems, m))
 
 # Local Variables:

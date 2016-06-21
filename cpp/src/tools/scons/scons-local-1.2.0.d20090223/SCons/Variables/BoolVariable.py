@@ -36,13 +36,13 @@ Usage example:
 
 __revision__ = "src/engine/SCons/Variables/BoolVariable.py 4043 2009/02/23 09:06:45 scons"
 
-__all__ = ['BoolVariable',]
+__all__ = ['BoolVariable', ]
 
 import string
 
 import SCons.Errors
 
-__true_strings  = ('y', 'yes', 'true', 't', '1', 'on' , 'all' )
+__true_strings = ('y', 'yes', 'true', 't', '1', 'on', 'all')
 __false_strings = ('n', 'no', 'false', 'f', '0', 'off', 'none')
 
 
@@ -58,15 +58,17 @@ def _text2bool(val):
     This is usable as 'converter' for SCons' Variables.
     """
     lval = string.lower(val)
-    if lval in __true_strings: return True
-    if lval in __false_strings: return False
+    if lval in __true_strings:
+        return True
+    if lval in __false_strings:
+        return False
     raise ValueError("Invalid value for boolean option: %s" % val)
 
 
 def _validator(key, val, env):
     """
     Validates the given value to be either '0' or '1'.
-    
+
     This is usable as 'validator' for SCons' Variables.
     """
     if not env[key] in (True, False):
@@ -81,8 +83,7 @@ def BoolVariable(key, help, default):
     'help' text will by appended by '(yes|no) to show the valid
     valued. The result is usable for input to opts.Add().
     """
-    return (key, '%s (yes|no)' % help, default,
-            _validator, _text2bool)
+    return (key, '%s (yes|no)' % help, default, _validator, _text2bool)
 
 # Local Variables:
 # tab-width:4

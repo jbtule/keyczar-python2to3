@@ -35,6 +35,7 @@ import SCons.Warnings
 
 warned = False
 
+
 def PackageOption(*args, **kw):
     global warned
     if not warned:

@@ -45,19 +45,23 @@ Note that these do not have independent unit tests, so it's possible
 that there are bugs.
 """
 
+
 def chain(*iterables):
     result = []
     for x in iterables:
         result.extend(list(x))
     return result
 
+
 def count(n=0):
     # returns infinite length, should not be supported
     raise NotImplementedError
 
+
 def cycle(iterable):
     # returns infinite length, should not be supported
     raise NotImplementedError
+
 
 def dropwhile(predicate, iterable):
     result = []
@@ -68,8 +72,10 @@ def dropwhile(predicate, iterable):
     result.extend(iterable)
     return result
 
+
 def groupby(iterable, *args):
     raise NotImplementedError
+
 
 def ifilter(predicate, iterable):
     result = []
@@ -80,6 +86,7 @@ def ifilter(predicate, iterable):
             result.append(x)
     return result
 
+
 def ifilterfalse(predicate, iterable):
     result = []
     if predicate is None:
@@ -89,21 +96,27 @@ def ifilterfalse(predicate, iterable):
             result.append(x)
     return result
 
+
 def imap(function, *iterables):
-    return apply(map, (function,) + tuple(iterables))
+    return apply(map, (function, ) + tuple(iterables))
+
 
 def islice(*args, **kw):
     raise NotImplementedError
 
+
 def izip(*iterables):
     return apply(zip, iterables)
+
 
 def repeat(*args, **kw):
     # returns infinite length, should not be supported
     raise NotImplementedError
 
+
 def starmap(*args, **kw):
     raise NotImplementedError
+
 
 def takewhile(predicate, iterable):
     result = []
@@ -113,6 +126,7 @@ def takewhile(predicate, iterable):
         else:
             break
     return result
+
 
 def tee(*args, **kw):
     raise NotImplementedError

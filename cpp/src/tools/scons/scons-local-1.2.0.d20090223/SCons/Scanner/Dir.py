@@ -26,9 +26,11 @@ __revision__ = "src/engine/SCons/Scanner/Dir.py 4043 2009/02/23 09:06:45 scons"
 import SCons.Node.FS
 import SCons.Scanner
 
+
 def only_dirs(nodes):
     is_Dir = lambda n: isinstance(n.disambiguate(), SCons.Node.FS.Dir)
     return filter(is_Dir, nodes)
+
 
 def DirScanner(**kw):
     """Return a prototype Scanner instance for scanning
@@ -37,6 +39,7 @@ def DirScanner(**kw):
     kw['recursive'] = only_dirs
     return apply(SCons.Scanner.Base, (scan_on_disk, "DirScanner"), kw)
 
+
 def DirEntryScanner(**kw):
     """Return a prototype Scanner instance for "scanning"
     directory Nodes for their in-memory entries"""
@@ -44,23 +47,24 @@ def DirEntryScanner(**kw):
     kw['recursive'] = None
     return apply(SCons.Scanner.Base, (scan_in_memory, "DirEntryScanner"), kw)
 
+
 skip_entry = {}
 
 skip_entry_list = [
-   '.',
-   '..',
-   '.sconsign',
-   # Used by the native dblite.py module.
-   '.sconsign.dblite',
-   # Used by dbm and dumbdbm.
-   '.sconsign.dir',
-   # Used by dbm.
-   '.sconsign.pag',
-   # Used by dumbdbm.
-   '.sconsign.dat',
-   '.sconsign.bak',
-   # Used by some dbm emulations using Berkeley DB.
-   '.sconsign.db',
+    '.',
+    '..',
+    '.sconsign',
+    # Used by the native dblite.py module.
+    '.sconsign.dblite',
+    # Used by dbm and dumbdbm.
+    '.sconsign.dir',
+    # Used by dbm.
+    '.sconsign.pag',
+    # Used by dumbdbm.
+    '.sconsign.dat',
+    '.sconsign.bak',
+    # Used by some dbm emulations using Berkeley DB.
+    '.sconsign.db',
 ]
 
 for skip in skip_entry_list:
@@ -68,6 +72,7 @@ for skip in skip_entry_list:
     skip_entry[SCons.Node.FS._my_normcase(skip)] = 1
 
 do_not_scan = lambda k: not skip_entry.has_key(k)
+
 
 def scan_on_disk(node, env, path=()):
     """
@@ -82,11 +87,12 @@ def scan_on_disk(node, env, path=()):
     except (IOError, OSError):
         return []
     e = node.Entry
-    for f in  filter(do_not_scan, flist):
+    for f in filter(do_not_scan, flist):
         # Add ./ to the beginning of the file name so if it begins with a
         # '#' we don't look it up relative to the top-level directory.
         e('./' + f)
     return scan_in_memory(node, env, path)
+
 
 def scan_in_memory(node, env, path=()):
     """

@@ -1,5 +1,8 @@
 """
-Keyczar is an open source cryptographic toolkit designed to make it easier and safer for developers to use cryptography in their applications. Keyczar supports authentication and encryption with both symmetric and asymmetric keys. Some features of Keyczar include:
+Keyczar is an open source cryptographic toolkit designed to make it easier and
+safer for developers to use cryptography in their applications. Keyczar
+supports authentication and encryption with both symmetric and asymmetric keys.
+Some features of Keyczar include:
 
 * A simple API
 * Key rotation and versioning
@@ -8,7 +11,8 @@ Keyczar is an open source cryptographic toolkit designed to make it easier and s
 * Java, Python, and C++ implementations
 * International support in Java (Python coming soon)
 
-Keyczar was originally developed by members of the Google Security Team and is released under an Apache 2.0 license.
+Keyczar was originally developed by members of the Google Security Team and is
+released under an Apache 2.0 license.
 """
 
 from setuptools import setup
@@ -31,18 +35,18 @@ Operating System :: Unix
 doclines = __doc__.split("\n")
 
 extra = {}
-if sys.version_info >= (3,):
+if sys.version_info >= (3, ):
     extra['use_2to3'] = True
-    
+
 setup(name='python-keyczar',
       description='Toolkit for safe and simple cryptography',
       author='Arkajit Dey',
       author_email='arkajit.dey@gmail.com',
       url='http://www.keyczar.org/',
       version='0.71c',
-      packages=['keyczar','keyczar.tool','keyczar.test'],
+      packages=['keyczar', 'keyczar.tool', 'keyczar.test'],
       test_suite="keyczar.test.allsuite",
-      install_requires= ['pycrypto>2.0', 'pyasn1'],
+      install_requires=['pycrypto>2.0', 'pyasn1'],
       maintainer='Google, Inc.',
       maintainer_email='keyczar-discuss@googlegroups.com',
       license='http://www.apache.org/licenses/LICENSE-2.0',
@@ -50,6 +54,7 @@ setup(name='python-keyczar',
       classifiers=filter(None, classifiers.split("\n")),
       long_description=doclines[0],
       # create an executable for the KeyCzar tool
-      entry_points={'console_scripts': ['keyczart = keyczar.tool.keyczart:_main_setuptools']},
-      **extra
-)
+      entry_points={
+          'console_scripts':
+          ['keyczart = keyczar.tool.keyczart:_main_setuptools']
+      }, **extra)

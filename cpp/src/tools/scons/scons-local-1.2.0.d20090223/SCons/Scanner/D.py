@@ -37,28 +37,33 @@ import string
 
 import SCons.Scanner
 
+
 def DScanner():
     """Return a prototype Scanner instance for scanning D source files"""
     ds = D()
     return ds
 
-class D(SCons.Scanner.Classic):
-    def __init__ (self):
-        SCons.Scanner.Classic.__init__ (self,
-            name = "DScanner",
-            suffixes = '$DSUFFIXES',
-            path_variable = 'DPATH',
-            regex = 'import\s+(?:[a-zA-Z0-9_.]+)\s*(?:,\s*(?:[a-zA-Z0-9_.]+)\s*)*;')
 
-        self.cre2 = re.compile ('(?:import\s)?\s*([a-zA-Z0-9_.]+)\s*(?:,|;)', re.M)
+class D(SCons.Scanner.Classic):
+
+    def __init__(self):
+        SCons.Scanner.Classic.__init__(
+            self,
+            name="DScanner",
+            suffixes='$DSUFFIXES',
+            path_variable='DPATH',
+            regex='import\s+(?:[a-zA-Z0-9_.]+)\s*(?:,\s*(?:[a-zA-Z0-9_.]+)\s*)*;')
+
+        self.cre2 = re.compile('(?:import\s)?\s*([a-zA-Z0-9_.]+)\s*(?:,|;)',
+                               re.M)
 
     def find_include(self, include, source_dir, path):
         # translate dots (package separators) to slashes
         inc = string.replace(include, '.', '/')
 
-        i = SCons.Node.FS.find_file(inc + '.d', (source_dir,) + path)
+        i = SCons.Node.FS.find_file(inc + '.d', (source_dir, ) + path)
         if i is None:
-            i = SCons.Node.FS.find_file (inc + '.di', (source_dir,) + path)
+            i = SCons.Node.FS.find_file(inc + '.di', (source_dir, ) + path)
         return i, include
 
     def find_include_names(self, node):

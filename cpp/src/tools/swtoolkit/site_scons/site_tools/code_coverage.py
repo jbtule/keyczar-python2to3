@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """SCons tool for generating code coverage.
 
 This module enhances a debug environment to add code coverage.
@@ -37,84 +36,79 @@ It is used as follows:
 
 
 def AddCoverageSetup(env):
-  """Add coverage related build steps and dependency links.
+    """Add coverage related build steps and dependency links.
 
   Args:
     env: a leaf environment ready to have coverage steps added.
   """
-  # Add a step to start coverage (for instance windows needs this).
-  # This step should get run before and tests are run.
-  if env.get('COVERAGE_START_CMD', None):
-    start = env.Command('$COVERAGE_START_FILE', [], '$COVERAGE_START_CMD')
-    env.AlwaysBuild(start)
-  else:
-    start = []
+    # Add a step to start coverage (for instance windows needs this).
+    # This step should get run before and tests are run.
+    if env.get('COVERAGE_START_CMD', None):
+        start = env.Command('$COVERAGE_START_FILE', [], '$COVERAGE_START_CMD')
+        env.AlwaysBuild(start)
+    else:
+        start = []
 
-  # Add a step to end coverage (used on basically all platforms).
-  # This step should get after all the tests have run.
-  if env.get('COVERAGE_STOP_CMD', None):
-    stop = env.Command('$COVERAGE_OUTPUT_FILE', [], '$COVERAGE_STOP_CMD')
-    env.AlwaysBuild(stop)
-  else:
-    stop = []
+    # Add a step to end coverage (used on basically all platforms).
+    # This step should get after all the tests have run.
+    if env.get('COVERAGE_STOP_CMD', None):
+        stop = env.Command('$COVERAGE_OUTPUT_FILE', [], '$COVERAGE_STOP_CMD')
+        env.AlwaysBuild(stop)
+    else:
+        stop = []
 
-  # start must happen before tests run, stop must happen after.
-  for group in env.SubstList2('$COVERAGE_TARGETS'):
-    group_alias = env.Alias(group)
-    # Force each alias to happen after start but before stop.
-    env.Requires(group_alias, start)
-    env.Requires(stop, group_alias)
-    # Force each source of the aliases to happen after start but before stop.
-    # This is needed to work around non-standard aliases in some projects.
-    for test in group_alias:
-      for s in test.sources:
-        env.Requires(s, start)
-        env.Requires(stop, s)
+    # start must happen before tests run, stop must happen after.
+    for group in env.SubstList2('$COVERAGE_TARGETS'):
+        group_alias = env.Alias(group)
+        # Force each alias to happen after start but before stop.
+        env.Requires(group_alias, start)
+        env.Requires(stop, group_alias)
+        # Force each source of the aliases to happen after start but before stop.
+        # This is needed to work around non-standard aliases in some projects.
+        for test in group_alias:
+            for s in test.sources:
+                env.Requires(s, start)
+                env.Requires(stop, s)
 
-  # Add an alias for coverage.
-  env.Alias('coverage', [start, stop])
+    # Add an alias for coverage.
+    env.Alias('coverage', [start, stop])
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  env['COVERAGE_ENABLED'] = True
+    env['COVERAGE_ENABLED'] = True
 
-  env.SetDefault(
-      # Setup up coverage related tool paths.
-      # These can be overridden elsewhere, if needed, to relocate the tools.
-      COVERAGE_MCOV='mcov',
-      COVERAGE_GENHTML='genhtml',
-      COVERAGE_ANALYZER='coverage_analyzer.exe',
-      COVERAGE_VSPERFCMD='VSPerfCmd.exe',
-      COVERAGE_VSINSTR='vsinstr.exe',
+    env.SetDefault(
+        # Setup up coverage related tool paths.
+        # These can be overridden elsewhere, if needed, to relocate the tools.
+        COVERAGE_MCOV='mcov',
+        COVERAGE_GENHTML='genhtml',
+        COVERAGE_ANALYZER='coverage_analyzer.exe',
+        COVERAGE_VSPERFCMD='VSPerfCmd.exe',
+        COVERAGE_VSINSTR='vsinstr.exe',  # Setup coverage related locations.
+        COVERAGE_DIR='$TARGET_ROOT/coverage',
+        COVERAGE_HTML_DIR='$COVERAGE_DIR/html',
+        COVERAGE_START_FILE='$COVERAGE_DIR/start.junk',
+        COVERAGE_OUTPUT_FILE='$COVERAGE_DIR/coverage.lcov',
+        # The list of aliases containing test execution targets.
+        COVERAGE_TARGETS=['run_all_tests'], )
 
-      # Setup coverage related locations.
-      COVERAGE_DIR='$TARGET_ROOT/coverage',
-      COVERAGE_HTML_DIR='$COVERAGE_DIR/html',
-      COVERAGE_START_FILE='$COVERAGE_DIR/start.junk',
-      COVERAGE_OUTPUT_FILE='$COVERAGE_DIR/coverage.lcov',
+    # Add in coverage flags. These come from target_platform_xxx.
+    env.Append(
+        CCFLAGS='$COVERAGE_CCFLAGS',
+        LIBS='$COVERAGE_LIBS',
+        LINKFLAGS='$COVERAGE_LINKFLAGS',
+        SHLINKFLAGS='$COVERAGE_SHLINKFLAGS', )
 
-      # The list of aliases containing test execution targets.
-      COVERAGE_TARGETS=['run_all_tests'],
-  )
+    # Change the definition of Install if required by the platform.
+    if env.get('COVERAGE_INSTALL'):
+        env['PRECOVERAGE_INSTALL'] = env['INSTALL']
+        env['INSTALL'] = env['COVERAGE_INSTALL']
 
-  # Add in coverage flags. These come from target_platform_xxx.
-  env.Append(
-      CCFLAGS='$COVERAGE_CCFLAGS',
-      LIBS='$COVERAGE_LIBS',
-      LINKFLAGS='$COVERAGE_LINKFLAGS',
-      SHLINKFLAGS='$COVERAGE_SHLINKFLAGS',
-  )
+    # Add any extra paths.
+    env.AppendENVPath('PATH', env.SubstList2('$COVERAGE_EXTRA_PATHS'))
 
-  # Change the definition of Install if required by the platform.
-  if env.get('COVERAGE_INSTALL'):
-    env['PRECOVERAGE_INSTALL'] = env['INSTALL']
-    env['INSTALL'] = env['COVERAGE_INSTALL']
-
-  # Add any extra paths.
-  env.AppendENVPath('PATH', env.SubstList2('$COVERAGE_EXTRA_PATHS'))
-
-  # Add coverage start/stop and processing in deferred steps.
-  env.Defer(AddCoverageSetup)
+    # Add coverage start/stop and processing in deferred steps.
+    env.Defer(AddCoverageSetup)

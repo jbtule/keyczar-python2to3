@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Unit test for Google Test's break-on-failure mode.
 
 A user can ask Google Test to seg-fault when an assertion fails, using
@@ -45,7 +44,6 @@ import os
 import sys
 import unittest
 
-
 # Constants.
 
 # The environment variable for enabling/disabling the break-on-failure mode.
@@ -61,42 +59,41 @@ THROW_ON_FAILURE_ENV_VAR = 'GTEST_THROW_ON_FAILURE'
 EXE_PATH = os.path.join(gtest_test_utils.GetBuildDir(),
                         'gtest_break_on_failure_unittest_')
 
-
 # Utilities.
 
 
 def SetEnvVar(env_var, value):
-  """Sets an environment variable to a given value; unsets it when the
+    """Sets an environment variable to a given value; unsets it when the
   given value is None.
   """
 
-  if value is not None:
-    os.environ[env_var] = value
-  elif env_var in os.environ:
-    del os.environ[env_var]
+    if value is not None:
+        os.environ[env_var] = value
+    elif env_var in os.environ:
+        del os.environ[env_var]
 
 
 def Run(command):
-  """Runs a command; returns 1 if it was killed by a signal, or 0 otherwise."""
+    """Runs a command; returns 1 if it was killed by a signal, or 0 otherwise."""
 
-  p = gtest_test_utils.Subprocess(command)
-  if p.terminated_by_signal:
-    return 1
-  else:
-    return 0
-
+    p = gtest_test_utils.Subprocess(command)
+    if p.terminated_by_signal:
+        return 1
+    else:
+        return 0
 
 # The tests.
 
 
 class GTestBreakOnFailureUnitTest(unittest.TestCase):
-  """Tests using the GTEST_BREAK_ON_FAILURE environment variable or
+
+    """Tests using the GTEST_BREAK_ON_FAILURE environment variable or
   the --gtest_break_on_failure flag to turn assertion failures into
   segmentation faults.
   """
 
-  def RunAndVerify(self, env_var_value, flag_value, expect_seg_fault):
-    """Runs gtest_break_on_failure_unittest_ and verifies that it does
+    def RunAndVerify(self, env_var_value, flag_value, expect_seg_fault):
+        """Runs gtest_break_on_failure_unittest_ and verifies that it does
     (or does not) have a seg-fault.
 
     Args:
@@ -108,91 +105,92 @@ class GTestBreakOnFailureUnitTest(unittest.TestCase):
                         0 otherwise.
     """
 
-    SetEnvVar(BREAK_ON_FAILURE_ENV_VAR, env_var_value)
+        SetEnvVar(BREAK_ON_FAILURE_ENV_VAR, env_var_value)
 
-    if env_var_value is None:
-      env_var_value_msg = ' is not set'
-    else:
-      env_var_value_msg = '=' + env_var_value
+        if env_var_value is None:
+            env_var_value_msg = ' is not set'
+        else:
+            env_var_value_msg = '=' + env_var_value
 
-    if flag_value is None:
-      flag = ''
-    elif flag_value == '0':
-      flag = '--%s=0' % BREAK_ON_FAILURE_FLAG
-    else:
-      flag = '--%s' % BREAK_ON_FAILURE_FLAG
+        if flag_value is None:
+            flag = ''
+        elif flag_value == '0':
+            flag = '--%s=0' % BREAK_ON_FAILURE_FLAG
+        else:
+            flag = '--%s' % BREAK_ON_FAILURE_FLAG
 
-    command = [EXE_PATH]
-    if flag:
-      command.append(flag)
+        command = [EXE_PATH]
+        if flag:
+            command.append(flag)
 
-    if expect_seg_fault:
-      should_or_not = 'should'
-    else:
-      should_or_not = 'should not'
+        if expect_seg_fault:
+            should_or_not = 'should'
+        else:
+            should_or_not = 'should not'
 
-    has_seg_fault = Run(command)
+        has_seg_fault = Run(command)
 
-    SetEnvVar(BREAK_ON_FAILURE_ENV_VAR, None)
+        SetEnvVar(BREAK_ON_FAILURE_ENV_VAR, None)
 
-    msg = ('when %s%s, an assertion failure in "%s" %s cause a seg-fault.' %
-           (BREAK_ON_FAILURE_ENV_VAR, env_var_value_msg, ' '.join(command),
-            should_or_not))
-    self.assert_(has_seg_fault == expect_seg_fault, msg)
+        msg = ('when %s%s, an assertion failure in "%s" %s cause a seg-fault.'
+               % (BREAK_ON_FAILURE_ENV_VAR, env_var_value_msg,
+                  ' '.join(command), should_or_not))
+        self.assert_(has_seg_fault == expect_seg_fault, msg)
 
-  def testDefaultBehavior(self):
-    """Tests the behavior of the default mode."""
+    def testDefaultBehavior(self):
+        """Tests the behavior of the default mode."""
 
-    self.RunAndVerify(env_var_value=None,
-                      flag_value=None,
-                      expect_seg_fault=0)
+        self.RunAndVerify(env_var_value=None,
+                          flag_value=None,
+                          expect_seg_fault=0)
 
-  def testEnvVar(self):
-    """Tests using the GTEST_BREAK_ON_FAILURE environment variable."""
+    def testEnvVar(self):
+        """Tests using the GTEST_BREAK_ON_FAILURE environment variable."""
 
-    self.RunAndVerify(env_var_value='0',
-                      flag_value=None,
-                      expect_seg_fault=0)
-    self.RunAndVerify(env_var_value='1',
-                      flag_value=None,
-                      expect_seg_fault=1)
+        self.RunAndVerify(env_var_value='0',
+                          flag_value=None,
+                          expect_seg_fault=0)
+        self.RunAndVerify(env_var_value='1',
+                          flag_value=None,
+                          expect_seg_fault=1)
 
-  def testFlag(self):
-    """Tests using the --gtest_break_on_failure flag."""
+    def testFlag(self):
+        """Tests using the --gtest_break_on_failure flag."""
 
-    self.RunAndVerify(env_var_value=None,
-                      flag_value='0',
-                      expect_seg_fault=0)
-    self.RunAndVerify(env_var_value=None,
-                      flag_value='1',
-                      expect_seg_fault=1)
+        self.RunAndVerify(env_var_value=None,
+                          flag_value='0',
+                          expect_seg_fault=0)
+        self.RunAndVerify(env_var_value=None,
+                          flag_value='1',
+                          expect_seg_fault=1)
 
-  def testFlagOverridesEnvVar(self):
-    """Tests that the flag overrides the environment variable."""
+    def testFlagOverridesEnvVar(self):
+        """Tests that the flag overrides the environment variable."""
 
-    self.RunAndVerify(env_var_value='0',
-                      flag_value='0',
-                      expect_seg_fault=0)
-    self.RunAndVerify(env_var_value='0',
-                      flag_value='1',
-                      expect_seg_fault=1)
-    self.RunAndVerify(env_var_value='1',
-                      flag_value='0',
-                      expect_seg_fault=0)
-    self.RunAndVerify(env_var_value='1',
-                      flag_value='1',
-                      expect_seg_fault=1)
+        self.RunAndVerify(env_var_value='0',
+                          flag_value='0',
+                          expect_seg_fault=0)
+        self.RunAndVerify(env_var_value='0',
+                          flag_value='1',
+                          expect_seg_fault=1)
+        self.RunAndVerify(env_var_value='1',
+                          flag_value='0',
+                          expect_seg_fault=0)
+        self.RunAndVerify(env_var_value='1',
+                          flag_value='1',
+                          expect_seg_fault=1)
 
-  def testBreakOnFailureOverridesThrowOnFailure(self):
-    """Tests that gtest_break_on_failure overrides gtest_throw_on_failure."""
+    def testBreakOnFailureOverridesThrowOnFailure(self):
+        """Tests that gtest_break_on_failure overrides gtest_throw_on_failure."""
 
-    SetEnvVar(THROW_ON_FAILURE_ENV_VAR, '1')
-    try:
-      self.RunAndVerify(env_var_value=None,
-                        flag_value='1',
-                        expect_seg_fault=1)
-    finally:
-      SetEnvVar(THROW_ON_FAILURE_ENV_VAR, None)
+        SetEnvVar(THROW_ON_FAILURE_ENV_VAR, '1')
+        try:
+            self.RunAndVerify(env_var_value=None,
+                              flag_value='1',
+                              expect_seg_fault=1)
+        finally:
+            SetEnvVar(THROW_ON_FAILURE_ENV_VAR, None)
+
 
 if __name__ == '__main__':
-  gtest_test_utils.Main()
+    gtest_test_utils.Main()

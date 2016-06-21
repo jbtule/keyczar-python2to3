@@ -37,10 +37,10 @@ import SCons.Platform.win32
 import SCons.Util
 
 from SCons.Tool.MSCommon.vs import detect_msvs, \
-                                   get_default_version, \
-                                   get_vs_by_version, \
-                                   merge_default_version, \
-                                   query_versions
+    get_default_version, \
+    get_vs_by_version, \
+    merge_default_version, \
+    query_versions
 
 # Local Variables:
 # tab-width:4

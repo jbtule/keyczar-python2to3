@@ -7,13 +7,15 @@
 
 __revision__ = "$Id: textwrap.py,v 1.32.8.2 2004/05/13 01:48:15 gward Exp $"
 
-import string, re
+import string
+import re
 
 try:
-   unicode
+    unicode
 except NameError:
-   class unicode:
-       pass
+
+    class unicode:
+        pass
 
 # Do the right thing with boolean values for all known Python versions
 # (so this module can be copied to projects that don't depend on Python
@@ -35,7 +37,9 @@ __all__ = ['TextWrapper', 'wrap', 'fill']
 # since 0xa0 is not in range(128).
 _whitespace = '\t\n\x0b\x0c\r '
 
+
 class TextWrapper:
+
     """
     Object for wrapping/filling text.  The public interface consists of
     the wrap() and fill() methods; the other methods are just there for
@@ -91,23 +95,23 @@ class TextWrapper:
     #   Hello/ /there/ /--/ /you/ /goof-/ball,/ /use/ /the/ /-b/ /option!
     # (after stripping out empty strings).
     try:
-        wordsep_re = re.compile(r'(\s+|'                  # any whitespace
-                                r'[^\s\w]*\w{2,}-(?=\w{2,})|' # hyphenated words
-                                r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')   # em-dash
+        wordsep_re = re.compile(
+            r'(\s+|'  # any whitespace
+            r'[^\s\w]*\w{2,}-(?=\w{2,})|'  # hyphenated words
+            r'(?<=[\w\!\"\'\&\.\,\?])-{2,}(?=\w))')  # em-dash
     except re.error:
         # Pre-2.0 Python versions don't have the (?<= negative look-behind
         # assertion.  It mostly doesn't matter for the simple input
         # SCons is going to give it, so just leave it out.
-        wordsep_re = re.compile(r'(\s+|'                    # any whitespace
-                                r'-*\w{2,}-(?=\w{2,}))')    # hyphenated words
+        wordsep_re = re.compile(r'(\s+|'  # any whitespace
+                                r'-*\w{2,}-(?=\w{2,}))')  # hyphenated words
 
     # XXX will there be a locale-or-charset-aware version of
     # string.lowercase in 2.3?
-    sentence_end_re = re.compile(r'[%s]'              # lowercase letter
-                                 r'[\.\!\?]'          # sentence-ending punct.
-                                 r'[\"\']?'           # optional end-of-quote
+    sentence_end_re = re.compile(r'[%s]'  # lowercase letter
+                                 r'[\.\!\?]'  # sentence-ending punct.
+                                 r'[\"\']?'  # optional end-of-quote
                                  % string.lowercase)
-
 
     def __init__(self,
                  width=70,
@@ -124,7 +128,6 @@ class TextWrapper:
         self.replace_whitespace = replace_whitespace
         self.fix_sentence_endings = fix_sentence_endings
         self.break_long_words = break_long_words
-
 
     # -- Private methods -----------------------------------------------
     # (possibly useful for subclasses to override)
@@ -144,7 +147,6 @@ class TextWrapper:
             elif isinstance(text, unicode):
                 text = string.translate(text, self.unicode_whitespace_trans)
         return text
-
 
     def _split(self, text):
         """_split(text : string) -> [string]
@@ -172,9 +174,9 @@ class TextWrapper:
         """
         i = 0
         pat = self.sentence_end_re
-        while i < len(chunks)-1:
-            if chunks[i+1] == " " and pat.search(chunks[i]):
-                chunks[i+1] = "  "
+        while i < len(chunks) - 1:
+            if chunks[i + 1] == " " and pat.search(chunks[i]):
+                chunks[i + 1] = "  "
                 i = i + 2
             else:
                 i = i + 1
@@ -273,7 +275,6 @@ class TextWrapper:
 
         return lines
 
-
     # -- Public interface ----------------------------------------------
 
     def wrap(self, text):
@@ -301,8 +302,8 @@ class TextWrapper:
         """
         return string.join(self.wrap(text), "\n")
 
-
 # -- Convenience interface ---------------------------------------------
+
 
 def wrap(text, width=70, **kwargs):
     """Wrap a single paragraph of text, returning a list of wrapped lines.
@@ -319,6 +320,7 @@ def wrap(text, width=70, **kwargs):
     w = apply(TextWrapper, (), kw)
     return w.wrap(text)
 
+
 def fill(text, width=70, **kwargs):
     """Fill a single paragraph of text, returning a new string.
 
@@ -333,8 +335,8 @@ def fill(text, width=70, **kwargs):
     w = apply(TextWrapper, (), kw)
     return w.fill(text)
 
-
 # -- Loosely related functionality -------------------------------------
+
 
 def dedent(text):
     """dedent(text : string) -> string

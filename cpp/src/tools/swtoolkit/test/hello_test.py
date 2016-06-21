@@ -27,48 +27,43 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Hello world smoke test for software construction tookit (LARGE test)."""
-
 
 import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
 
-  base_env = Environment(tools=['component_setup'])
-  base_env.Append(BUILD_COMPONENTS=['SConscript'])
+    base_env = Environment(tools=['component_setup'])
+    base_env.Append(BUILD_COMPONENTS=['SConscript'])
 
-  windows_env = base_env.Clone(
-      tools=['target_platform_windows'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Windows build',
-  )
-  windows_env.Append(BUILD_GROUPS=['default'])
+    windows_env = base_env.Clone(
+        tools=['target_platform_windows'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Windows build', )
+    windows_env.Append(BUILD_GROUPS=['default'])
 
-  mac_env = base_env.Clone(
-      tools=['target_platform_mac'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Mac build',
-  )
-  mac_env.Append(BUILD_GROUPS=['default'])
+    mac_env = base_env.Clone(
+        tools=['target_platform_mac'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Mac build', )
+    mac_env.Append(BUILD_GROUPS=['default'])
 
-  linux_env = base_env.Clone(
-      tools=['target_platform_linux'],
-      BUILD_TYPE='dbg',
-      BUILD_TYPE_DESCRIPTION='Debug Linux build',
-  )
-  linux_env.Append(BUILD_GROUPS=['default'])
+    linux_env = base_env.Clone(
+        tools=['target_platform_linux'],
+        BUILD_TYPE='dbg',
+        BUILD_TYPE_DESCRIPTION='Debug Linux build', )
+    linux_env.Append(BUILD_GROUPS=['default'])
 
-  BuildComponents([windows_env, mac_env, linux_env])
+    BuildComponents([windows_env, mac_env, linux_env])
 
 
 sconscript_contents = """
@@ -88,23 +83,25 @@ int main() {
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  test.subdir('hello')
+    test.subdir('hello')
 
-  base = 'hello/'
+    base = 'hello/'
 
-  test.WriteSConscript(base + 'SConstruct', TestSConstruct)
-  test.write(base + 'SConscript', sconscript_contents)
-  test.write(base + 'hello.c', hello_c_contents)
+    test.WriteSConscript(base + 'SConstruct', TestSConstruct)
+    test.write(base + 'SConscript', sconscript_contents)
+    test.write(base + 'hello.c', hello_c_contents)
 
-  test.run(chdir=base)
-  test.must_exist(base + 'scons-out/dbg/obj/hello' + TestFramework.exe_suffix)
-  test.run(program=test.workpath(base + 'scons-out/dbg/obj/hello' +
-                                 TestFramework.exe_suffix),
-           stdout='Hello, world!\n')
+    test.run(chdir=base)
+    test.must_exist(
+        base + 'scons-out/dbg/obj/hello' + TestFramework.exe_suffix)
+    test.run(program=test.workpath(base + 'scons-out/dbg/obj/hello' +
+                                   TestFramework.exe_suffix),
+             stdout='Hello, world!\n')
 
-  test.pass_test()
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

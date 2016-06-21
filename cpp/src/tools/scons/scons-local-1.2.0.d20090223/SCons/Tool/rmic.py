@@ -41,6 +41,7 @@ import SCons.Builder
 import SCons.Node.FS
 import SCons.Util
 
+
 def emit_rmic_classes(target, source, env):
     """Create and return lists of Java RMI stub and skeleton
     class files to be created from a set of class files.
@@ -87,29 +88,34 @@ def emit_rmic_classes(target, source, env):
     for s in source:
         for suff in stub_suffixes:
             fname = string.replace(s.attributes.java_classname, '.', os.sep) + \
-                    suff + class_suffix
+                suff + class_suffix
             t = target[0].File(fname)
             t.attributes.java_lookupdir = target[0]
             tlist.append(t)
 
     return tlist, source
 
+
 RMICAction = SCons.Action.Action('$RMICCOM', '$RMICCOMSTR')
 
-RMICBuilder = SCons.Builder.Builder(action = RMICAction,
-                     emitter = emit_rmic_classes,
-                     src_suffix = '$JAVACLASSSUFFIX',
-                     target_factory = SCons.Node.FS.Dir,
-                     source_factory = SCons.Node.FS.File)
+RMICBuilder = SCons.Builder.Builder(action=RMICAction,
+                                    emitter=emit_rmic_classes,
+                                    src_suffix='$JAVACLASSSUFFIX',
+                                    target_factory=SCons.Node.FS.Dir,
+                                    source_factory=SCons.Node.FS.File)
+
 
 def generate(env):
     """Add Builders and construction variables for rmic to an Environment."""
     env['BUILDERS']['RMIC'] = RMICBuilder
 
-    env['RMIC']            = 'rmic'
-    env['RMICFLAGS']       = SCons.Util.CLVar('')
-    env['RMICCOM']         = '$RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} -classpath ${SOURCE.attributes.java_classdir} ${SOURCES.attributes.java_classname}'
-    env['JAVACLASSSUFFIX']  = '.class'
+    env['RMIC'] = 'rmic'
+    env['RMICFLAGS'] = SCons.Util.CLVar('')
+    env[
+        'RMICCOM'
+    ] = '$RMIC $RMICFLAGS -d ${TARGET.attributes.java_lookupdir} -classpath ${SOURCE.attributes.java_classdir} ${SOURCES.attributes.java_classname}'
+    env['JAVACLASSSUFFIX'] = '.class'
+
 
 def exists(env):
     return env.Detect('rmic')

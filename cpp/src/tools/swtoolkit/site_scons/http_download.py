@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Download a file from a URL to a file on disk.
 
 This module supports username and password with basic authentication.
@@ -39,16 +38,16 @@ import urllib2
 
 
 def _CreateDirectory(path):
-  """Create a directory tree, ignore if it's already there."""
-  try:
-    os.makedirs(path)
-    return True
-  except os.error:
-    return False
+    """Create a directory tree, ignore if it's already there."""
+    try:
+        os.makedirs(path)
+        return True
+    except os.error:
+        return False
 
 
 def HttpDownload(url, target, username=None, password=None):
-  """Download a file from a remote server.
+    """Download a file from a remote server.
 
   Args:
     url: A URL to download from.
@@ -57,21 +56,21 @@ def HttpDownload(url, target, username=None, password=None):
     password: Optional password for download (ignored if no username).
   """
 
-  headers = [('Accept', '*/*')]
-  if username:
-    if password:
-      auth_code = base64.b64encode(username + ':' + password)
-    else:
-      auth_code = base64.b64encode(username)
-    headers.append(('Authorization', 'Basic ' + auth_code))
-  opener = urllib2.build_opener()
-  opener.addheaders = headers
-  urllib2.install_opener(opener)
-  src = urllib2.urlopen(url)
-  data = src.read()
-  src.close()
+    headers = [('Accept', '*/*')]
+    if username:
+        if password:
+            auth_code = base64.b64encode(username + ':' + password)
+        else:
+            auth_code = base64.b64encode(username)
+        headers.append(('Authorization', 'Basic ' + auth_code))
+    opener = urllib2.build_opener()
+    opener.addheaders = headers
+    urllib2.install_opener(opener)
+    src = urllib2.urlopen(url)
+    data = src.read()
+    src.close()
 
-  _CreateDirectory(os.path.split(target)[0])
-  fh = open(target, 'wb')
-  fh.write(data)
-  fh.close()
+    _CreateDirectory(os.path.split(target)[0])
+    fh = open(target, 'wb')
+    fh.write(data)
+    fh.close()

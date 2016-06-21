@@ -52,21 +52,24 @@ Usage example:
 
 __revision__ = "src/engine/SCons/Variables/PackageVariable.py 4043 2009/02/23 09:06:45 scons"
 
-__all__ = ['PackageVariable',]
+__all__ = ['PackageVariable', ]
 
 import string
 
 import SCons.Errors
 
-__enable_strings  = ('1', 'yes', 'true',  'on', 'enable', 'search')
-__disable_strings = ('0', 'no',  'false', 'off', 'disable')
+__enable_strings = ('1', 'yes', 'true', 'on', 'enable', 'search')
+__disable_strings = ('0', 'no', 'false', 'off', 'disable')
+
 
 def _converter(val):
     """
     """
     lval = string.lower(val)
-    if lval in __enable_strings: return True
-    if lval in __disable_strings: return False
+    if lval in __enable_strings:
+        return True
+    if lval in __disable_strings:
+        return False
     #raise ValueError("Invalid value for boolean option: %s" % val)
     return val
 
@@ -95,12 +98,9 @@ def PackageVariable(key, help, default, searchfunc=None):
     A 'package list' option may either be 'all', 'none' or a list of
     package names (seperated by space).
     """
-    help = string.join(
-        (help, '( yes | no | /path/to/%s )' % key),
-        '\n    ')
+    help = string.join((help, '( yes | no | /path/to/%s )' % key), '\n    ')
     return (key, help, default,
-            lambda k, v, e, f=searchfunc: _validator(k,v,e,f),
-            _converter)
+            lambda k, v, e, f=searchfunc: _validator(k, v, e, f), _converter)
 
 # Local Variables:
 # tab-width:4

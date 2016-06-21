@@ -37,43 +37,47 @@ import SCons.Action
 import os
 import string
 
+
 def generate(env):
     """Add Builders and construction variables for WiX to an Environment."""
     if not exists(env):
-      return
+        return
 
     env['WIXCANDLEFLAGS'] = ['-nologo']
     env['WIXCANDLEINCLUDE'] = []
-    env['WIXCANDLECOM'] = '$WIXCANDLE $WIXCANDLEFLAGS -I $WIXCANDLEINCLUDE -o ${TARGET} ${SOURCE}'
+    env[
+        'WIXCANDLECOM'
+    ] = '$WIXCANDLE $WIXCANDLEFLAGS -I $WIXCANDLEINCLUDE -o ${TARGET} ${SOURCE}'
 
-    env['WIXLIGHTFLAGS'].append( '-nologo' )
+    env['WIXLIGHTFLAGS'].append('-nologo')
     env['WIXLIGHTCOM'] = "$WIXLIGHT $WIXLIGHTFLAGS -out ${TARGET} ${SOURCES}"
 
     object_builder = SCons.Builder.Builder(
-        action      = '$WIXCANDLECOM',
-        suffix      = '.wxiobj',
-        src_suffix  = '.wxs')
+        action='$WIXCANDLECOM',
+        suffix='.wxiobj',
+        src_suffix='.wxs')
 
     linker_builder = SCons.Builder.Builder(
-        action      = '$WIXLIGHTCOM',
-        src_suffix  = '.wxiobj',
-        src_builder = object_builder)
+        action='$WIXLIGHTCOM',
+        src_suffix='.wxiobj',
+        src_builder=object_builder)
 
     env['BUILDERS']['WiX'] = linker_builder
 
+
 def exists(env):
     env['WIXCANDLE'] = 'candle.exe'
-    env['WIXLIGHT']  = 'light.exe'
+    env['WIXLIGHT'] = 'light.exe'
 
-    # try to find the candle.exe and light.exe tools and 
+    # try to find the candle.exe and light.exe tools and
     # add the install directory to light libpath.
-    #for path in os.environ['PATH'].split(os.pathsep):
+    # for path in os.environ['PATH'].split(os.pathsep):
     for path in string.split(os.environ['PATH'], os.pathsep):
         if not path:
             continue
 
         # workaround for some weird python win32 bug.
-        if path[0] == '"' and path[-1:]=='"':
+        if path[0] == '"' and path[-1:] == '"':
             path = path[1:-1]
 
         # normalize the path
@@ -82,14 +86,14 @@ def exists(env):
         # search for the tools in the PATH environment variable
         try:
             if env['WIXCANDLE'] in os.listdir(path) and\
-               env['WIXLIGHT']  in os.listdir(path):
-                   env.PrependENVPath('PATH', path)
-                   env['WIXLIGHTFLAGS'] = [ os.path.join( path, 'wixui.wixlib' ),
-                                            '-loc',
-                                            os.path.join( path, 'WixUI_en-us.wxl' ) ]
-                   return 1
+               env['WIXLIGHT'] in os.listdir(path):
+                env.PrependENVPath('PATH', path)
+                env['WIXLIGHTFLAGS'] = [os.path.join(path, 'wixui.wixlib'),
+                                        '-loc',
+                                        os.path.join(path, 'WixUI_en-us.wxl')]
+                return 1
         except OSError:
-            pass # ignore this, could be a stale PATH entry.
+            pass  # ignore this, could be a stale PATH entry.
 
     return None
 

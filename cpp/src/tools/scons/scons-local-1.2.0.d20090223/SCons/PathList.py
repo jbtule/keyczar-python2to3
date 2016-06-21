@@ -43,9 +43,10 @@ import SCons.Util
 # Variables to specify the different types of entries in a PathList object:
 #
 
-TYPE_STRING_NO_SUBST = 0        # string with no '$'
-TYPE_STRING_SUBST = 1           # string containing '$'
-TYPE_OBJECT = 2                 # other object
+TYPE_STRING_NO_SUBST = 0  # string with no '$'
+TYPE_STRING_SUBST = 1  # string containing '$'
+TYPE_OBJECT = 2  # other object
+
 
 def node_conv(obj):
     """
@@ -59,7 +60,7 @@ def node_conv(obj):
     try:
         get = obj.get
     except AttributeError:
-        if isinstance(obj, SCons.Node.Node) or SCons.Util.is_Sequence( obj ):
+        if isinstance(obj, SCons.Node.Node) or SCons.Util.is_Sequence(obj):
             result = obj
         else:
             result = str(obj)
@@ -67,10 +68,13 @@ def node_conv(obj):
         result = get()
     return result
 
+
 class _PathList:
+
     """
     An actual PathList object.
     """
+
     def __init__(self, pathlist):
         """
         Initializes a PathList object, canonicalizing the input and
@@ -117,9 +121,11 @@ class _PathList:
 
         self.pathlist = tuple(pl)
 
-    def __len__(self): return len(self.pathlist)
+    def __len__(self):
+        return len(self.pathlist)
 
-    def __getitem__(self, i): return self.pathlist[i]
+    def __getitem__(self, i):
+        return self.pathlist[i]
 
     def subst_path(self, env, target, source):
         """
@@ -129,12 +135,14 @@ class _PathList:
         result = []
         for type, value in self.pathlist:
             if type == TYPE_STRING_SUBST:
-                value = env.subst(value, target=target, source=source,
+                value = env.subst(value,
+                                  target=target,
+                                  source=source,
                                   conv=node_conv)
                 if SCons.Util.is_Sequence(value):
                     result.extend(value)
                     continue
-                    
+
             elif type == TYPE_OBJECT:
                 value = node_conv(value)
             if value:
@@ -143,6 +151,7 @@ class _PathList:
 
 
 class PathListCache:
+
     """
     A class to handle caching of PathList lookups.
 
@@ -163,7 +172,7 @@ class PathListCache:
     The main type of duplication we're trying to catch will come from
     looking up the same path list from two different clones of the
     same construction environment.  That is, given
-    
+
         env2 = env1.Clone()
 
     both env1 and env2 will have the same CPPPATH value, and we can
@@ -195,7 +204,8 @@ class PathListCache:
             pathlist = tuple(SCons.Util.flatten(pathlist))
         return pathlist
 
-    memoizer_counters.append(SCons.Memoize.CountDict('PathList', _PathList_key))
+    memoizer_counters.append(SCons.Memoize.CountDict('PathList',
+                                                     _PathList_key))
 
     def PathList(self, pathlist):
         """
@@ -220,8 +230,8 @@ class PathListCache:
 
         return result
 
-PathList = PathListCache().PathList
 
+PathList = PathListCache().PathList
 
 del PathListCache
 

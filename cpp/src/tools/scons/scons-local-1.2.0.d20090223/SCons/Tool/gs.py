@@ -49,6 +49,7 @@ else:
 
 GhostscriptAction = None
 
+
 def generate(env):
     """Add Builders and construction variables for Ghostscript to an
     Environment."""
@@ -63,9 +64,9 @@ def generate(env):
     bld = env['BUILDERS']['PDF']
     bld.add_action('.ps', GhostscriptAction)
 
-    env['GS']      = gs
+    env['GS'] = gs
     env['GSFLAGS'] = SCons.Util.CLVar('-dNOPAUSE -dBATCH -sDEVICE=pdfwrite')
-    env['GSCOM']   = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'
+    env['GSCOM'] = '$GS $GSFLAGS -sOutputFile=$TARGET $SOURCES'
 
 
 def exists(env):

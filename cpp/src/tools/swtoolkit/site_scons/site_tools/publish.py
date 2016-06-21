@@ -27,9 +27,7 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Publish tool for SCons."""
-
 
 # List of published resources.  This is a dict indexed by group name.  Each
 # item in this dict is a dict indexed by resource type.  Items in that dict
@@ -40,37 +38,38 @@ __published = {}
 
 
 class PublishItem(object):
-  """Item to be published."""
 
-  def __init__(self, source, subdir):
-    """Initialize object.
+    """Item to be published."""
+
+    def __init__(self, source, subdir):
+        """Initialize object.
 
     Args:
       source: Source node.
       subdir: If not None, subdirectory to copy node into in
           ReplicatePublished().
     """
-    object.__init__(self)
-    self.source = source
-    self.subdir = subdir
+        object.__init__(self)
+        self.source = source
+        self.subdir = subdir
 
 #------------------------------------------------------------------------------
 
 
 def _InitializePublish(env):
-  """Re-initializes published resources.
+    """Re-initializes published resources.
 
   Args:
     env: Parent environment
   """
-  env=env     # Silence gpylint
+    env = env  # Silence gpylint
 
-  # Clear the dict of published resources
-  __published.clear()
+    # Clear the dict of published resources
+    __published.clear()
 
 
 def ReplicatePublished(self, target, group_name, resource_type):
-  """Replicate published resources for the group to the target directory.
+    """Replicate published resources for the group to the target directory.
 
   Args:
     self: Environment in which this function was called.
@@ -87,23 +86,24 @@ def ReplicatePublished(self, target, group_name, resource_type):
   Since this is based on Replicate(), it will also use the REPLICATE_REPLACE
   variable, if it's set in the calling environment.
   """
-  target_path = self.Dir(target).abspath
+    target_path = self.Dir(target).abspath
 
-  dest_nodes = []
-  for group in self.SubstList2(group_name):
-    for resource in self.SubstList2(resource_type):
-      # Get items for publish group and resource type
-      items = __published.get(group, {}).get(resource, [])
-      for i in items:
-        if i.subdir:
-          dest_nodes += self.Replicate(target_path + '/' + i.subdir, i.source)
-        else:
-          dest_nodes += self.Replicate(target_path, i.source)
-  return dest_nodes
+    dest_nodes = []
+    for group in self.SubstList2(group_name):
+        for resource in self.SubstList2(resource_type):
+            # Get items for publish group and resource type
+            items = __published.get(group, {}).get(resource, [])
+            for i in items:
+                if i.subdir:
+                    dest_nodes += self.Replicate(target_path + '/' + i.subdir,
+                                                 i.source)
+                else:
+                    dest_nodes += self.Replicate(target_path, i.source)
+    return dest_nodes
 
 
 def GetPublished(self, group_name, resource_type):
-  """Returns a list of the published resources of the specified type.
+    """Returns a list of the published resources of the specified type.
 
   Args:
     self: Environment in which this function was called.
@@ -115,19 +115,19 @@ def GetPublished(self, group_name, resource_type):
         specified group and resource type.  Returns an empty list if there are
         no matching resources.
   """
-  source_list = []
-  for group in self.SubstList2(group_name):
-    # Get items for publish group and resource type
-    for resource in self.SubstList2(resource_type):
-      items = __published.get(group, {}).get(resource, [])
-      for i in items:
-        source_list.append(i.source)
+    source_list = []
+    for group in self.SubstList2(group_name):
+        # Get items for publish group and resource type
+        for resource in self.SubstList2(resource_type):
+            items = __published.get(group, {}).get(resource, [])
+            for i in items:
+                source_list.append(i.source)
 
-  return source_list
+    return source_list
 
 
 def Publish(self, group_name, resource_type, source, subdir=None):
-  """Publishes resources for use by other scripts.
+    """Publishes resources for use by other scripts.
 
   Args:
     self: Environment in which this function was called.
@@ -140,57 +140,57 @@ def Publish(self, group_name, resource_type, source, subdir=None):
     subdir: Subdirectory to which the resources should be copied, relative to
         the primary directory for that resource type, if not None.
   """
-  if subdir is None:
-    subdir = ''         # Make string so we can append to it
+    if subdir is None:
+        subdir = ''  # Make string so we can append to it
 
-  # Evaluate SCons variables in group name
-  # TODO: Should Publish() be able to take a list of group names and publish
-  # the resource to all of them?
-  group_name = self.subst(group_name)
+    # Evaluate SCons variables in group name
+    # TODO: Should Publish() be able to take a list of group names and publish
+    # the resource to all of them?
+    group_name = self.subst(group_name)
 
-  # Get list of sources
-  items = []
-  for source_entry in self.Flatten(source):
-    if isinstance(source_entry, str):
-      # Search for matches for each source entry
-      # TODO: Should generate an error if there were no matches?  But need to
-      # skip this warning if this is a recursive call to self.Publish() from
-      # below.
-      source_nodes = self.Glob(source_entry)
-    else:
-      # Source entry is already a file or directory node; no need to glob it
-      source_nodes = [source_entry]
-    for s in source_nodes:
-      if str(s.__class__) == 'SCons.Node.FS.Dir':
-        # Recursively publish all files in subdirectory.  Since glob('*')
-        # doesn't match dot files, also glob('.*').
-        self.Publish(group_name, resource_type,
-                     [s.abspath + '/*', s.abspath + '/.*'],
-                     subdir=subdir + '/' + s.name)
-      else:
-        items.append(PublishItem(s, subdir))
+    # Get list of sources
+    items = []
+    for source_entry in self.Flatten(source):
+        if isinstance(source_entry, str):
+            # Search for matches for each source entry
+            # TODO: Should generate an error if there were no matches?  But need to
+            # skip this warning if this is a recursive call to self.Publish() from
+            # below.
+            source_nodes = self.Glob(source_entry)
+        else:
+            # Source entry is already a file or directory node; no need to glob it
+            source_nodes = [source_entry]
+        for s in source_nodes:
+            if str(s.__class__) == 'SCons.Node.FS.Dir':
+                # Recursively publish all files in subdirectory.  Since glob('*')
+                # doesn't match dot files, also glob('.*').
+                self.Publish(group_name, resource_type, [s.abspath + '/*',
+                                                         s.abspath + '/.*'],
+                             subdir=subdir + '/' + s.name)
+            else:
+                items.append(PublishItem(s, subdir))
 
-  # Publish items, if any
-  if items:
-    # Get publish group
-    if group_name not in __published:
-      __published[group_name] = {}
-    group = __published[group_name]
-    if resource_type not in group:
-      group[resource_type] = []
+    # Publish items, if any
+    if items:
+        # Get publish group
+        if group_name not in __published:
+            __published[group_name] = {}
+        group = __published[group_name]
+        if resource_type not in group:
+            group[resource_type] = []
 
-    # Publish items into group
-    group[resource_type] += items
+        # Publish items into group
+        group[resource_type] += items
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  # Defer initializing publish, but do before building SConscripts
-  env.Defer(_InitializePublish)
-  env.Defer('BuildEnvironmentSConscripts', after=_InitializePublish)
+    # Defer initializing publish, but do before building SConscripts
+    env.Defer(_InitializePublish)
+    env.Defer('BuildEnvironmentSConscripts', after=_InitializePublish)
 
-  env.AddMethod(GetPublished)
-  env.AddMethod(Publish)
-  env.AddMethod(ReplicatePublished)
+    env.AddMethod(GetPublished)
+    env.AddMethod(Publish)
+    env.AddMethod(ReplicatePublished)

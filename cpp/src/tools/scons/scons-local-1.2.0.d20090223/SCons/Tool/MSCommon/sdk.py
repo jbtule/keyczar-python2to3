@@ -52,13 +52,15 @@ import SCons.Util
 
 # Location of the SDK (checked for 6.1 only)
 _CURINSTALLED_SDK_HKEY_ROOT = \
-        r"Software\Microsoft\Microsoft SDKs\Windows\CurrentInstallFolder"
+    r"Software\Microsoft\Microsoft SDKs\Windows\CurrentInstallFolder"
 
 
 class SDKDefinition:
+
     """
     An abstract base class for trying to find installed SDK directories.
     """
+
     def __init__(self, version, **kw):
         self.version = version
         self.__dict__.update(kw)
@@ -100,22 +102,28 @@ class SDKDefinition:
             self._sdk_dir = sdk_dir
             return sdk_dir
 
+
 class WindowsSDK(SDKDefinition):
+
     """
     A subclass for trying to find installed Windows SDK directories.
     """
     HKEY_FMT = r'Software\Microsoft\Microsoft SDKs\Windows\v%s\InstallationFolder'
+
     def __init__(self, *args, **kw):
-        apply(SDKDefinition.__init__, (self,)+args, kw)
+        apply(SDKDefinition.__init__, (self, ) + args, kw)
         self.hkey_data = self.version
 
+
 class PlatformSDK(SDKDefinition):
+
     """
     A subclass for trying to find installed Platform SDK directories.
     """
     HKEY_FMT = r'Software\Microsoft\MicrosoftSDK\InstalledSDKS\%s\Install Dir'
+
     def __init__(self, *args, **kw):
-        apply(SDKDefinition.__init__, (self,)+args, kw)
+        apply(SDKDefinition.__init__, (self, ) + args, kw)
         self.hkey_data = self.uuid
 
 # The list of support SDKs which we know how to detect.
@@ -127,18 +135,14 @@ class PlatformSDK(SDKDefinition):
 # If you update this list, update the documentation in Tool/mssdk.xml.
 SupportedSDKList = [
     WindowsSDK('6.1',
-                sanity_check_file=r'include\windows.h'),
-
+               sanity_check_file=r'include\windows.h'),
     WindowsSDK('6.0A',
                sanity_check_file=r'include\windows.h'),
-
     WindowsSDK('6.0',
                sanity_check_file=r'bin\gacutil.exe'),
-
     PlatformSDK('2003R2',
                 sanity_check_file=r'SetEnv.Cmd',
                 uuid="D2FF9F89-8AA2-4373-8A31-C838BF4DBBE1"),
-
     PlatformSDK('2003R1',
                 sanity_check_file=r'SetEnv.Cmd',
                 uuid="8F9E5EF3-A9A5-491B-A889-C58EFFECE8B3"),
@@ -148,7 +152,6 @@ SupportedSDKMap = {}
 for sdk in SupportedSDKList:
     SupportedSDKMap[sdk.version] = sdk
 
-
 # Finding installed SDKs isn't cheap, because it goes not only to the
 # registry but also to the disk to sanity-check that there is, in fact,
 # an SDK installed there and that the registry entry isn't just stale.
@@ -156,6 +159,7 @@ for sdk in SupportedSDKList:
 
 InstalledSDKList = None
 InstalledSDKMap = None
+
 
 def get_installed_sdks():
     global InstalledSDKList
@@ -171,13 +175,13 @@ def get_installed_sdks():
                 InstalledSDKMap[sdk.version] = sdk
     return InstalledSDKList
 
-
 # We may be asked to update multiple construction environments with
 # SDK information.  When doing this, we check on-disk for whether
 # the SDK has 'mfc' and 'atl' subdirectories.  Since going to disk
 # is expensive, cache results by directory.
 
 SDKEnvironmentUpdates = {}
+
 
 def set_sdk_by_directory(env, sdk_dir):
     global SDKEnvironmentUpdates
@@ -231,6 +235,7 @@ def get_cur_sdk_dir_from_reg():
 def detect_sdk():
     return (len(get_installed_sdks()) > 0)
 
+
 def set_sdk_by_version(env, mssdk):
     if not SupportedSDKMap.has_key(mssdk):
         msg = "SDK version %s is not supported" % repr(mssdk)
@@ -241,6 +246,7 @@ def set_sdk_by_version(env, mssdk):
         msg = "SDK version %s is not installed" % repr(mssdk)
         raise SCons.Errors.UserError, msg
     set_sdk_by_directory(env, sdk.get_sdk_dir())
+
 
 def set_default_sdk(env, msver):
     """Set up the default Platform/Windows SDK."""

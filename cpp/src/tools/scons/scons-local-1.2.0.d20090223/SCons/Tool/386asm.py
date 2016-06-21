@@ -39,17 +39,21 @@ import SCons.Util
 
 as_module = __import__('as', globals(), locals(), [])
 
+
 def generate(env):
     """Add Builders and construction variables for ar to an Environment."""
     as_module.generate(env)
 
-    env['AS']        = '386asm'
-    env['ASFLAGS']   = SCons.Util.CLVar('')
+    env['AS'] = '386asm'
+    env['ASFLAGS'] = SCons.Util.CLVar('')
     env['ASPPFLAGS'] = '$ASFLAGS'
-    env['ASCOM']     = '$AS $ASFLAGS $SOURCES -o $TARGET'
-    env['ASPPCOM']   = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES -o $TARGET'
+    env['ASCOM'] = '$AS $ASFLAGS $SOURCES -o $TARGET'
+    env[
+        'ASPPCOM'
+    ] = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS $SOURCES -o $TARGET'
 
     addPharLapPaths(env)
+
 
 def exists(env):
     return env.Detect('386asm')

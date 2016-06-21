@@ -43,21 +43,26 @@ PDFTeXAction = None
 # labels and bibtex.
 PDFLaTeXAction = None
 
-def PDFLaTeXAuxAction(target = None, source= None, env=None):
-    result = SCons.Tool.tex.InternalLaTeXAuxAction( PDFLaTeXAction, target, source, env )
+
+def PDFLaTeXAuxAction(target=None, source=None, env=None):
+    result = SCons.Tool.tex.InternalLaTeXAuxAction(PDFLaTeXAction, target,
+                                                   source, env)
     return result
 
-def PDFTeXLaTeXFunction(target = None, source= None, env=None):
+
+def PDFTeXLaTeXFunction(target=None, source=None, env=None):
     """A builder for TeX and LaTeX that scans the source file to
     decide the "flavor" of the source and then executes the appropriate
     program."""
     if SCons.Tool.tex.is_LaTeX(source):
-        result = PDFLaTeXAuxAction(target,source,env)
+        result = PDFLaTeXAuxAction(target, source, env)
     else:
-        result = PDFTeXAction(target,source,env)
+        result = PDFTeXAction(target, source, env)
     return result
 
+
 PDFTeXLaTeXAction = None
+
 
 def generate(env):
     """Add Builders and construction variables for pdftex to an Environment."""
@@ -71,8 +76,9 @@ def generate(env):
 
     global PDFTeXLaTeXAction
     if PDFTeXLaTeXAction is None:
-        PDFTeXLaTeXAction = SCons.Action.Action(PDFTeXLaTeXFunction,
-                              strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
+        PDFTeXLaTeXAction = SCons.Action.Action(
+            PDFTeXLaTeXFunction,
+            strfunction=SCons.Tool.tex.TeXLaTeXStrFunction)
 
     import pdf
     pdf.generate(env)
@@ -81,19 +87,22 @@ def generate(env):
     bld.add_action('.tex', PDFTeXLaTeXAction)
     bld.add_emitter('.tex', SCons.Tool.tex.tex_pdf_emitter)
 
-    # Add the epstopdf builder after the pdftex builder 
+    # Add the epstopdf builder after the pdftex builder
     # so pdftex is the default for no source suffix
     pdf.generate2(env)
 
-    env['PDFTEX']      = 'pdftex'
+    env['PDFTEX'] = 'pdftex'
     env['PDFTEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
-    env['PDFTEXCOM']   = 'cd ${TARGET.dir} && $PDFTEX $PDFTEXFLAGS ${SOURCE.file}'
+    env['PDFTEXCOM'
+        ] = 'cd ${TARGET.dir} && $PDFTEX $PDFTEXFLAGS ${SOURCE.file}'
 
     # Duplicate from latex.py.  If latex.py goes away, then this is still OK.
-    env['PDFLATEX']      = 'pdflatex'
+    env['PDFLATEX'] = 'pdflatex'
     env['PDFLATEXFLAGS'] = SCons.Util.CLVar('-interaction=nonstopmode')
-    env['PDFLATEXCOM']   = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
-    env['LATEXRETRIES']  = 3
+    env['PDFLATEXCOM'
+        ] = 'cd ${TARGET.dir} && $PDFLATEX $PDFLATEXFLAGS ${SOURCE.file}'
+    env['LATEXRETRIES'] = 3
+
 
 def exists(env):
     return env.Detect('pdftex')

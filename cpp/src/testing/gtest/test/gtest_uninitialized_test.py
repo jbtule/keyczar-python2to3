@@ -28,7 +28,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Verifies that Google Test warns the user when not initialized properly."""
 
 __author__ = 'wan@google.com (Zhanyong Wan)'
@@ -42,60 +41,59 @@ IS_WINDOWS = os.name == 'nt'
 IS_LINUX = os.name == 'posix'
 
 if IS_WINDOWS:
-  BUILD_DIRS = [
-      'build.dbg\\',
-      'build.opt\\',
-      'build.dbg8\\',
-      'build.opt8\\',
-      ]
-  COMMAND = 'gtest_uninitialized_test_.exe'
+    BUILD_DIRS = [
+        'build.dbg\\',
+        'build.opt\\',
+        'build.dbg8\\',
+        'build.opt8\\',
+    ]
+    COMMAND = 'gtest_uninitialized_test_.exe'
 
 if IS_LINUX:
-  COMMAND = os.path.join(gtest_test_utils.GetBuildDir(),
-                         'gtest_uninitialized_test_')
+    COMMAND = os.path.join(gtest_test_utils.GetBuildDir(),
+                           'gtest_uninitialized_test_')
 
 
 def Assert(condition):
-  if not condition:
-    raise AssertionError
+    if not condition:
+        raise AssertionError
 
 
 def AssertEq(expected, actual):
-  if expected != actual:
-    print 'Expected: %s' % (expected,)
-    print '  Actual: %s' % (actual,)
-    raise AssertionError
+    if expected != actual:
+        print('Expected: %s' % (expected, ))
+        print('  Actual: %s' % (actual, ))
+        raise AssertionError
 
 
 def TestExitCodeAndOutput(command):
-  """Runs the given command and verifies its exit code and output."""
+    """Runs the given command and verifies its exit code and output."""
 
-  # Verifies that 'command' exits with code 1.
-  p = gtest_test_utils.Subprocess(command)
-  Assert(p.exited)
-  AssertEq(1, p.exit_code)
-  Assert('InitGoogleTest' in p.output)
+    # Verifies that 'command' exits with code 1.
+    p = gtest_test_utils.Subprocess(command)
+    Assert(p.exited)
+    AssertEq(1, p.exit_code)
+    Assert('InitGoogleTest' in p.output)
 
 
 if IS_WINDOWS:
 
-  def main():
-    for build_dir in BUILD_DIRS:
-      command = build_dir + COMMAND
-      print 'Testing with %s . . .' % (command,)
-      TestExitCodeAndOutput(command)
-    return 0
+    def main():
+        for build_dir in BUILD_DIRS:
+            command = build_dir + COMMAND
+            print('Testing with %s . . .' % (command, ))
+            TestExitCodeAndOutput(command)
+        return 0
 
-  if __name__ == '__main__':
-    main()
-
+    if __name__ == '__main__':
+        main()
 
 if IS_LINUX:
 
-  class GTestUninitializedTest(unittest.TestCase):
-    def testExitCodeAndOutput(self):
-      TestExitCodeAndOutput(COMMAND)
+    class GTestUninitializedTest(unittest.TestCase):
 
+        def testExitCodeAndOutput(self):
+            TestExitCodeAndOutput(COMMAND)
 
-  if __name__ == '__main__':
-    gtest_test_utils.Main()
+    if __name__ == '__main__':
+        gtest_test_utils.Main()

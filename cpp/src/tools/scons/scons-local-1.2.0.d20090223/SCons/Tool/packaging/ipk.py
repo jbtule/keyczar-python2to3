@@ -3,7 +3,7 @@
 
 #
 # Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 The SCons Foundation
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -32,6 +32,7 @@ import os
 
 from SCons.Tool.packaging import stripinstallbuilder, putintopackageroot
 
+
 def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
             SUMMARY, X_IPK_PRIORITY, X_IPK_SECTION, SOURCE_URL,
             X_IPK_MAINTAINER, X_IPK_DEPENDS, **kw):
@@ -49,11 +50,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
     # which it is by using ARCHITECTURE=.
     # Guessing based on what os.uname() returns at least allows it
     # to work for both i386 and x86_64 Linux systems.
-    archmap = {
-        'i686'  : 'i386',
-        'i586'  : 'i386',
-        'i486'  : 'i386',
-    }
+    archmap = {'i686': 'i386', 'i586': 'i386', 'i486': 'i386', }
 
     buildarchitecture = os.uname()[4]
     buildarchitecture = archmap.get(buildarchitecture, buildarchitecture)
@@ -63,7 +60,7 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
 
     # setup the kw to contain the mandatory arguments to this fucntion.
     # do this before calling any builder or setup function
-    loc=locals()
+    loc = locals()
     del loc['kw']
     kw.update(loc)
     del kw['source'], kw['target'], kw['env']
@@ -72,24 +69,24 @@ def package(env, target, source, PACKAGEROOT, NAME, VERSION, DESCRIPTION,
     specfile = gen_ipk_dir(PACKAGEROOT, source, env, kw)
 
     # override the default target.
-    if str(target[0])=="%s-%s"%(NAME, VERSION):
-        target=[ "%s_%s_%s.ipk"%(NAME, VERSION, buildarchitecture) ]
+    if str(target[0]) == "%s-%s" % (NAME, VERSION):
+        target = ["%s_%s_%s.ipk" % (NAME, VERSION, buildarchitecture)]
 
     # now apply the Ipkg builder
     return apply(bld, [env, target, specfile], kw)
 
+
 def gen_ipk_dir(proot, source, env, kw):
     # make sure the packageroot is a Dir object.
-    if SCons.Util.is_String(proot): proot=env.Dir(proot)
+    if SCons.Util.is_String(proot):
+        proot = env.Dir(proot)
 
     #  create the specfile builder
-    s_bld=SCons.Builder.Builder(
-        action  = build_specfiles,
-        )
+    s_bld = SCons.Builder.Builder(action=build_specfiles, )
 
     # create the specfile targets
-    spec_target=[]
-    control=proot.Dir('CONTROL')
+    spec_target = []
+    control = proot.Dir('CONTROL')
     spec_target.append(control.File('control'))
     spec_target.append(control.File('conffiles'))
     spec_target.append(control.File('postrm'))
@@ -103,6 +100,7 @@ def gen_ipk_dir(proot, source, env, kw):
     # the packageroot directory does now contain the specfiles.
     return proot
 
+
 def build_specfiles(source, target, env):
     """ filter the targets for the needed files and use the variables in env
     to create the specfile.
@@ -114,21 +112,23 @@ def build_specfiles(source, target, env):
     # a dict so they can be easily accessed.
     #
     #
-    opened_files={}
+    opened_files = {}
+
     def open_file(needle, haystack):
         try:
             return opened_files[needle]
         except KeyError:
-            file=filter(lambda x: x.get_path().rfind(needle)!=-1, haystack)[0]
-            opened_files[needle]=open(file.abspath, 'w')
+            file = filter(lambda x: x.get_path().rfind(needle) != -1,
+                          haystack)[0]
+            opened_files[needle] = open(file.abspath, 'w')
             return opened_files[needle]
 
-    control_file=open_file('control', target)
+    control_file = open_file('control', target)
 
     if not env.has_key('X_IPK_DESCRIPTION'):
-        env['X_IPK_DESCRIPTION']="%s\n %s"%(env['SUMMARY'],
-                                            env['DESCRIPTION'].replace('\n', '\n '))
-
+        env['X_IPK_DESCRIPTION'
+            ] = "%s\n %s" % (env['SUMMARY'],
+                             env['DESCRIPTION'].replace('\n', '\n '))
 
     content = """
 Package: $NAME
@@ -145,7 +145,7 @@ Description: $X_IPK_DESCRIPTION
     control_file.write(env.subst(content))
 
     #
-    # now handle the various other files, which purpose it is to set post-, 
+    # now handle the various other files, which purpose it is to set post-,
     # pre-scripts and mark files as config files.
     #
     # We do so by filtering the source files for files which are marked with
@@ -157,14 +157,14 @@ Description: $X_IPK_DESCRIPTION
     # into the same named file.
     #
     for f in [x for x in source if 'PACKAGING_CONFIG' in dir(x)]:
-        config=open_file('conffiles')
+        config = open_file('conffiles')
         config.write(f.PACKAGING_INSTALL_LOCATION)
         config.write('\n')
 
     for str in 'POSTRM PRERM POSTINST PREINST'.split():
-        name="PACKAGING_X_IPK_%s"%str
+        name = "PACKAGING_X_IPK_%s" % str
         for f in [x for x in source if name in dir(x)]:
-            file=open_file(name)
+            file = open_file(name)
             file.write(env[str])
 
     #

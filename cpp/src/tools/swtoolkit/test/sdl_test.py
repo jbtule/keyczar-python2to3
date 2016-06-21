@@ -27,48 +27,48 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test for sdl.  These are MEDIUM tests."""
 
 import TestFramework
 
 
 def TestSConstruct(scons_globals):
-  """Test SConstruct file.
+    """Test SConstruct file.
 
   Args:
     scons_globals: Global variables dict from the SConscript file.
   """
 
-  # Get globals from SCons
-  Environment = scons_globals['Environment']
-  env = Environment(tools=['component_setup'])
+    # Get globals from SCons
+    Environment = scons_globals['Environment']
+    env = Environment(tools=['component_setup'])
 
-  # Make sure including the tool doesn't cause a failure on any platform
-  env1 = env.Clone(SDL_MODE='none')
-  env1.Tool('sdl')
+    # Make sure including the tool doesn't cause a failure on any platform
+    env1 = env.Clone(SDL_MODE='none')
+    env1.Tool('sdl')
 
-  # Set up as if hermetic
-  env2 = env.Clone(SDL_MODE='hermetic', SDL_DIR='.')
-  env2.Tool('sdl')
+    # Set up as if hermetic
+    env2 = env.Clone(SDL_MODE='hermetic', SDL_DIR='.')
+    env2.Tool('sdl')
 
-  # Set up as if local
-  env3 = env.Clone(
-      SDL_MODE='local',
-      SDL_VALIDATE_PATHS=[
-          ('.', ('You are amusingly missing the current dir',)),
-      ])
-  env3.Tool('sdl')
+    # Set up as if local
+    env3 = env.Clone(
+        SDL_MODE='local',
+        SDL_VALIDATE_PATHS=[
+            ('.', ('You are amusingly missing the current dir', )),
+        ])
+    env3.Tool('sdl')
 
 
 def main():
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  base = 'test'
-  test.subdir(base)
-  test.WriteSConscript(base + '/SConstruct', TestSConstruct)
-  test.run(chdir=base)
-  test.pass_test()
+    base = 'test'
+    test.subdir(base)
+    test.WriteSConscript(base + '/SConstruct', TestSConstruct)
+    test.run(chdir=base)
+    test.pass_test()
+
 
 if __name__ == '__main__':
-  main()
+    main()

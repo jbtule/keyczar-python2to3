@@ -16,9 +16,9 @@ import base64
 import os
 import sys
 try:
-  import simplejson as json
+    import simplejson as json
 except ImportError:
-  import json
+    import json
 
 FIELDS = [
     # RSA fields
@@ -36,7 +36,8 @@ FIELDS = [
     "q",
     "y",
     "x",
-    ]
+]
+
 
 def read_file(path):
     fo = file(path, 'rb')
@@ -47,12 +48,14 @@ def read_file(path):
         fo.close()
     return content
 
+
 def write_file(path, data):
     fo = file(path, 'wb')
     try:
         fo.write(data)
     finally:
         fo.close()
+
 
 def b64_decode(s):
     # Copied from keyczar/util.py
@@ -66,9 +69,11 @@ def b64_decode(s):
         s += "="
     return base64.urlsafe_b64decode(s)
 
+
 def b64_encode(s):
     # Copied from keyczar/util.py
     return base64.urlsafe_b64encode(str(s)).replace("=", "")
+
 
 def rewrite_inplace_rec(d):
     for field in d:
@@ -78,12 +83,14 @@ def rewrite_inplace_rec(d):
             continue
         d[field] = b64_encode('\x00' + b64_decode(d[field]))
 
+
 def rewrite_key(src_path, dst_path, version):
     orig_json = read_file(os.path.join(src_path, str(version)))
     key = json.loads(orig_json)
     rewrite_inplace_rec(key)
     new_json = json.dumps(key)
     write_file(os.path.join(dst_path, str(version)), new_json)
+
 
 def iterate_meta(src_path, dst_path):
     json_string = read_file(os.path.join(src_path, 'meta'))
@@ -93,12 +100,14 @@ def iterate_meta(src_path, dst_path):
         rewrite_key(src_path, dst_path, version["versionNumber"])
     write_file(os.path.join(dst_path, 'meta'), json_string)
 
+
 def doit(src_path, dst_path):
     for p in (src_path, dst_path):
         if not os.path.isdir(p):
             sys.stderr.write('Invalid directory: %s\n' % p)
             return
     iterate_meta(src_path, dst_path)
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:

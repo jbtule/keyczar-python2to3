@@ -34,7 +34,6 @@ import re
 
 import SCons.Util
 
-
 logfile = os.environ.get('SCONS_MSCOMMON_DEBUG')
 if logfile:
     try:
@@ -62,11 +61,12 @@ def is_win64():
     else:
         return 1
 
+
 def read_reg(value):
     return SCons.Util.RegGetValue(SCons.Util.HKEY_LOCAL_MACHINE, value)[0]
 
-
 # Functions for fetching environment variable settings from batch files.
+
 
 def normalize_env(env, keys):
     """Given a dictionary representing a shell environment, add the variables
@@ -87,7 +87,8 @@ def normalize_env(env, keys):
 
     return normenv
 
-def get_output(vcbat, args = None, env = None):
+
+def get_output(vcbat, args=None, env=None):
     """Parse the output of given bat file, with given args."""
     if args:
         debug("Calling '%s %s'" % (vcbat, args))
@@ -112,7 +113,8 @@ def get_output(vcbat, args = None, env = None):
     output = stdout.decode("mbcs")
     return output
 
-def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
+
+def parse_output(output, keep=("INCLUDE", "LIB", "LIBPATH", "PATH")):
     # dkeep is a dict associating key: path_list, where key is one item from
     # keep, and pat_list the associated list of paths
 
@@ -133,17 +135,18 @@ def parse_output(output, keep = ("INCLUDE", "LIB", "LIBPATH", "PATH")):
                 p = p.encode('mbcs')
                 # XXX: For some reason, VC98 .bat file adds "" around the PATH
                 # values, and it screws up the environment later, so we strip
-                # it. 
+                # it.
                 p = p.strip('"')
                 dkeep[key].append(p)
 
     for line in output.splitlines():
-        for k,v in rdk.items():
+        for k, v in rdk.items():
             m = v.match(line)
             if m:
                 add_env(m, k)
 
     return dkeep
+
 
 # TODO(sgk): unused
 def output_to_dict(output):
@@ -157,6 +160,7 @@ def output_to_dict(output):
         if m:
             parsedenv[m.group(1)] = m.group(2)
     return parsedenv
+
 
 # TODO(sgk): unused
 def get_new(l1, l2):

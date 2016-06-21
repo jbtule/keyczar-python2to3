@@ -43,6 +43,7 @@ class _Null:
 # used as an actual argument value.
 _null = _Null
 
+
 def Scanner(function, *args, **kw):
     """
     Public interface factory function for creating different types
@@ -56,17 +57,19 @@ def Scanner(function, *args, **kw):
     patterned on SCons code.
     """
     if SCons.Util.is_Dict(function):
-        return apply(Selector, (function,) + args, kw)
+        return apply(Selector, (function, ) + args, kw)
     else:
-        return apply(Base, (function,) + args, kw)
-
+        return apply(Base, (function, ) + args, kw)
 
 
 class FindPathDirs:
+
     """A class to bind a specific *PATH variable name to a function that
     will return all of the *path directories."""
+
     def __init__(self, variable):
         self.variable = variable
+
     def __call__(self, env, dir=None, target=None, source=None, argument=None):
         import SCons.PathList
         try:
@@ -79,23 +82,22 @@ class FindPathDirs:
         return tuple(dir.Rfindalldirs(path))
 
 
-
 class Base:
+
     """
     The base class for dependency scanners.  This implements
     straightforward, single-pass scanning of a single file.
     """
 
-    def __init__(self,
-                 function,
-                 name = "NONE",
-                 argument = _null,
-                 skeys = _null,
-                 path_function = None,
-                 node_class = SCons.Node.FS.Entry,
-                 node_factory = None,
-                 scan_check = None,
-                 recursive = None):
+    def __init__(self, function,
+                 name="NONE",
+                 argument=_null,
+                 skeys=_null,
+                 path_function=None,
+                 node_class=SCons.Node.FS.Entry,
+                 node_factory=None,
+                 scan_check=None,
+                 recursive=None):
         """
         Construct a new scanner object given a scanner function.
 
@@ -192,7 +194,7 @@ class Base:
         else:
             return self.path_function(env, dir, target, source)
 
-    def __call__(self, node, env, path = ()):
+    def __call__(self, node, env, path=()):
         """
         This method scans a single object. 'node' is the node
         that will be passed to the scanner function, and 'env' is the
@@ -216,7 +218,7 @@ class Base:
         nodes = []
         for l in list:
             if self.node_class and not isinstance(l, self.node_class):
-                l = apply(node_factory, (l,), kw)
+                l = apply(node_factory, (l, ), kw)
             nodes.append(l)
         return nodes
 
@@ -266,6 +268,7 @@ class Base:
 
 
 class Selector(Base):
+
     """
     A class for selecting a more specific scanner based on the
     scanner_key() (suffix) for a specific Node.
@@ -277,12 +280,13 @@ class Selector(Base):
     used by various Tool modules and therefore was likely a template
     for custom modules that may be out there.)
     """
+
     def __init__(self, dict, *args, **kw):
-        apply(Base.__init__, (self, None,)+args, kw)
+        apply(Base.__init__, (self, None, ) + args, kw)
         self.dict = dict
         self.skeys = dict.keys()
 
-    def __call__(self, node, env, path = ()):
+    def __call__(self, node, env, path=()):
         return self.select(node)(node, env, path)
 
     def select(self, node):
@@ -297,6 +301,7 @@ class Selector(Base):
 
 
 class Current(Base):
+
     """
     A class for scanning files that are source files (have no builder)
     or are derived files and are current (which implies that they exist,
@@ -306,10 +311,13 @@ class Current(Base):
     def __init__(self, *args, **kw):
         def current_check(node, env):
             return not node.has_builder() or node.is_up_to_date()
+
         kw['scan_check'] = current_check
-        apply(Base.__init__, (self,) + args, kw)
+        apply(Base.__init__, (self, ) + args, kw)
+
 
 class Classic(Current):
+
     """
     A Scanner subclass to contain the common logic for classic CPP-style
     include scanning, but which can be customized to use different
@@ -337,10 +345,10 @@ class Classic(Current):
         kw['skeys'] = suffixes
         kw['name'] = name
 
-        apply(Current.__init__, (self,) + args, kw)
+        apply(Current.__init__, (self, ) + args, kw)
 
     def find_include(self, include, source_dir, path):
-        n = SCons.Node.FS.find_file(include, (source_dir,) + tuple(path))
+        n = SCons.Node.FS.find_file(include, (source_dir, ) + tuple(path))
         return n, include
 
     def sort_key(self, include):
@@ -355,7 +363,7 @@ class Classic(Current):
         if node.includes != None:
             includes = node.includes
         else:
-            includes = self.find_include_names (node)
+            includes = self.find_include_names(node)
             # Intern the names of the include files. Saves some memory
             # if the same header is included many times.
             try:
@@ -377,8 +385,10 @@ class Classic(Current):
             n, i = self.find_include(include, source_dir, path)
 
             if n is None:
-                SCons.Warnings.warn(SCons.Warnings.DependencyWarning,
-                                    "No dependency generated for file: %s (included from: %s) -- file not found" % (i, node))
+                SCons.Warnings.warn(
+                    SCons.Warnings.DependencyWarning,
+                    "No dependency generated for file: %s (included from: %s) -- file not found"
+                    % (i, node))
             else:
                 sortkey = self.sort_key(include)
                 nodes.append((sortkey, n))
@@ -387,7 +397,9 @@ class Classic(Current):
         nodes = map(lambda pair: pair[1], nodes)
         return nodes
 
+
 class ClassicCPP(Classic):
+
     """
     A Classic Scanner subclass which takes into account the type of
     bracketing used to include the file, and uses classic CPP rules
@@ -397,11 +409,12 @@ class ClassicCPP(Classic):
     to the constructor must return the leading bracket in group 0, and
     the contained filename in group 1.
     """
+
     def find_include(self, include, source_dir, path):
         if include[0] == '"':
-            paths = (source_dir,) + tuple(path)
+            paths = (source_dir, ) + tuple(path)
         else:
-            paths = tuple(path) + (source_dir,)
+            paths = tuple(path) + (source_dir, )
 
         n = SCons.Node.FS.find_file(include[1], paths)
 

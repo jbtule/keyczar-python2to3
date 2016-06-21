@@ -7,6 +7,7 @@ import sys
 
 import keyczar
 
+
 def Encrypt(crypted_path, password):
     if not os.path.exists(crypted_path):
         return
@@ -17,14 +18,15 @@ def Encrypt(crypted_path, password):
     crypter = keyczar.Crypter.Read(reader)
     ciphertext = crypter.Encrypt(input)
 
-    print 'plaintext:', input
-    print 'ciphertext:', ciphertext
+    print('plaintext:', input)
+    print('ciphertext:', ciphertext)
 
     decrypted = crypter.Decrypt(ciphertext)
     assert decrypted == input
 
+
 if __name__ == '__main__':
     if (len(sys.argv) != 3):
-        print >> sys.stderr, "Provide a valid JSON key set path and a password as arguments."
+        print("Provide a valid JSON key set path and a password as arguments.", file=sys.stderr)
         sys.exit(1)
     Encrypt(sys.argv[1], sys.argv[2])

@@ -70,19 +70,20 @@ Usage example:
 
 __revision__ = "src/engine/SCons/Variables/PathVariable.py 4043 2009/02/23 09:06:45 scons"
 
-__all__ = ['PathVariable',]
+__all__ = ['PathVariable', ]
 
 import os
 import os.path
 
 import SCons.Errors
 
+
 class _PathVariableClass:
 
     def PathAccept(self, key, val, env):
         """Accepts any path, no checking done."""
         pass
-    
+
     def PathIsDir(self, key, val, env):
         """Validator to check if Path is a directory."""
         if not os.path.isdir(val):
@@ -137,6 +138,7 @@ class _PathVariableClass:
         else:
             return (key, '%s ( /path/to/%s )' % (help, key), default,
                     validator, None)
+
 
 PathVariable = _PathVariableClass()
 

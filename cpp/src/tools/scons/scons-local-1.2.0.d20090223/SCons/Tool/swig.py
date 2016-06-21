@@ -45,6 +45,7 @@ import SCons.Util
 
 SwigAction = SCons.Action.Action('$SWIGCOM', '$SWIGCOMSTR')
 
+
 def swigSuffixEmitter(env, source):
     if '-c++' in SCons.Util.CLVar(env.subst("$SWIGFLAGS", source=source)):
         return '$SWIGCXXFILESUFFIX'
@@ -54,6 +55,7 @@ def swigSuffixEmitter(env, source):
 # Match '%module test', as well as '%module(directors="1") test'
 # Also allow for test to be quoted (SWIG permits double quotes, but not single)
 _reModule = re.compile(r'%module(\s*\(.*\))?\s+("?)(.+)\2')
+
 
 def _find_modules(src):
     """Find all modules referenced by %module lines in `src`, a SWIG .i file.
@@ -68,6 +70,7 @@ def _find_modules(src):
         directors = directors or string.find(m[0], 'directors') >= 0
     return mnames, directors
 
+
 def _add_director_header_targets(target, env):
     # Directors only work with C++ code, not C
     suffix = env.subst(env['SWIGCXXFILESUFFIX'])
@@ -78,6 +81,7 @@ def _add_director_header_targets(target, env):
         d = x.dir
         if n[-len(suffix):] == suffix:
             target.append(d.File(n[:-len(suffix)] + env['SWIGDIRECTORSUFFIX']))
+
 
 def _swigEmitter(target, source, env):
     swigflags = env.subst("$SWIGFLAGS", target=target, source=source)
@@ -90,8 +94,8 @@ def _swigEmitter(target, source, env):
                 mnames, directors = _find_modules(src)
             if directors:
                 _add_director_header_targets(target, env)
-            target.extend(map(lambda m, d=target[0].dir:
-                                     d.File(m + ".py"), mnames))
+            target.extend(map(lambda m, d=target[0].dir: d.File(m + ".py"),
+                              mnames))
         if "-java" in flags:
             if mnames is None:
                 mnames, directors = _find_modules(src)
@@ -101,13 +105,15 @@ def _swigEmitter(target, source, env):
             java_files = SCons.Util.flatten(java_files)
             outdir = env.subst('$SWIGOUTDIR', target=target, source=source)
             if outdir:
-                 java_files = map(lambda j, o=outdir: os.path.join(o, j), java_files)
+                java_files = map(lambda j, o=outdir: os.path.join(o, j),
+                                 java_files)
             java_files = map(env.fs.File, java_files)
             for jf in java_files:
                 t_from_s = lambda t, p, s, x: t.dir
                 SCons.Util.AddMethod(jf, t_from_s, 'target_from_source')
             target.extend(java_files)
     return (target, source)
+
 
 def generate(env):
     """Add Builders and construction variables for swig to an Environment."""
@@ -128,22 +134,27 @@ def generate(env):
     java_file.add_action('.i', SwigAction)
     java_file.add_emitter('.i', _swigEmitter)
 
-    env['SWIG']              = 'swig'
-    env['SWIGFLAGS']         = SCons.Util.CLVar('')
+    env['SWIG'] = 'swig'
+    env['SWIGFLAGS'] = SCons.Util.CLVar('')
     env['SWIGDIRECTORSUFFIX'] = '_wrap.h'
-    env['SWIGCFILESUFFIX']   = '_wrap$CFILESUFFIX'
+    env['SWIGCFILESUFFIX'] = '_wrap$CFILESUFFIX'
     env['SWIGCXXFILESUFFIX'] = '_wrap$CXXFILESUFFIX'
-    env['_SWIGOUTDIR']       = r'${"-outdir \"%s\"" % SWIGOUTDIR}'
-    env['SWIGPATH']          = []
-    env['SWIGINCPREFIX']     = '-I'
-    env['SWIGINCSUFFIX']     = ''
-    env['_SWIGINCFLAGS']     = '$( ${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
-    env['SWIGCOM']           = '$SWIG -o $TARGET ${_SWIGOUTDIR} ${_SWIGINCFLAGS} $SWIGFLAGS $SOURCES'
+    env['_SWIGOUTDIR'] = r'${"-outdir \"%s\"" % SWIGOUTDIR}'
+    env['SWIGPATH'] = []
+    env['SWIGINCPREFIX'] = '-I'
+    env['SWIGINCSUFFIX'] = ''
+    env[
+        '_SWIGINCFLAGS'
+    ] = '$( ${_concat(SWIGINCPREFIX, SWIGPATH, SWIGINCSUFFIX, __env__, RDirs, TARGET, SOURCE)} $)'
+    env[
+        'SWIGCOM'
+    ] = '$SWIG -o $TARGET ${_SWIGOUTDIR} ${_SWIGINCFLAGS} $SWIGFLAGS $SOURCES'
 
     expr = '^[ \t]*%[ \t]*(?:include|import|extern)[ \t]*(<|"?)([^>\s"]+)(?:>|"?)'
     scanner = SCons.Scanner.ClassicCPP("SWIGScan", ".i", "SWIGPATH", expr)
 
-    env.Append(SCANNERS = scanner)
+    env.Append(SCANNERS=scanner)
+
 
 def exists(env):
     return env.Detect(['swig'])

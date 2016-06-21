@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Build tool setup for *BSD.
 
 This module is a SCons tool which should be include in the topmost windows
@@ -39,71 +38,62 @@ It is used as follows:
 
 
 def ComponentPlatformSetup(env, builder_name):
-  """Hook to allow platform to modify environment inside a component builder.
+    """Hook to allow platform to modify environment inside a component builder.
 
   Args:
     env: Environment to modify
     builder_name: Name of the builder
   """
-  if env.get('ENABLE_EXCEPTIONS'):
-    env.FilterOut(CCFLAGS=['-fno-exceptions'])
-    env.Append(CCFLAGS=['-fexceptions'])
+    if env.get('ENABLE_EXCEPTIONS'):
+        env.FilterOut(CCFLAGS=['-fno-exceptions'])
+        env.Append(CCFLAGS=['-fexceptions'])
 
 #------------------------------------------------------------------------------
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  # Preserve some variables that get blown away by the tools.
-  saved = dict()
-  for k in ['CFLAGS', 'CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'LIBS']:
-    saved[k] = env.get(k, [])
-    env[k] = []
+    # Preserve some variables that get blown away by the tools.
+    saved = dict()
+    for k in ['CFLAGS', 'CCFLAGS', 'CXXFLAGS', 'LINKFLAGS', 'LIBS']:
+        saved[k] = env.get(k, [])
+        env[k] = []
 
-  # Use g++
-  env.Tool('g++')
-  env.Tool('gcc')
-  env.Tool('gnulink')
-  env.Tool('ar')
-  env.Tool('as')
+    # Use g++
+    env.Tool('g++')
+    env.Tool('gcc')
+    env.Tool('gnulink')
+    env.Tool('ar')
+    env.Tool('as')
 
-  # Set target platform bits
-  env.SetBits('bsd', 'posix')
+    # Set target platform bits
+    env.SetBits('bsd', 'posix')
 
-  env.Replace(
-      TARGET_PLATFORM='BSD',
-      COMPONENT_PLATFORM_SETUP=ComponentPlatformSetup,
-      CCFLAG_INCLUDE='-include',     # Command line option to include a header
+    env.Replace(
+        TARGET_PLATFORM='BSD',
+        COMPONENT_PLATFORM_SETUP=ComponentPlatformSetup,
+        CCFLAG_INCLUDE='-include',  # Command line option to include a header
+        # Code coverage related.
+        COVERAGE_CCFLAGS=['-ftest-coverage', '-fprofile-arcs'],
+        COVERAGE_LIBS='gcov',
+        COVERAGE_STOP_CMD=[
+            '$COVERAGE_MCOV --directory "$TARGET_ROOT" --output "$TARGET"',
+            ('$COVERAGE_GENHTML --output-directory $COVERAGE_HTML_DIR '
+             '$COVERAGE_OUTPUT_FILE'),
+        ], )
 
-      # Code coverage related.
-      COVERAGE_CCFLAGS=['-ftest-coverage', '-fprofile-arcs'],
-      COVERAGE_LIBS='gcov',
-      COVERAGE_STOP_CMD=[
-          '$COVERAGE_MCOV --directory "$TARGET_ROOT" --output "$TARGET"',
-          ('$COVERAGE_GENHTML --output-directory $COVERAGE_HTML_DIR '
-           '$COVERAGE_OUTPUT_FILE'),
-      ],
-  )
+    env.Append(
+        HOST_PLATFORMS=['BSD'],
+        CPPDEFINES=['OS_BSD=OS_BSD'],  # Settings for debug
+        CCFLAGS_DEBUG=[
+            '-O0',  # turn off optimizations
+            '-g',  # turn on debugging info
+        ],  # Settings for optimized
+        CCFLAGS_OPTIMIZED=['-O2'],  # Settings for component_builders
+        COMPONENT_LIBRARY_LINK_SUFFIXES=['.so', '.a'],
+        COMPONENT_LIBRARY_DEBUG_SUFFIXES=[], )
 
-  env.Append(
-      HOST_PLATFORMS=['BSD'],
-      CPPDEFINES=['OS_BSD=OS_BSD'],
-
-      # Settings for debug
-      CCFLAGS_DEBUG=[
-          '-O0',     # turn off optimizations
-          '-g',      # turn on debugging info
-      ],
-
-      # Settings for optimized
-      CCFLAGS_OPTIMIZED=['-O2'],
-
-      # Settings for component_builders
-      COMPONENT_LIBRARY_LINK_SUFFIXES=['.so', '.a'],
-      COMPONENT_LIBRARY_DEBUG_SUFFIXES=[],
-  )
-
-  # Restore saved flags.
-  env.Append(**saved)
+    # Restore saved flags.
+    env.Append(**saved)

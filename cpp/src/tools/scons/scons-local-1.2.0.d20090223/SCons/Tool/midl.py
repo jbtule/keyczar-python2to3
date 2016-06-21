@@ -43,6 +43,7 @@ import SCons.Util
 
 from MSCommon import detect_msvs
 
+
 def midl_emitter(target, source, env):
     """Produces a list of outputs from the MIDL compiler"""
     base, ext = SCons.Util.splitext(str(target[0]))
@@ -59,26 +60,31 @@ def midl_emitter(target, source, env):
     if string.find(midlcom, '/dlldata') != -1:
         dlldata = base + '_data.c'
         t.append(dlldata)
-    
-    return (t,source)
+
+    return (t, source)
+
 
 idl_scanner = SCons.Scanner.IDL.IDLScan()
 
 midl_action = SCons.Action.Action('$MIDLCOM', '$MIDLCOMSTR')
 
-midl_builder = SCons.Builder.Builder(action = midl_action,
-                                     src_suffix = '.idl',
+midl_builder = SCons.Builder.Builder(action=midl_action,
+                                     src_suffix='.idl',
                                      suffix='.tlb',
-                                     emitter = midl_emitter,
-                                     source_scanner = idl_scanner)
+                                     emitter=midl_emitter,
+                                     source_scanner=idl_scanner)
+
 
 def generate(env):
     """Add Builders and construction variables for midl to an Environment."""
 
-    env['MIDL']          = 'MIDL.EXE'
-    env['MIDLFLAGS']     = SCons.Util.CLVar('/nologo')
-    env['MIDLCOM']       = '$MIDL $MIDLFLAGS /tlb ${TARGETS[0]} /h ${TARGETS[1]} /iid ${TARGETS[2]} /proxy ${TARGETS[3]} /dlldata ${TARGETS[4]} $SOURCE 2> NUL'
+    env['MIDL'] = 'MIDL.EXE'
+    env['MIDLFLAGS'] = SCons.Util.CLVar('/nologo')
+    env[
+        'MIDLCOM'
+    ] = '$MIDL $MIDLFLAGS /tlb ${TARGETS[0]} /h ${TARGETS[1]} /iid ${TARGETS[2]} /proxy ${TARGETS[3]} /dlldata ${TARGETS[4]} $SOURCE 2> NUL'
     env['BUILDERS']['TypeLibrary'] = midl_builder
+
 
 def exists(env):
     return detect_msvs()

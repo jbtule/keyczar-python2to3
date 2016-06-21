@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Windows ATL MFC for VC80 (Visual Studio 2005) tool for SCons.
 
 Note that ATL MFC requires the commercial (non-free) version of Visual Studio
@@ -39,26 +38,26 @@ import os
 
 
 def _FindLocalInstall():
-  """Returns the directory containing the local install of the tool.
+    """Returns the directory containing the local install of the tool.
 
   Returns:
     Path to tool (as a string), or None if not found.
   """
-  # TODO: Should use a better search.  Probably needs to be based on msvs tool,
-  # as msvc detection is.
-  default_dir = 'C:/Program Files/Microsoft Visual Studio 8/VC/atlmfc'
-  if os.path.exists(default_dir):
-    return default_dir
-  else:
-    return None
+    # TODO: Should use a better search.  Probably needs to be based on msvs tool,
+    # as msvc detection is.
+    default_dir = 'C:/Program Files/Microsoft Visual Studio 8/VC/atlmfc'
+    if os.path.exists(default_dir):
+        return default_dir
+    else:
+        return None
 
 
 def generate(env):
-  # NOTE: SCons requires the use of this name, which fails gpylint.
-  """SCons entry point for this tool."""
+    # NOTE: SCons requires the use of this name, which fails gpylint.
+    """SCons entry point for this tool."""
 
-  if not env.get('ATLMFC_VC80_DIR'):
-    env['ATLMFC_VC80_DIR'] = _FindLocalInstall()
+    if not env.get('ATLMFC_VC80_DIR'):
+        env['ATLMFC_VC80_DIR'] = _FindLocalInstall()
 
-  env.AppendENVPath('INCLUDE', env.Dir('$ATLMFC_VC80_DIR/include').abspath)
-  env.AppendENVPath('LIB', env.Dir('$ATLMFC_VC80_DIR/lib').abspath)
+    env.AppendENVPath('INCLUDE', env.Dir('$ATLMFC_VC80_DIR/include').abspath)
+    env.AppendENVPath('LIB', env.Dir('$ATLMFC_VC80_DIR/lib').abspath)

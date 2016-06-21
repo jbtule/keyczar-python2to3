@@ -41,16 +41,17 @@ from SCons.Tool.FortranCommon import add_all_to_env, add_f95_to_env
 
 compilers = ['f95']
 
+
 def generate(env):
     add_all_to_env(env)
     add_f95_to_env(env)
 
     fcomp = env.Detect(compilers) or 'f95'
-    env['F95']  = fcomp
-    env['SHF95']  = fcomp
+    env['F95'] = fcomp
+    env['SHF95'] = fcomp
 
-    env['FORTRAN']  = fcomp
-    env['SHFORTRAN']  = fcomp
+    env['FORTRAN'] = fcomp
+    env['SHFORTRAN'] = fcomp
 
 
 def exists(env):

@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Test hammer displays SCons help for SCons help options (MEDIUM TEST)."""
 
 import TestFramework
@@ -35,26 +34,26 @@ import TestFramework
 
 def main():
 
-  test = TestFramework.TestFramework()
+    test = TestFramework.TestFramework()
 
-  expect = "usage: scons [OPTION] [TARGET] ..."
+    expect = "usage: scons [OPTION] [TARGET] ..."
 
-  test.run(arguments="-h")
-  test.fail_test(test.stdout().find(expect) == -1)
+    test.run(arguments="-h")
+    test.fail_test(test.stdout().find(expect) == -1)
 
-  test.run(arguments="--help")
-  test.fail_test(test.stdout().find(expect) == -1)
+    test.run(arguments="--help")
+    test.fail_test(test.stdout().find(expect) == -1)
 
-  test.run(arguments="-H")
-  test.fail_test(test.stdout().find(expect) == -1)
+    test.run(arguments="-H")
+    test.fail_test(test.stdout().find(expect) == -1)
 
-  test.run(arguments="--help-options")
-  test.fail_test(test.stdout().find(expect) == -1)
+    test.run(arguments="--help-options")
+    test.fail_test(test.stdout().find(expect) == -1)
 
-  test.pass_test()
+    test.pass_test()
 
-  return 0
+    return 0
 
 
 if __name__ == "__main__":
-  main()
+    main()

@@ -33,6 +33,7 @@ import SCons.Util
 # global, set by --debug=findlibs
 print_find_libs = None
 
+
 def ProgramScanner(**kw):
     """Return a prototype Scanner instance for scanning executable
     files for static-lib dependencies"""
@@ -40,7 +41,8 @@ def ProgramScanner(**kw):
     ps = apply(SCons.Scanner.Base, [scan, "ProgramScanner"], kw)
     return ps
 
-def scan(node, env, libpath = ()):
+
+def scan(node, env, libpath=()):
     """
     This scanner scans program files for static-library
     dependencies.  It will search the LIBPATH environment variable
@@ -60,16 +62,16 @@ def scan(node, env, libpath = ()):
     try:
         prefix = env['LIBPREFIXES']
         if not SCons.Util.is_List(prefix):
-            prefix = [ prefix ]
+            prefix = [prefix]
     except KeyError:
-        prefix = [ '' ]
+        prefix = ['']
 
     try:
         suffix = env['LIBSUFFIXES']
         if not SCons.Util.is_List(suffix):
-            suffix = [ suffix ]
+            suffix = [suffix]
     except KeyError:
-        suffix = [ '' ]
+        suffix = ['']
 
     pairs = []
     for suf in map(env.subst, suffix):

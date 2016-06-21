@@ -42,19 +42,21 @@ import SCons.Util
 
 YaccAction = SCons.Action.Action("$YACCCOM", "$YACCCOMSTR")
 
+
 def _yaccEmitter(target, source, env, ysuf, hsuf):
     yaccflags = env.subst("$YACCFLAGS", target=target, source=source)
     flags = SCons.Util.CLVar(yaccflags)
     targetBase, targetExt = os.path.splitext(SCons.Util.to_String(target[0]))
 
-    if '.ym' in ysuf:                # If using Objective-C
-        target = [targetBase + ".m"] # the extension is ".m".
-
+    if '.ym' in ysuf:  # If using Objective-C
+        target = [targetBase + ".m"]  # the extension is ".m".
 
     # If -d is specified on the command line, yacc will emit a .h
     # or .hpp file with the same name as the .c or .cpp output file.
     if '-d' in flags:
-        target.append(targetBase + env.subst(hsuf, target=target, source=source))
+        target.append(targetBase + env.subst(hsuf,
+                                             target=target,
+                                             source=source))
 
     # If -g is specified on the command line, yacc will emit a .vcg
     # file with the same base name as the .y, .yacc, .ym or .yy file.
@@ -76,14 +78,19 @@ def _yaccEmitter(target, source, env, ysuf, hsuf):
 
     return (target, source)
 
+
 def yEmitter(target, source, env):
-    return _yaccEmitter(target, source, env, ['.y', '.yacc'], '$YACCHFILESUFFIX')
+    return _yaccEmitter(target, source, env, ['.y', '.yacc'],
+                        '$YACCHFILESUFFIX')
+
 
 def ymEmitter(target, source, env):
     return _yaccEmitter(target, source, env, ['.ym'], '$YACCHFILESUFFIX')
 
+
 def yyEmitter(target, source, env):
     return _yaccEmitter(target, source, env, ['.yy'], '$YACCHXXFILESUFFIX')
+
 
 def generate(env):
     """Add Builders and construction variables for yacc to an Environment."""
@@ -104,22 +111,23 @@ def generate(env):
     cxx_file.add_action('.yy', YaccAction)
     cxx_file.add_emitter('.yy', yyEmitter)
 
-    env['YACC']      = env.Detect('bison') or 'yacc'
+    env['YACC'] = env.Detect('bison') or 'yacc'
     env['YACCFLAGS'] = SCons.Util.CLVar('')
-    env['YACCCOM']   = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
+    env['YACCCOM'] = '$YACC $YACCFLAGS -o $TARGET $SOURCES'
     env['YACCHFILESUFFIX'] = '.h'
 
     # Apparently, OS X now creates file.hpp like everybody else
     # I have no idea when it changed; it was fixed in 10.4
-    #if env['PLATFORM'] == 'darwin':
+    # if env['PLATFORM'] == 'darwin':
     #    # Bison on Mac OS X just appends ".h" to the generated target .cc
     #    # or .cpp file name.  Hooray for delayed expansion of variables.
     #    env['YACCHXXFILESUFFIX'] = '${TARGET.suffix}.h'
-    #else:
+    # else:
     #    env['YACCHXXFILESUFFIX'] = '.hpp'
     env['YACCHXXFILESUFFIX'] = '.hpp'
 
     env['YACCVCGFILESUFFIX'] = '.vcg'
+
 
 def exists(env):
     return env.Detect(['bison', 'yacc'])

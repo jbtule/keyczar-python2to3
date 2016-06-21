@@ -44,6 +44,7 @@ if SCons.Util.case_sensitive_suffixes('.s', '.S'):
 else:
     ASSuffixes.extend(['.S'])
 
+
 def generate(env):
     """Add Builders and construction variables for masm to an Environment."""
     static_obj, shared_obj = SCons.Tool.createObjBuilders(env)
@@ -60,12 +61,15 @@ def generate(env):
         static_obj.add_emitter(suffix, SCons.Defaults.StaticObjectEmitter)
         shared_obj.add_emitter(suffix, SCons.Defaults.SharedObjectEmitter)
 
-    env['AS']        = 'ml'
-    env['ASFLAGS']   = SCons.Util.CLVar('/nologo')
+    env['AS'] = 'ml'
+    env['ASFLAGS'] = SCons.Util.CLVar('/nologo')
     env['ASPPFLAGS'] = '$ASFLAGS'
-    env['ASCOM']     = '$AS $ASFLAGS /c /Fo$TARGET $SOURCES'
-    env['ASPPCOM']   = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c /Fo$TARGET $SOURCES'
+    env['ASCOM'] = '$AS $ASFLAGS /c /Fo$TARGET $SOURCES'
+    env[
+        'ASPPCOM'
+    ] = '$CC $ASPPFLAGS $CPPFLAGS $_CPPDEFFLAGS $_CPPINCFLAGS /c /Fo$TARGET $SOURCES'
     env['STATIC_AND_SHARED_OBJECTS_ARE_THE_SAME'] = 1
+
 
 def exists(env):
     return env.Detect('ml')

@@ -8,6 +8,7 @@ import sys
 
 import keyczar
 
+
 def Sign(keyset_path):
     if not os.path.exists(keyset_path):
         return
@@ -16,14 +17,15 @@ def Sign(keyset_path):
     signer = keyczar.Signer.Read(keyset_path)
     signature = signer.Sign(input)
 
-    print 'Message:', input
-    print 'Signature:', signature
+    print('Message:', input)
+    print('Signature:', signature)
 
     verifier = keyczar.Verifier.Read(keyset_path)
     assert verifier.Verify(input, signature)
 
+
 if __name__ == '__main__':
     if (len(sys.argv) != 2 or not os.path.exists(sys.argv[1])):
-        print >> sys.stderr, "Provide a valid key set path as argument."
+        print("Provide a valid key set path as argument.", file=sys.stderr)
         sys.exit(1)
     Sign(sys.argv[1])

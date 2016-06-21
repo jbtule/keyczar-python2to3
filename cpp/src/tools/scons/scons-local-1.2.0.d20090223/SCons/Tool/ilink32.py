@@ -33,19 +33,20 @@ import SCons.Tool
 import SCons.Tool.bcc32
 import SCons.Util
 
+
 def generate(env):
     """Add Builders and construction variables for Borland ilink to an
     Environment."""
     SCons.Tool.createSharedLibBuilder(env)
     SCons.Tool.createProgBuilder(env)
 
-    env['LINK']        = '$CC'
-    env['LINKFLAGS']   = SCons.Util.CLVar('')
-    env['LINKCOM']     = '$LINK -q $LINKFLAGS -e$TARGET $SOURCES $LIBS'
-    env['LIBDIRPREFIX']=''
-    env['LIBDIRSUFFIX']=''
-    env['LIBLINKPREFIX']=''
-    env['LIBLINKSUFFIX']='$LIBSUFFIX'
+    env['LINK'] = '$CC'
+    env['LINKFLAGS'] = SCons.Util.CLVar('')
+    env['LINKCOM'] = '$LINK -q $LINKFLAGS -e$TARGET $SOURCES $LIBS'
+    env['LIBDIRPREFIX'] = ''
+    env['LIBDIRSUFFIX'] = ''
+    env['LIBLINKPREFIX'] = ''
+    env['LIBLINKSUFFIX'] = '$LIBSUFFIX'
 
 
 def exists(env):

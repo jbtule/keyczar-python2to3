@@ -27,7 +27,6 @@
 # THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 """Keep a local directory in sync with a website tar file.
 
 This module downloads a tgz, and expands it as needed.
@@ -41,7 +40,7 @@ import http_download
 
 
 def SyncTgz(url, target, username=None, password=None, verbose=True):
-  """Download a file from a remote server.
+    """Download a file from a remote server.
 
   Args:
     url: A URL to download from.
@@ -50,23 +49,24 @@ def SyncTgz(url, target, username=None, password=None, verbose=True):
     password: Optional password for download (ignored if no username).
     verbose: Flag indicating if status shut be printed.
   """
-  shutil.rmtree(target, True)
-  tgz_filename = target + '.tgz'
+    shutil.rmtree(target, True)
+    tgz_filename = target + '.tgz'
 
-  if verbose:
-    print 'Downloading %s to %s...' % (url, tgz_filename)
-  http_download.HttpDownload(url, tgz_filename,
-                             username=username, password=password)
-
-  if verbose:
-    print 'Extracting from %s...' % tgz_filename
-  tgz = tarfile.open(tgz_filename, 'r')
-  for m in tgz:
     if verbose:
-      print m.name
-    tgz.extract(m, target)
-  tgz.close()
-  os.remove(tgz_filename)
+        print 'Downloading %s to %s...' % (url, tgz_filename)
+    http_download.HttpDownload(url, tgz_filename,
+                               username=username,
+                               password=password)
 
-  if verbose:
-    print 'Update complete.'
+    if verbose:
+        print 'Extracting from %s...' % tgz_filename
+    tgz = tarfile.open(tgz_filename, 'r')
+    for m in tgz:
+        if verbose:
+            print m.name
+        tgz.extract(m, target)
+    tgz.close()
+    os.remove(tgz_filename)
+
+    if verbose:
+        print 'Update complete.'

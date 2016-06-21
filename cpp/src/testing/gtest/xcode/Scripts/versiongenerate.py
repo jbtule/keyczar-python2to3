@@ -1,5 +1,4 @@
 #/usr/bin/python
-
 """A script to prepare version informtion for use the gtest Info.plist file.
 
   This script extracts the version information from the configure.ac file and
@@ -25,11 +24,11 @@ import re
 
 # Read the command line argument (the output directory for Version.h)
 if (len(sys.argv) < 3):
-  print "Usage: /usr/bin/python versiongenerate.py input_dir output_dir"
-  sys.exit(1)
+    print("Usage: /usr/bin/python versiongenerate.py input_dir output_dir")
+    sys.exit(1)
 else:
-  input_dir = sys.argv[1]
-  output_dir = sys.argv[2]
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
 
 # Read the first 1024 characters of the configure.ac file
 config_file = open("%s/configure.ac" % input_dir, 'r')
